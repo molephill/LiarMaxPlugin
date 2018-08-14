@@ -1,0 +1,175 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// 中文(简体，中国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // 中文(简体，中国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// 英语(美国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PANEL DIALOGEX 0, 0, 319, 225
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Export Options",IDC_STATIC,15,15,92,83
+    CONTROL         "Export Geometry",IDC_EXP_GEOMETRY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,21,30,76,10
+    CONTROL         "Export Splines",IDC_EXP_SPLINES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,21,42,76,10
+    CONTROL         "Export Controller",IDC_EXP_CONTROLLERS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,21,55,81,10
+    CONTROL         "Export Material",IDC_EXP_MATERIAL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,21,68,76,10
+    CONTROL         "Export Modifier",IDC_EXP_MODIFIERS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,21,81,76,10
+    GROUPBOX        "Gemo Options",IDC_STATIC,16,104,92,106
+    CONTROL         "Object Sapce",IDC_EXP_OBJECT_SPACE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,118,64,10
+    CONTROL         "Face Base On Smgrps",IDC_EXP_BASE_ON_SMGRPS,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,23,129,76,19
+    CONTROL         "Mapping Channels",IDC_EXP_MAPPING_CHANNEL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,150,76,10
+    CONTROL         "Vertex Normal",IDC_EXP_VERTEX_NORMAL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,166,68,10
+    CONTROL         "Texture Coord",IDC_EXP_VERTEX_UV,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,180,68,10
+    CONTROL         "Texture Color",IDC_EXP_VERTEX_CORLOR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,195,68,10
+    CONTROL         "",IDC_STATIC_FRAME,"CustEdit",WS_TABSTOP,173,20,38,11
+    LTEXT           "Static Frame",IDC_STATIC,118,22,49,8
+    CONTROL         "",IDC_SAMPLE_FRAME,"CustEdit",WS_TABSTOP,173,40,38,11
+    LTEXT           "Frames/Sample",IDC_STATIC,117,42,53,8
+    GROUPBOX        "Controller Options",IDC_STATIC,120,62,92,65
+    CONTROL         "Relative",IDC_EXP_RELATIVE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,126,74,48,10
+    CONTROL         "Constraints",IDC_EXP_CONSTRAINTS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,126,86,76,10
+    CONTROL         "Force Sample",IDC_EXP_SAMPLECONT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,126,98,76,10
+    CONTROL         "Quaternions",IDC_EXP_QUATERNIONS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,126,110,60,10
+    GROUPBOX        "Modifiers Options",IDC_STATIC,120,131,92,38
+    CONTROL         "Skin",IDC_EXP_SKIN,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,126,143,32,10
+    CONTROL         "General",IDC_EXP_GENMOD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,126,155,76,10
+    GROUPBOX        "Normals",IDC_STATIC,120,172,92,38
+    CONTROL         "Per Vertex",IDC_NORMALS_LIST,"Button",BS_AUTORADIOBUTTON | WS_GROUP,126,184,56,10
+    CONTROL         "Per Face",IDC_NORMALS_FACE,"Button",BS_AUTORADIOBUTTON,126,197,48,10
+    GROUPBOX        "Coord System",IDC_STATIC,219,111,85,60
+    CONTROL         "3DS Max",IDC_COORD_MAX,"Button",BS_AUTORADIOBUTTON | WS_GROUP,224,125,44,10
+    CONTROL         "DirectX",IDC_COORD_DIRECTX,"Button",BS_AUTORADIOBUTTON,224,139,44,10
+    CONTROL         "OpenGL",IDC_COORD_OPENGL,"Button",BS_AUTORADIOBUTTON,224,153,40,10
+    CONTROL         "Save Mesh XML File",IDC_SAVE_MESH_XML,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,218,186,88,10
+    PUSHBUTTON      "OK",IDC_BUTTON_OK,242,18,50,33
+    PUSHBUTTON      "Cancel",IDC_BUTTON_CANCEL,242,55,50,33
+    CONTROL         "",IDC_STATIC_FRAME_SPIN,"SpinnerControl",0x0,213,20,11,11
+    CONTROL         "",IDC_SAMPLE_FRAME_SPIN,"SpinnerControl",0x0,214,42,11,10
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_PANEL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 312
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 218
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_PANEL AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_LIBDESCRIPTION      "Mesh & Anim Export"
+    IDS_CATEGORY            "Max Export"
+    IDS_CLASS_NAME          "LiarMaxPlugin"
+    IDS_PARAMS              "Parameters"
+    IDS_SPIN                "Spin"
+END
+
+#endif    // 英语(美国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
