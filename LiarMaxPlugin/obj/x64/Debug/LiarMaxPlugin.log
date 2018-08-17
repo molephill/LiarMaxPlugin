@@ -1,4 +1,29 @@
-﻿  LINK : 没有找到 D:\InitTools\3DMax2019\3ds Max 2019\Plugins\LiarMaxPlugin.dle 或上一个增量链接没有生成它；正在执行完全链接
+﻿  LiarMaterial.cpp
+  LiarMesh.cpp
+  LiarPluginCfg.cpp
+  LiarPluginRead.cpp
+  LiarVertexBuffer.cpp
+  Matrices.cpp
+  DllEntry.cpp
+  LiarMaxDialogMgr.cpp
+  LiarMaxNodeParse.cpp
+  LiarMaxPlugin.cpp
+  LiarPluginWrite.cpp
+e:\c++\liarmaxplugin\pluginutil\liarmaterial.cpp(80): warning C4100: “path”: 未引用的形参
+  e:\c++\liarmaxplugin\liarmaxplugin\dllentry.cpp(79): TODO: Perform initialization here.
+  e:\c++\liarmaxplugin\liarmaxplugin\dllentry.cpp(88): TODO: Perform un-initialization here.
+e:\c++\liarmaxplugin\liarmaxplugin\liarmaxnodeparse.cpp(386): warning C4100: “tmpGameMesh”: 未引用的形参
+e:\c++\liarmaxplugin\liarmaxplugin\liarmaxnodeparse.cpp(386): warning C4100: “ctr”: 未引用的形参
+  e:\c++\liarmaxplugin\liarmaxplugin\liarmaxplugin.cpp(116): TODO: Returns the number of file name extensions supported by the plug-in.
+  e:\c++\liarmaxplugin\liarmaxplugin\liarmaxplugin.cpp(122): TODO: Return the 'i-th' file name extension (i.e. "3DS").
+  e:\c++\liarmaxplugin\liarmaxplugin\liarmaxplugin.cpp(128): TODO: Return long ASCII description (i.e. "Targa 2.0 Image File")
+  e:\c++\liarmaxplugin\liarmaxplugin\liarmaxplugin.cpp(134): TODO: Return short ASCII description (i.e. "Targa")
+  e:\c++\liarmaxplugin\liarmaxplugin\liarmaxplugin.cpp(140): TODO: Return ASCII Author name
+  e:\c++\liarmaxplugin\liarmaxplugin\liarmaxplugin.cpp(146): TODO: Return ASCII Copyright message
+  e:\c++\liarmaxplugin\liarmaxplugin\liarmaxplugin.cpp(164): TODO: Return Version number * 100 (i.e. v3.01 = 301)
+  e:\c++\liarmaxplugin\liarmaxplugin\liarmaxplugin.cpp(175): TODO: Decide which options to support.  Simply return true for each option supported by each Extension the exporter supports.
+  e:\c++\liarmaxplugin\liarmaxplugin\liarmaxplugin.cpp(182): TODO: Implement the actual file Export here and
+  LINK : 没有找到 D:\InitTools\3DMax2019\3ds Max 2019\Plugins\LiarMaxPlugin.dle 或上一个增量链接没有生成它；正在执行完全链接
     正在创建库 E:\c++\LiarMaxPlugin\LiarMaxPlugin\\obj\x64\Debug\\LiarMaxPlugin.lib 和对象 E:\c++\LiarMaxPlugin\LiarMaxPlugin\\obj\x64\Debug\\LiarMaxPlugin.exp
   LiarMaxPlugin.vcxproj -> D:\InitTools\3DMax2019\3ds Max 2019\Plugins\LiarMaxPlugin.dle
   LiarMaxPlugin.vcxproj -> D:\InitTools\3DMax2019\3ds Max 2019\Plugins\LiarMaxPlugin.dle.pdb (Full PDB)

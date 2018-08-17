@@ -16,6 +16,36 @@
 
 #define LiarMaxPlugin_CLASS_ID	Class_ID(0x8035d5d8, 0xdb84fbae)
 
+class LiarMaxPlugin : public SceneExport {
+public:
+	//Constructor/Destructor
+	LiarMaxPlugin();
+	~LiarMaxPlugin();
+
+	int				ExtCount();					// Number of extensions supported
+	const TCHAR *	Ext(int n);					// Extension #n (i.e. "3DS")
+	const TCHAR *	LongDesc();					// Long ASCII description (i.e. "Autodesk 3D Studio File")
+	const TCHAR *	ShortDesc();				// Short ASCII description (i.e. "3D Studio")
+	const TCHAR *	AuthorName();				// ASCII Author name
+	const TCHAR *	CopyrightMessage();			// ASCII Copyright message
+	const TCHAR *	OtherMessage1();			// Other message #1
+	const TCHAR *	OtherMessage2();			// Other message #2
+	unsigned int	Version();					// Version number * 100 (i.e. v3.01 = 301)
+	void			ShowAbout(HWND hWnd);		// Show DLL's "About..." box
+
+	BOOL SupportsOptions(int ext, DWORD options);
+	int  DoExport(const TCHAR *name, ExpInterface *ei, Interface *i, BOOL suppressPrompts = FALSE, DWORD options = 0);
+
+private:
+	Liar::LiarMaxDialogMgr* m_liarDialogMgr;
+	std::string m_name;
+	bool m_options;
+
+public:
+	Liar::LiarMaxDialogMgr* GetDialogMgr() { return m_liarDialogMgr; };
+	void Handler(HWND hWnd, WPARAM wParam);
+};
+
 
 class LiarMaxPluginClassDesc : public ClassDesc2 
 {
@@ -53,24 +83,32 @@ INT_PTR CALLBACK LiarMaxPluginOptionsDlgProc(HWND hWnd,UINT message,WPARAM wPara
 			CenterWindow(hWnd,GetParent(hWnd));
 			return TRUE;
 		case WM_COMMAND:
-			imp->GetDialogMgr()->ChangeHandle(hWnd, wParam);
-			break;
+			imp->Handler(hWnd, wParam);
+			return TRUE;
 		case WM_CLOSE:
 			EndDialog(hWnd, 0);
-			return 1;
+			return TRUE;
+		default:
+			return FALSE;
 	}
 	return 0;
 }
 
 
 //--- LiarMaxPlugin -------------------------------------------------------
-LiarMaxPlugin::LiarMaxPlugin():liarPluginCfg(new Liar::LiarPluginCfg()), m_liarDialogMgr(new Liar::LiarMaxDialogMgr())
+LiarMaxPlugin::LiarMaxPlugin()
+	:m_liarDialogMgr(new Liar::LiarMaxDialogMgr())
 {
 }
 
 LiarMaxPlugin::~LiarMaxPlugin() 
 {
+	delete m_liarDialogMgr;
+}
 
+void LiarMaxPlugin::Handler(HWND hWnd, WPARAM wParam)
+{
+	m_liarDialogMgr->ChangeHandle(hWnd, wParam, m_options, m_name);
 }
 
 int LiarMaxPlugin::ExtCount()
@@ -139,9 +177,12 @@ BOOL LiarMaxPlugin::SupportsOptions(int /*ext*/, DWORD /*options*/)
 }
 
 
-int	LiarMaxPlugin::DoExport(const TCHAR* /*name*/, ExpInterface* /*ei*/, Interface* /*ip*/, BOOL suppressPrompts, DWORD /*options*/)
+int	LiarMaxPlugin::DoExport(const TCHAR* name, ExpInterface* /*ei*/, Interface* /*ip*/, BOOL suppressPrompts, DWORD options)
 {
 	#pragma message(TODO("Implement the actual file Export here and"))
+
+	m_options = (options & SCENE_EXPORT_SELECTED) ? true : false;
+	Liar::StringUtil::GetTChar2Char(name, m_name);
 
 	if(!suppressPrompts)
 		DialogBoxParam(hInstance, 
@@ -149,8 +190,7 @@ int	LiarMaxPlugin::DoExport(const TCHAR* /*name*/, ExpInterface* /*ei*/, Interfa
 				GetActiveWindow(), 
 				LiarMaxPluginOptionsDlgProc, (LPARAM)this);
 
-	#pragma message(TODO("return TRUE If the file is exported properly"))
-	return FALSE;
+	return TRUE;
 }
 
 

@@ -9,17 +9,20 @@ namespace Liar
 		, quaternions(true)
 		, skin(true)
 		, perVertex(true)
-		, coordSystemType(LiarCoordSysType::OpenGL)
 
 		, exportSplines(false), exportController(false), exportModifier(false)
 		, objectSpace(false), faceBaseOnSmgrsp(false), vertexColor(false), mappingChannels(false)
 
 		, relative(false), constraints(false), forceSample(false)
-		, general(false)
+		, skeleton(false), general(false)
 		, perFace(false)
 		, staticFrame(0), framePerSample(4)
 		, pluginVersion(100)
 	{
+#ifdef PLUGINS
+		coordSystemType = IGameConversionManager::CoordSystem::IGAME_OGL;
+#endif // PLUGINS
+
 	}
 
 

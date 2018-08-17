@@ -49,27 +49,21 @@ namespace Liar
 
 	private:
 		std::vector<Liar::LiarVertexBuffer*>* m_allVertexBuffers;
-		int m_bufferSize;
-
 		std::vector<unsigned int>* m_indices;
-
 		int m_vertexOpen;
 
 	public:
 		std::vector<Liar::LiarVertexBuffer*>* GetBuffers() { return m_allVertexBuffers; };
 		std::vector<unsigned int>* GetIndices() { return m_indices; };
 
-
-		unsigned int GetBufferSize() { return m_bufferSize; };
-		int GetIndicesSize() { return static_cast<int>(m_indices->size()); };
-
-		void SetBufferSize(unsigned int v) { m_bufferSize = v; };
-		LiarVertexBuffer* GetBuffer(int index) { return m_allVertexBuffers->at(index); };
-
-		void EraseIndexBuff(int);
+		size_t GetBufferSize() { return m_allVertexBuffers ? m_allVertexBuffers->size() : 0; };
+		size_t GetIndicesSize() { return m_indices->size(); };
 
 		void SetVertexOpen(int v) { m_vertexOpen = v; };
 
+		LiarVertexBuffer* GetBuffer(size_t);
+
+		void EraseIndexBuff(int);
 		friend std::ostream& operator<<(std::ostream& os, const Liar::LiarGeometry& m);
         
 #ifndef PLUGINS
@@ -92,11 +86,15 @@ namespace Liar
 
 	private:
 		Liar::LiarGeometry* m_geometry;
-		Liar::LiarMaterial* m_material;
+		std::vector<Liar::LiarMaterial*>* m_materials;
 
 	public:
 		Liar::LiarGeometry* GetGeo() { return m_geometry; };
-		Liar::LiarMaterial* GetMat() { return m_material; };
+
+		std::vector<Liar::LiarMaterial*>* GetMatrials() { return m_materials; };
+		Liar::LiarMaterial* GetMat(size_t index) { return m_materials->at(index); };
+
+		void EraseMaterial(int);
 
 		std::string meshName;
 
@@ -105,10 +103,7 @@ namespace Liar
 		friend std::ostream& operator<<(std::ostream& os, const Liar::LiarMesh& m);
 
 #ifdef PLUGINS
-		int vertexNum;
-		int faceNum;
 		std::string saveName;
-		std::string& GetMaterialName() { return m_material->name; };
 #else
 	public:
 		void Upload();

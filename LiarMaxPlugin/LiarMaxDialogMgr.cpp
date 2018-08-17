@@ -1,23 +1,24 @@
-#include "LiarMaxPlugin.h"
+﻿#include "LiarMaxPlugin.h"
 #include "3dsmaxport.h"
 #include "LiarMaxDialogMgr.h"
+#include "LiarMaxNodeParse.h"
+#include "LiarPluginWrite.h"
 
 namespace Liar
 {
-	LiarMaxDialogMgr::LiarMaxDialogMgr():m_pluginCfg(nullptr)
+	LiarMaxDialogMgr::LiarMaxDialogMgr():m_pluginCfg(new Liar::LiarPluginCfg())
 	{
 	}
 
 
 	LiarMaxDialogMgr::~LiarMaxDialogMgr()
 	{
+		delete m_pluginCfg;
 		m_pluginCfg = nullptr;
 	}
 
 	void LiarMaxDialogMgr::Init(HWND hWnd, LPARAM lParam)
 	{
-		LiarMaxPlugin* exp = (LiarMaxPlugin *)lParam;
-		m_pluginCfg = exp->liarPluginCfg;
 		DLSetWindowLongPtr(hWnd, lParam);
 		CenterWindow(hWnd, GetParent(hWnd));
 
@@ -54,6 +55,7 @@ namespace Liar
 		CheckDlgButton(hWnd, IDC_EXP_SAMPLECONT, m_pluginCfg->forceSample);
 		CheckDlgButton(hWnd, IDC_EXP_QUATERNIONS, m_pluginCfg->quaternions);
 
+		CheckDlgButton(hWnd, IDC_EXP_SKELETON, m_pluginCfg->skeleton);
 		CheckDlgButton(hWnd, IDC_EXP_SKIN, m_pluginCfg->skin);
 		CheckDlgButton(hWnd, IDC_EXP_GENMOD, m_pluginCfg->general);
 
@@ -76,7 +78,7 @@ namespace Liar
 		SetWindowText(hWnd, Title);
 	}
 
-	void LiarMaxDialogMgr::ChangeHandle(HWND hWnd, WPARAM wParam)
+	void LiarMaxDialogMgr::ChangeHandle(HWND hWnd, WPARAM wParam, bool selectd, const std::string& path)
 	{
 		switch (LOWORD(wParam))
 		{
@@ -95,6 +97,31 @@ namespace Liar
 		case IDC_EXP_VERTEX_NORMAL:
 			m_pluginCfg->vertexNormal = IsDlgButtonChecked(hWnd, IDC_EXP_VERTEX_NORMAL) > 0 ? true : false;
 			SetVertexNormalEnable(hWnd);
+			break;
+		case IDC_BUTTON_OK:
+		{
+			ConfirmHandle(hWnd);
+
+			Liar::LiarMaxNodeParse* parse = new Liar::LiarMaxNodeParse();
+			int result = parse->ParseRootNode(m_pluginCfg, selectd);
+
+			if (result == TRUE)
+			{
+				Liar::LiarPluginWrite::WriteMesh(parse, m_pluginCfg, path);
+				MessageBox(hWnd, L"导出成功!", L"导出", MB_ICONINFORMATION);
+			}
+			else
+			{
+				MessageBox(hWnd, L"导出失败!", L"导出", MB_ICONINFORMATION);
+			}
+
+			delete parse;
+
+			EndDialog(hWnd, 1);
+			break;
+		}
+		case IDCANCEL:
+			EndDialog(hWnd, 0);
 			break;
 		}
 	}
@@ -119,20 +146,21 @@ namespace Liar
 		m_pluginCfg->forceSample = IsDlgButtonChecked(hWnd, IDC_EXP_SAMPLECONT) > 0 ? true : false;
 		m_pluginCfg->quaternions = IsDlgButtonChecked(hWnd, IDC_EXP_QUATERNIONS) > 0 ? true : false;
 
+		m_pluginCfg->skeleton = IsDlgButtonChecked(hWnd, IDC_EXP_SKELETON) > 0 ? true : false;
 		m_pluginCfg->skin = IsDlgButtonChecked(hWnd, IDC_EXP_SKIN) > 0 ? true : false;
 		m_pluginCfg->general = IsDlgButtonChecked(hWnd, IDC_EXP_GENMOD) > 0 ? true : false;
 
 		if (IsDlgButtonChecked(hWnd, IDC_COORD_MAX))
 		{
-			m_pluginCfg->coordSystemType = LiarCoordSysType::Max3DS;
+			m_pluginCfg->coordSystemType = IGameConversionManager::CoordSystem::IGAME_MAX;
 		}
 		else if (IsDlgButtonChecked(hWnd, IDC_COORD_OPENGL))
 		{
-			m_pluginCfg->coordSystemType = LiarCoordSysType::OpenGL;
+			m_pluginCfg->coordSystemType = IGameConversionManager::CoordSystem::IGAME_OGL;
 		}
 		else
 		{
-			m_pluginCfg->coordSystemType = LiarCoordSysType::DirectX;
+			m_pluginCfg->coordSystemType = IGameConversionManager::CoordSystem::IGAME_D3D;
 		}
 
 		ISpinnerControl* spin = GetISpinner(GetDlgItem(hWnd, IDC_STATIC_FRAME));
@@ -164,6 +192,7 @@ namespace Liar
 
 	void LiarMaxDialogMgr::SetModifierEnable(HWND hWnd)
 	{
+		EnableWindow(GetDlgItem(hWnd, IDC_EXP_SKELETON), m_pluginCfg->exportModifier);
 		EnableWindow(GetDlgItem(hWnd, IDC_EXP_SKIN), m_pluginCfg->exportModifier);
 		EnableWindow(GetDlgItem(hWnd, IDC_EXP_GENMOD), m_pluginCfg->exportModifier);
 	}

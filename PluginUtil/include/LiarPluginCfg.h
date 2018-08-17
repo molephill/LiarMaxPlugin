@@ -1,14 +1,14 @@
 #pragma once
 
+#include <PluginDefine.h>
+
+#ifdef PLUGINS
+#include <IConversionManager.h>
+#endif // PLUGINS
+
+
 namespace Liar
 {
-	enum LiarCoordSysType
-	{
-		Max3DS = 0,
-		DirectX,
-		OpenGL
-	};
-
 	class LiarPluginCfg
 	{
 	public:
@@ -38,6 +38,7 @@ namespace Liar
 		bool quaternions;
 
 		// modifiers options;
+		bool skeleton;
 		bool skin;
 		bool general;
 
@@ -49,8 +50,10 @@ namespace Liar
 		int staticFrame;
 		int framePerSample;
 
+#ifdef PLUGINS
 		// coord System
-		LiarCoordSysType coordSystemType;
+		IGameConversionManager::CoordSystem coordSystemType;
+#endif // PLUGINS
 
 		// version
 		int pluginVersion;

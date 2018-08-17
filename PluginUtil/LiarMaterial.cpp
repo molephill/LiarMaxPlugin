@@ -9,7 +9,7 @@ namespace Liar
 {
 
 	// ====================  Œ∆¿Ìƒ⁄»› ================
-	LiarTexContext::LiarTexContext() :m_path(""),m_id(0),m_textureType(TextureType::None)
+	LiarTexContext::LiarTexContext() :m_path("")
 	{
 #ifndef PLUGINS
 		m_textureId = 0;
@@ -66,27 +66,21 @@ namespace Liar
 
 	// ====================  Œ∆¿Ì ================
 
-	LiarTexture::LiarTexture():m_name(""), m_shininess(0.0f)
+	LiarTexture::LiarTexture(bool init): m_textureType("")
 	{
-		m_ambient = new Liar::Vector3D();
-		m_diffuse = new Liar::Vector3D();
-		m_specular = new Liar::Vector3D();
+		if (init) m_texContext = new Liar::LiarTexContext();
 	}
 
 
 	LiarTexture::~LiarTexture()
 	{
-		delete m_ambient;
-		delete m_diffuse;
-		delete m_specular;
+		if(m_texContext) delete m_texContext;
 	}
 
 	void LiarTexture::SetPath(const char* path)
 	{
-		m_name = path;
-
 #ifndef PLUGINS
-		m_texContext = AssetsMgr::GetInstance().GetTexContext(m_name);
+		m_texContext = AssetsMgr::GetInstance().GetTexContext(path);
 #endif // !PLUGINS
 
 	}
@@ -115,7 +109,6 @@ namespace Liar
 	LiarMaterial::LiarMaterial()
 	{
 		m_allTextures = new std::vector<Liar::LiarTexture*>();
-		m_textureSize = 0;
 	}
 
 
@@ -132,14 +125,13 @@ namespace Liar
 		{
 			delete *it;
 			it = m_allTextures->erase(it);
-			--m_textureSize;
 		}
 	}
 
 #ifndef PLUGINS
 	void LiarMaterial::Render(Liar::Shader& shader)
 	{
-		for (int i = 0; i < m_textureSize; ++i)
+		for (size_t i = 0; i < m_allTextures->size(); ++i)
 		{
 			Liar::LiarTexture* texture = m_allTextures->at(i);
 			texture->Render(shader, i);

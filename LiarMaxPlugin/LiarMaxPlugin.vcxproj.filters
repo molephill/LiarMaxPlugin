@@ -45,6 +45,15 @@
     <ClCompile Include="LiarMaxDialogMgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LiarMaxNodeParse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LiarPluginWrite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PluginUtil\LiarPluginRead.cpp">
+      <Filter>Source Files\Includes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="LiarMaxPlugin.def">
@@ -90,6 +99,15 @@
     </ClInclude>
     <ClInclude Include="LiarMaxDialogMgr.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LiarMaxNodeParse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LiarPluginWrite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PluginUtil\include\LiarPluginRead.h">
+      <Filter>Header Files\Includes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

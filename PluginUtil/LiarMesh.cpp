@@ -38,12 +38,11 @@ namespace Liar
 
 	// =============================== Geometory ===============================
 
-	LiarGeometry::LiarGeometry():m_vertexOpen(0)
+	LiarGeometry::LiarGeometry()
 	{
 		m_allVertexBuffers = new std::vector<Liar::LiarVertexBuffer*>();
-		m_bufferSize = 0;
-
 		m_indices = new std::vector<unsigned int>();
+		m_vertexOpen = 0;
 	}
 
 	LiarGeometry::~LiarGeometry()
@@ -56,20 +55,32 @@ namespace Liar
 		delete m_indices;
 	}
 
+	Liar::LiarVertexBuffer* LiarGeometry::GetBuffer(size_t index)
+	{
+		if (m_allVertexBuffers && index < m_allVertexBuffers->size())
+		{
+			return m_allVertexBuffers->at(index);
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+
 	void LiarGeometry::EraseIndexBuff(int index)
 	{
 		for (std::vector<Liar::LiarVertexBuffer*>::iterator it = m_allVertexBuffers->begin() + index; it != m_allVertexBuffers->end();)
 		{
 			delete *it;
 			it = m_allVertexBuffers->erase(it);
-			--m_bufferSize;
 		}
 	}
 
 	std::ostream& operator<<(std::ostream& os, const Liar::LiarGeometry& m)
 	{
-		os << "buffSize: " << m.m_bufferSize << "\n";
-		for (size_t i = 0; i < m.m_bufferSize; ++i)
+		size_t buffSize = m.m_allVertexBuffers->size();
+		os << "buffSize: " << buffSize << "\n";
+		for (size_t i = 0; i < buffSize; ++i)
 		{
 			os << "buffer index: " << i << "\nbuffer info: " << *(m.m_allVertexBuffers->at(i)) << "\n";
 		}
@@ -100,7 +111,7 @@ namespace Liar
 		size_t colorSize = Liar::LiarVertexBuffer::GetColorSize();
 		size_t uvSize = Liar::LiarVertexBuffer::GetUVSize();
 
-		bool pos = Liar::LairVersionCtr::CheckVertexOpen(m_vertexOpen, LIAR_POSITION);
+		bool pos = true;
 		bool normal = Liar::LairVersionCtr::CheckVertexOpen(m_vertexOpen, LIAR_NORMAL);
 		bool color = Liar::LairVersionCtr::CheckVertexOpen(m_vertexOpen, LIAR_COLOR);
 		bool uv = Liar::LairVersionCtr::CheckVertexOpen(m_vertexOpen, LIAR_UV);
@@ -143,10 +154,11 @@ namespace Liar
 
 
 		//size_t oneSize = Liar::LiarVertexBuffer::GetBuffSize();
-		size_t totalSize = m_bufferSize * oneSize;
+		size_t bufferSize = m_allVertexBuffers->size();
+		size_t totalSize = bufferSize * oneSize;
 
 		glBufferData(GL_ARRAY_BUFFER, totalSize, nullptr, GL_STATIC_DRAW);
-		for (int i = 0; i < m_bufferSize; ++i)
+		for (size_t i = 0; i < bufferSize; ++i)
 		{
 			size_t start = i * oneSize;
 			Liar::LiarVertexBuffer* buffData = m_allVertexBuffers->at(i);
@@ -204,7 +216,7 @@ namespace Liar
 
 	LiarMesh::LiarMesh() :
 		m_geometry(new Liar::LiarGeometry())
-		, m_material(new Liar::LiarMaterial())
+		, m_materials(new std::vector<Liar::LiarMaterial*>())
 	{
 #ifndef PLUGINS
 		m_refCount = 0;
@@ -216,7 +228,16 @@ namespace Liar
 	LiarMesh::~LiarMesh()
 	{
 		delete m_geometry;
-		delete m_material;
+		delete m_materials;
+	}
+
+	void LiarMesh::EraseMaterial(int index)
+	{
+		for (std::vector<Liar::LiarMaterial*>::iterator it = m_materials->begin() + index; it != m_materials->end();)
+		{
+			delete *it;
+			it = m_materials->erase(it);
+		}
 	}
 
 	std::ostream& operator<<(std::ostream& os, const Liar::LiarMesh& m)
@@ -236,7 +257,10 @@ namespace Liar
 	void LiarMesh::Render(Liar::Shader& shader)
 	{
 		m_geometry->Render();
-		m_material->Render(shader);
+		for (size_t i = 0; i < m_materials->size(); ++i)
+		{
+			m_materials->at(i)->Render(shader);
+		}
 	}
 
 #endif // PLUGINS
