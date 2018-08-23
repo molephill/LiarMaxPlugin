@@ -19,7 +19,11 @@ namespace Liar
 		static void WriteLiarGeometery(Liar::LiarPluginCfg*, Liar::LiarGeometry*, FILE*);
 		static void WriteLiarMaterial(Liar::LiarMesh*, FILE*);
 
-		static void WriteLiarVertexBuffer(Liar::LiarPluginCfg*, Liar::LiarVertexBuffer*, FILE*);
+		static void WriteLiarRawData(Liar::LiarVertexRawData*, FILE*);
+		static void WriteLiarVecs(std::vector<Liar::Vector3D*>*, FILE*);
+
+		static void WriteLiarFaces(Liar::LiarGeometry*, FILE*);
+
 		static void WriteLiarTexture(Liar::LiarTexture*, FILE*);
 
 		static void WriteString(std::string&, FILE*);

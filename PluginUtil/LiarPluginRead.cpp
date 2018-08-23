@@ -148,19 +148,55 @@ namespace Liar
 			geo->GetIndices()->push_back(index);
 		}
 
-		// read bufferSize
-		int bufferSize = 0;
-		fread(&bufferSize, sizeof(int), 1, pFile);
-		// check vertexopen
-		bool normal = Liar::LairVersionCtr::CheckVertexOpen(vertexOpen, LIAR_NORMAL);
-		bool color = Liar::LairVersionCtr::CheckVertexOpen(vertexOpen, LIAR_COLOR);
-		bool uv = Liar::LairVersionCtr::CheckVertexOpen(vertexOpen, LIAR_UV);
-		// read buffer
-		for (int i = 0; i < bufferSize; ++i)
+		// read mesh`s rawData
+		ReadLiarRawData(geo, pFile);
+		// read mesh`s faces
+		ReadLiarFaces(geo, pFile);
+	}
+
+	void LiarPluginRead::ReadLiarRawData(Liar::LiarGeometry* geo, FILE* pFile)
+	{
+		geo->GetRawData()->SetPos(LiarPluginRead::ReadLiarVecs(pFile));
+		geo->GetRawData()->SetNorm(LiarPluginRead::ReadLiarVecs(pFile));
+		geo->GetRawData()->SetTexCoord(LiarPluginRead::ReadLiarVecs(pFile));
+		geo->GetRawData()->SetColor(LiarPluginRead::ReadLiarVecs(pFile));
+	}
+
+	std::vector<Liar::Vector3D*>* LiarPluginRead::ReadLiarVecs(FILE* pFile)
+	{
+		size_t size = 0;
+		// read size;
+		fread(&size, sizeof(int), 1, pFile);
+		// read data
+		if (size > 0)
 		{
-			Liar::LiarVertexBuffer* buffer = new Liar::LiarVertexBuffer();
-			geo->GetBuffers()->push_back(buffer);
-			ReadLiarVertexBuffer(buffer, pFile, normal, color, uv);
+			size_t p3Size = sizeof(Liar::Vector3D);
+			std::vector<Liar::Vector3D*>* vec = new std::vector<Liar::Vector3D*>();
+			for (size_t i = 0; i < size; ++i)
+			{
+				Liar::Vector3D* tmp = new Liar::Vector3D();
+				fread(tmp, p3Size, 1, pFile);
+				vec->push_back(tmp);
+			}
+			return vec;
+		}
+
+		return nullptr;
+	}
+
+	void LiarPluginRead::ReadLiarFaces(Liar::LiarGeometry* geo, FILE* pFile)
+	{
+		size_t size = 0;
+
+		// read size;
+		fread(&size, sizeof(int), 1, pFile);
+		// read data
+		size_t pSize = sizeof(Liar::LiarVertexDefine);
+		for (size_t i = 0; i < size; ++i)
+		{
+			Liar::LiarVertexDefine* define = new Liar::LiarVertexDefine();
+			fread(define, pSize, 1, pFile);
+			geo->GetVertexFaces()->push_back(define);
 		}
 	}
 
@@ -173,6 +209,10 @@ namespace Liar
 		{
 			Liar::LiarMaterial* mat = new Liar::LiarMaterial();
 			mesh->GetMatrials()->push_back(mat);
+
+			// write matType
+			ReadString(mat->GetType(), pFile);
+
 			int texSize = 0;
 			// read texSize;
 			fread(&texSize, sizeof(int), 1, pFile);
@@ -182,34 +222,6 @@ namespace Liar
 				Liar::LiarTexture* tex = ReadLiarTexture(pFile);
 				mat->GetTextures()->push_back(tex);
 			}
-		}
-	}
-
-	void LiarPluginRead::ReadLiarVertexBuffer(Liar::LiarVertexBuffer* buff, FILE* pFile, bool normal, bool color, bool uv)
-	{
-		size_t p3Size = sizeof(Liar::Vector3D);
-		// read pos
-		buff->position = new Liar::Vector3D();
-		fread(buff->position, p3Size, 1, pFile);
-
-		// read normal
-		if (normal)
-		{
-			buff->normal = new Liar::Vector3D();
-			fread(buff->normal, p3Size, 1, pFile);
-		}
-		// read color
-		if (color)
-		{
-			buff->color = new Liar::Vector3D();
-			fread(buff->color, p3Size, 1, pFile);
-		}
-		// read uv
-		if (uv)
-		{
-			size_t p2Size = sizeof(Liar::Vector2D);
-			buff->uv = new Liar::Vector2D();
-			fread(buff->uv, p2Size, 1, pFile);
 		}
 	}
 

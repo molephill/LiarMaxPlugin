@@ -36,9 +36,14 @@ namespace Liar
 
 		static void ReadLiarMesh(Liar::LiarMesh*, FILE*);
 		static void ReadLiarGeometery(int, Liar::LiarGeometry*, FILE*);
+
+		static void ReadLiarRawData(Liar::LiarGeometry*, FILE*);
+		static std::vector<Liar::Vector3D*>* ReadLiarVecs(FILE*);
+
+		static void ReadLiarFaces(Liar::LiarGeometry*, FILE*);
+
 		static void ReadLiarMaterial(Liar::LiarMesh*, FILE*);
 
-		static void ReadLiarVertexBuffer(Liar::LiarVertexBuffer*, FILE*, bool, bool, bool);
 		static Liar::LiarTexture* ReadLiarTexture(FILE*);
 
 		static void ReadString(std::string&, FILE*);

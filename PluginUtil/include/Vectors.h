@@ -95,8 +95,10 @@ namespace Liar
 		Vector3D    Cross(const Vector3D& vec) const;        // cross product
 		void		Cross(float, float, float);		// cross product
 		void		CrossC(const Liar::Vector3D& vec);		// cross product
-		bool        Equal(const Vector3D& vec, float e) const; // compare with epsilon
+		bool        Equal(const Vector3D& vec, float e = EPSILON) const; // compare with epsilon
+		bool        Equal(float, float, float, float e = EPSILON) const; // compare with epsilon
 		Vector3D	Clone() const;
+		void		Copy(const Liar::Vector3D& v) { x = v.x; y = v.y; z = v.z; };
 
 		void		Negative();
 
@@ -626,7 +628,11 @@ namespace Liar
 	}
 
 	inline bool Vector3D::Equal(const Vector3D& rhs, float epsilon) const {
-		return fabs(x - rhs.x) < epsilon && fabs(y - rhs.y) < epsilon && fabs(z - rhs.z) < epsilon;
+		return Equal(rhs.x, rhs.y, rhs.z, epsilon);
+	}
+
+	inline bool Vector3D::Equal(float tx, float ty, float tz, float epsilon) const {
+		return fabs(x - tx) < epsilon && fabs(y - ty) < epsilon && fabs(z - tz) < epsilon;
 	}
 
 	inline Vector3D Vector3D::Clone() const {

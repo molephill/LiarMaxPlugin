@@ -1,6 +1,6 @@
 #pragma once
 // maxs version
-#define PLUGINS 2019
+//#define PLUGINS 2019
 
 // export params
 #define LIAR_NORMAL   1

@@ -1,6 +1,7 @@
 ﻿#include "LiarMaxNodeParse.h"
 #include <LiarStringUtil.h>
 #include <LiarPluginUtil.h>
+#include <PluginDefine.h>
 
 #include <fstream>
 
@@ -112,17 +113,13 @@ namespace Liar
 		{
 			IGameSupportObject* tmpGameSupportObject = (IGameSupportObject*)tmpGameObject;
 			tmpGameMesh = tmpGameSupportObject->GetMeshObject();
-			if (!tmpGameMesh || !tmpGameMesh->InitializeData())
-			{
-				tmpGameMesh = nullptr;
-			}
 		}
 		else
 		{
 			tmpGameMesh = (IGameMesh*)tmpGameObject;
 		}
 
-		if (tmpGameMesh)
+		if (tmpGameMesh && tmpGameMesh->InitializeData())
 		{
 			Liar::LiarNode* node = parentNode->AddChild();
 			Liar::StringUtil::GetWSTR2Char(varGameNode->GetName(), node->GetNodeName());
@@ -162,15 +159,12 @@ namespace Liar
 		Liar::LiarMesh* liarMesh = new Liar::LiarMesh();
 		m_allMeshs->push_back(liarMesh);
 		++index;
-		int tmpVertexCount = tmpGameMesh->GetNumberOfVerts();
-		for (int tmpVertexIndex = 0; tmpVertexIndex < tmpVertexCount; tmpVertexIndex++)
-		{
-			liarMesh->GetGeo()->GetBuffers()->push_back(new Liar::LiarVertexBuffer());
-		}
 
 		//bool revertYZ = ctr->coordSystemType == IGameConversionManager::CoordSystem::Max3DS ? false : true;
 		bool revertYZ = false;
-		std::map<IGameMaterial*, std::vector<int>> tmpMapMaterial;//存储材质与顶点的关系
+
+		Liar::Vector3D* tmp = new Liar::Vector3D();
+		std::vector<IGameMaterial*> materials;
 
 		int tmpFaceCount = tmpGameMesh->GetNumberOfFaces();
 		for (int tmpFaceIndex = 0; tmpFaceIndex < tmpFaceCount; tmpFaceIndex++)
@@ -179,73 +173,78 @@ namespace Liar
 			for (int tmpFaceVertexIndex = 0; tmpFaceVertexIndex < 3; tmpFaceVertexIndex++)
 			{
 				//顶点
-				int tmpVertexIndex = tmpFaceEx->vert[tmpFaceVertexIndex];
-				liarMesh->GetGeo()->GetIndices()->push_back(tmpVertexIndex);
+				unsigned long tmpVertexIndex = tmpFaceEx->vert[tmpFaceVertexIndex];
+				unsigned long tmpNormalIndex = 0;
+				unsigned long tmpColorIndex = 0;
+				unsigned long tmpUVIndex = 0;
 
-				Liar::LiarVertexBuffer* buffer = liarMesh->GetGeo()->GetBuffer(tmpVertexIndex);
-
-				//pos
-				if (!buffer->position) buffer->position = new Liar::Vector3D();
-				Liar::LiarStructUtil::ParsePoint3(buffer->position, tmpGameMesh->GetVertex(tmpVertexIndex), revertYZ);
+				Liar::Vector3D* pos = liarMesh->GetGeo()->GetRawData()->AddPos(tmpVertexIndex);
+				Liar::LiarStructUtil::ParsePoint3(pos, tmpGameMesh->GetVertex(tmpVertexIndex), revertYZ);
 
 				//Normal
 				if (ctr->vertexNormal)
 				{
-					if(!buffer->normal) buffer->normal = new Liar::Vector3D();
-					int tmpNormalIndex = tmpFaceEx->norm[tmpFaceVertexIndex];
-					Liar::LiarStructUtil::ParsePoint3(buffer->normal, tmpGameMesh->GetNormal(tmpNormalIndex), revertYZ);
+					tmpNormalIndex = tmpFaceEx->norm[tmpFaceVertexIndex];
+					Liar::LiarStructUtil::ParsePoint3(tmp, tmpGameMesh->GetNormal(tmpNormalIndex), revertYZ);
+					tmpNormalIndex = liarMesh->GetGeo()->GetRawData()->GetIndex(LIAR_NORMAL, *tmp);
+					Liar::Vector3D* norm = liarMesh->GetGeo()->GetRawData()->AddNorm(tmpNormalIndex);
+					norm->Copy(*tmp);
 				}
 
 				// color
 				if (ctr->vertexColor)
 				{
-					if (!buffer->color) buffer->color = new Liar::Vector3D();
-					int tmpColorIndex = tmpFaceEx->color[tmpFaceVertexIndex];
-					Liar::LiarStructUtil::ParsePoint3(buffer->color, tmpGameMesh->GetColorVertex(tmpColorIndex), revertYZ);
+					tmpColorIndex = tmpFaceEx->color[tmpFaceVertexIndex];
+					Liar::LiarStructUtil::ParsePoint3(tmp, tmpGameMesh->GetColorVertex(tmpColorIndex), revertYZ);
+					tmpColorIndex = liarMesh->GetGeo()->GetRawData()->GetIndex(LIAR_COLOR, *tmp);
+					Liar::Vector3D* color = liarMesh->GetGeo()->GetRawData()->AddColor(tmpColorIndex);
+					color->Copy(*tmp);
 				}
 
 				// uv
 				if (ctr->textureCoord)
 				{
-					if (!buffer->uv) buffer->uv = new Liar::Vector2D();
-					int tmpUVIndex = tmpFaceEx->texCoord[tmpFaceVertexIndex];
-					Liar::LiarStructUtil::ParsePoint2(buffer->uv, tmpGameMesh->GetTexVertex(tmpUVIndex), revertYZ);
+					tmpUVIndex = tmpFaceEx->texCoord[tmpFaceVertexIndex];
+					Liar::LiarStructUtil::ParsePoint3(tmp, tmpGameMesh->GetTexVertex(tmpUVIndex), revertYZ);
+					tmpUVIndex = liarMesh->GetGeo()->GetRawData()->GetIndex(LIAR_UV, *tmp);
+					Liar::Vector3D* texCoord = liarMesh->GetGeo()->GetRawData()->AddTex(tmpUVIndex);
+					texCoord->Copy(*tmp);
 				}
 
+				// 顶点索引
+				size_t curVetexIndex = liarMesh->GetGeo()->FindVertexDefineIndex(tmpVertexIndex, tmpNormalIndex, tmpUVIndex, tmpColorIndex);
+				if (curVetexIndex == -1)
+				{
+					// 顶点索引
+					curVetexIndex = liarMesh->GetGeo()->GetVertexFaceSize();
+					Liar::LiarVertexDefine* find = new Liar::LiarVertexDefine(tmpVertexIndex, tmpNormalIndex, tmpUVIndex, tmpColorIndex);
+					liarMesh->GetGeo()->GetVertexFaces()->push_back(find);
+				}
+
+				liarMesh->GetGeo()->GetIndices()->push_back(static_cast<unsigned int>(curVetexIndex));
 			}
 
 			//获取当前面的材质
 			IGameMaterial* tmpGameMaterial = tmpGameMesh->GetMaterialFromFace(tmpFaceEx);
-			if (tmpGameMaterial == NULL)
+			if (tmpGameMaterial)
 			{
-				continue;
-			}
-			else
-			{
-
-				bool tmpFind = false;
-				for (std::map<IGameMaterial*, std::vector<int>>::iterator tmpIterBegin = tmpMapMaterial.begin(); tmpIterBegin != tmpMapMaterial.end(); tmpIterBegin++)
+				IGameMaterial* find = nullptr;
+				for (std::vector<IGameMaterial*>::iterator it = materials.begin(); it != materials.end(); ++it)
 				{
-					if (tmpIterBegin->first == tmpGameMaterial)
+					if ((*it) == tmpGameMaterial)
 					{
-						tmpFind = true;
-						tmpIterBegin->second.push_back(tmpFaceEx->vert[0]);
-						tmpIterBegin->second.push_back(tmpFaceEx->vert[1]);
-						tmpIterBegin->second.push_back(tmpFaceEx->vert[2]);
+						find = tmpGameMaterial;
 						break;
 					}
 				}
-
-				if (tmpFind == false)
+				if (!find)
 				{
-					std::vector<int> tmpVectorFaceIndex;
-					tmpVectorFaceIndex.push_back(tmpFaceEx->vert[0]);
-					tmpVectorFaceIndex.push_back(tmpFaceEx->vert[1]);
-					tmpVectorFaceIndex.push_back(tmpFaceEx->vert[2]);
-					tmpMapMaterial.insert(std::pair<IGameMaterial*, std::vector<int>>(tmpGameMaterial, tmpVectorFaceIndex));
+					materials.push_back(tmpGameMaterial);
 				}
 			}
 		}
+
+		delete tmp;
 
 		/*std::ofstream foutLog("C:/Users/Administrator/Desktop/test/log1.txt");
 		size_t size = liarMesh->GetGeo()->GetIndicesSize();
@@ -268,16 +267,14 @@ namespace Liar
 
 		foutLog.close();*/
 
-		for (std::map<IGameMaterial*, std::vector<int>>::iterator tmpIterBegin = tmpMapMaterial.begin(); tmpIterBegin != tmpMapMaterial.end(); tmpIterBegin++)
+		for (std::vector<IGameMaterial*>::iterator it = materials.begin(); it != materials.end(); ++it)
 		{
-			IGameMaterial* tmpGameMaterial = tmpIterBegin->first;
-
+			IGameMaterial* tmpGameMaterial = *it;
 			Liar::LiarMaterial* liarMaterial = new Liar::LiarMaterial();
+			Liar::StringUtil::GetWSTR2Char(tmpGameMaterial->GetMaterialClass(), liarMaterial->GetType());
 			liarMesh->GetMatrials()->push_back(liarMaterial);
 			Liar::StringUtil::GetWSTR2Char(tmpGameMaterial->GetMaterialName(), liarMaterial->name);
-
 			size_t tmpNumberOfTextureMaps = tmpGameMaterial->GetNumberOfTextureMaps();		//how many texture of the material
-
 			for (int tmpTextureMapIndex = 0; tmpTextureMapIndex < tmpNumberOfTextureMaps; tmpTextureMapIndex++)
 			{
 				IGameTextureMap* tmpGameTextureMap = tmpGameMaterial->GetIGameTextureMap(tmpTextureMapIndex);
@@ -295,45 +292,9 @@ namespace Liar
 					liarTex->GetTexContext()->SetPath(tmpBitmapPath);
 
 					// 获取类型
-					std::string tmpTextureClass("");
+					int mapSlot = tmpGameTextureMap->GetStdMapSlot();
 					Liar::StringUtil::GetWSTR2Char(tmpGameTextureMap->GetTextureClass(), liarTex->GetType());
 					Liar::StringUtil::StringToUpper(liarTex->GetType());
-					/*transform(tmpTextureClass.begin(), tmpTextureClass.end(), tmpTextureClass.begin(), toupper);
-
-					if (strcmp(tmpTextureClass.c_str(), "BITMAP") != 0)
-					{
-						continue;
-					}
-
-					//获取UV的Tilling和Offset值
-					IGameUVGen* tmpGameUVGen = tmpGameTextureMap->GetIGameUVGen();
-					IGameProperty* tmpGamePropertyUTiling = tmpGameUVGen->GetUTilingData();
-					float tmpUTilingValue = 0.0f;
-					if (tmpGamePropertyUTiling->GetPropertyValue(tmpUTilingValue))
-					{
-						tmpOfStreamMesh.write((char*)(&tmpUTilingValue), sizeof(tmpUTilingValue));
-					}
-
-					IGameProperty* tmpGamePropertyVTiling = tmpGameUVGen->GetVTilingData();
-					float tmpVTilingValue = 0.0f;
-					if (tmpGamePropertyVTiling->GetPropertyValue(tmpVTilingValue))
-					{
-						tmpOfStreamMesh.write((char*)(&tmpVTilingValue), sizeof(tmpVTilingValue));
-					}
-
-					IGameProperty* tmpGamePropertyUOffset = tmpGameUVGen->GetUOffsetData();
-					float tmpUOffsetValue = 0.0f;
-					if (tmpGamePropertyUOffset->GetPropertyValue(tmpUOffsetValue))
-					{
-						tmpOfStreamMesh.write((char*)(&tmpUOffsetValue), sizeof(tmpUOffsetValue));
-					}
-
-					IGameProperty* tmpGamePropertyVOffset = tmpGameUVGen->GetVOffsetData();
-					float tmpVOffsetValue = 0.0f;
-					if (tmpGamePropertyVOffset->GetPropertyValue(tmpVOffsetValue))
-					{
-						tmpOfStreamMesh.write((char*)(&tmpVOffsetValue), sizeof(tmpVOffsetValue));
-					}*/
 				}
 			}
 		}

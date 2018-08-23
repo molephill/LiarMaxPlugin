@@ -81,6 +81,7 @@ namespace Liar
 
 	private:
 		std::vector<Liar::LiarTexture*>* m_allTextures;
+		std::string m_type;
 
 	public:
 		void EraseIndex(int);
@@ -89,6 +90,8 @@ namespace Liar
 		Liar::LiarTexture* GetTexture(int index) { return m_allTextures->at(index); };
 
 		size_t GetTexSize() { return m_allTextures ? m_allTextures->size() : 0; };
+
+		std::string& GetType() { return m_type; };
 
 #ifdef PLUGINS
 	public:

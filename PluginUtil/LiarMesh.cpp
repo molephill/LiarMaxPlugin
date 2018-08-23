@@ -38,21 +38,35 @@ namespace Liar
 
 	// =============================== Geometory ===============================
 
-	LiarGeometry::LiarGeometry()
+	LiarGeometry::LiarGeometry():
+		m_rawData(new Liar::LiarVertexRawData())
+		, m_vertexFaces(new std::vector<Liar::LiarVertexDefine*>())
 	{
+#ifndef PLUGINS
 		m_allVertexBuffers = new std::vector<Liar::LiarVertexBuffer*>();
+#endif // PLUGINS
 		m_indices = new std::vector<unsigned int>();
 		m_vertexOpen = 0;
 	}
 
 	LiarGeometry::~LiarGeometry()
 	{
-		EraseIndexBuff(0);
-		std::vector<Liar::LiarVertexBuffer*>().swap(*m_allVertexBuffers);
-		delete m_allVertexBuffers;
+#ifdef PLUGINS
+		if (m_allVertexBuffers)
+		{
+#endif // PLUGINS
+
+			EraseIndexBuff(0);
+			std::vector<Liar::LiarVertexBuffer*>().swap(*m_allVertexBuffers);
+			delete m_allVertexBuffers;
+#ifdef PLUGINS
+		}
+#endif // PLUGINS
 
 		std::vector<unsigned int>().swap(*m_indices);
 		delete m_indices;
+
+		delete m_rawData;
 	}
 
 	Liar::LiarVertexBuffer* LiarGeometry::GetBuffer(size_t index)
@@ -69,11 +83,55 @@ namespace Liar
 
 	void LiarGeometry::EraseIndexBuff(int index)
 	{
-		for (std::vector<Liar::LiarVertexBuffer*>::iterator it = m_allVertexBuffers->begin() + index; it != m_allVertexBuffers->end();)
+#ifdef PLUGINS
+		if (m_allVertexBuffers)
 		{
-			delete *it;
-			it = m_allVertexBuffers->erase(it);
+#endif // PLUGINS
+			for (std::vector<Liar::LiarVertexBuffer*>::iterator it = m_allVertexBuffers->begin() + index; it != m_allVertexBuffers->end();)
+			{
+				delete *it;
+				it = m_allVertexBuffers->erase(it);
+			}
+#ifdef PLUGINS
 		}
+#endif // PLUGINS
+
+	}
+
+	Liar::LiarVertexDefine* LiarGeometry::FindVertexDefine(const Liar::LiarVertexDefine& rhs)
+	{
+		return FindVertexDefine(rhs.positionIndex, rhs.normalIndex, rhs.texCoordIndex, rhs.colorIndex);
+	}
+
+	Liar::LiarVertexDefine* LiarGeometry::FindVertexDefine(unsigned long posIndex, unsigned long normIndex, unsigned long texIndex, unsigned long cor)
+	{
+		for (std::vector<Liar::LiarVertexDefine*>::iterator it = m_vertexFaces->begin(); it != m_vertexFaces->end(); ++it)
+		{
+			if ((*it)->Equal(posIndex, normIndex, texIndex, cor))
+			{
+				return *it;
+			}
+		}
+		return nullptr;
+	}
+
+	int LiarGeometry::FindVertexDefineIndex(const Liar::LiarVertexDefine& rhs) const
+	{
+		return FindVertexDefineIndex(rhs.positionIndex, rhs.normalIndex, rhs.texCoordIndex, rhs.colorIndex);
+	}
+
+	int LiarGeometry::FindVertexDefineIndex(unsigned long posIndex, unsigned long normIndex, unsigned long texIndex, unsigned long cor) const
+	{
+		size_t size = GetVertexFaceSize();
+		for (size_t i = 0; i < size; ++i)
+		{
+			Liar::LiarVertexDefine* tmp = m_vertexFaces->at(i);
+			if (tmp->Equal(posIndex, normIndex, texIndex, cor))
+			{
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	std::ostream& operator<<(std::ostream& os, const Liar::LiarGeometry& m)
@@ -105,6 +163,20 @@ namespace Liar
 		glBindVertexArray(VAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+		// ============================ fill_data ======================
+		size_t size = m_vertexFaces->size();
+		for (size_t i = 0; i < size; ++i)
+		{
+			Liar::LiarVertexDefine* tmp = m_vertexFaces->at(i);
+			Liar::LiarVertexBuffer* buffer = new Liar::LiarVertexBuffer();
+			buffer->position = m_rawData->GetPos(tmp->positionIndex);
+			buffer->normal = m_rawData->GetNorm(tmp->normalIndex);
+			buffer->color = m_rawData->GetColor(tmp->colorIndex);
+			buffer->uv = m_rawData->GetTexCoord(tmp->texCoordIndex);
+			m_allVertexBuffers->push_back(buffer);
+		}
+		// ============================ fill_data ======================
 
 		size_t positionSize = Liar::LiarVertexBuffer::GetPositionSize();
 		size_t normalSize = Liar::LiarVertexBuffer::GetNormalSize();
@@ -189,7 +261,7 @@ namespace Liar
 		// texture coord attribute
 		if (uv)
 		{
-			glVertexAttribPointer(curId, 2, GL_FLOAT, GL_FALSE, oneSize, (void*)uvOffSize);
+			glVertexAttribPointer(curId, 3, GL_FLOAT, GL_FALSE, oneSize, (void*)uvOffSize);
 			glEnableVertexAttribArray(curId);
 			++curId;
 		}

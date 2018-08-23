@@ -52,6 +52,9 @@ namespace Liar
 		std::vector<unsigned int>* m_indices;
 		int m_vertexOpen;
 
+		Liar::LiarVertexRawData* m_rawData;
+		std::vector<Liar::LiarVertexDefine*>* m_vertexFaces;
+
 	public:
 		std::vector<Liar::LiarVertexBuffer*>* GetBuffers() { return m_allVertexBuffers; };
 		std::vector<unsigned int>* GetIndices() { return m_indices; };
@@ -60,6 +63,18 @@ namespace Liar
 		size_t GetIndicesSize() { return m_indices->size(); };
 
 		void SetVertexOpen(int v) { m_vertexOpen = v; };
+
+		Liar::LiarVertexRawData* GetRawData() { return m_rawData; };
+
+		Liar::LiarVertexDefine* FindVertexDefine(const Liar::LiarVertexDefine&);
+		Liar::LiarVertexDefine* FindVertexDefine(unsigned long, unsigned long, unsigned long, unsigned long cor = 0);
+
+		int FindVertexDefineIndex(const Liar::LiarVertexDefine&) const;
+		int FindVertexDefineIndex(unsigned long, unsigned long, unsigned long, unsigned long cor = 0) const;
+
+		std::vector<Liar::LiarVertexDefine*>* GetVertexFaces() { return m_vertexFaces; };
+		size_t GetVertexFaceSize() const { return m_vertexFaces ? m_vertexFaces->size() : 0; };
+		LiarVertexDefine* GetFace(size_t index) { return m_vertexFaces->at(index); };
 
 		LiarVertexBuffer* GetBuffer(size_t);
 

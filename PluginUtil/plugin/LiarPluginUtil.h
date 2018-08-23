@@ -83,6 +83,26 @@ namespace Liar
 			p2->y = point.y;
 		}
 
+		static void ParsePoint3(Liar::Vector3D* p2, const Point2& point)
+		{
+			p2->x = point.x;
+			p2->y = point.y;
+			p2->z = 0.0f;
+		}
+
+		static void ParsePoint3(Liar::Vector3D* p2, const Point2& point, bool delV)
+		{
+			if (delV)
+			{
+				p2->x = point.x;
+				p2->y = 1 - point.y;
+			}
+			else
+			{
+				Liar::LiarStructUtil::ParsePoint3(p2, point);
+			}
+		}
+
 		static void ParsePoint2(Liar::Vector2D* p2, const Point2& point, bool delV)
 		{
 			if (delV)

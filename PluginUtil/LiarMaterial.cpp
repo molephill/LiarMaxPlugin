@@ -106,7 +106,7 @@ namespace Liar
 
 	// ====================  Œ∆¿Ì ================
 
-	LiarMaterial::LiarMaterial()
+	LiarMaterial::LiarMaterial():m_type("")
 	{
 		m_allTextures = new std::vector<Liar::LiarTexture*>();
 	}

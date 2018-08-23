@@ -148,13 +148,45 @@ namespace Liar
 		// write indices
 		fwrite(&(geo->GetIndices()->front()), sizeof(unsigned int), indiceSize, hFile);
 
-		size_t bufferSize = geo->GetBufferSize();
-		// write bufferSize;
-		fwrite(&bufferSize, sizeof(int), 1, hFile);
-		// write buffer
-		for (int i = 0; i < bufferSize; ++i)
+		// write mesh`s rawData
+		WriteLiarRawData(geo->GetRawData(), hFile);
+		// write mesh`s faces
+		WriteLiarFaces(geo, hFile);
+	}
+
+	void LiarPluginWrite::WriteLiarRawData(Liar::LiarVertexRawData* raw, FILE* hFile)
+	{
+		LiarPluginWrite::WriteLiarVecs(raw->GetPos(), hFile);
+		LiarPluginWrite::WriteLiarVecs(raw->GetNorm(), hFile);
+		LiarPluginWrite::WriteLiarVecs(raw->GetTexCoord(), hFile);
+		LiarPluginWrite::WriteLiarVecs(raw->GetColor(), hFile);
+	}
+
+	void LiarPluginWrite::WriteLiarVecs(std::vector<Liar::Vector3D*>* vec, FILE* hFile)
+	{
+		size_t p3Size = sizeof(Liar::Vector3D);
+		size_t size = vec ? vec->size() : 0;
+
+		// write size;
+		fwrite(&size, sizeof(int), 1, hFile);
+		// write data
+		for (size_t i = 0; i < size; ++i)
 		{
-			WriteLiarVertexBuffer(liarPlugin, geo->GetBuffer(i), hFile);
+			fwrite(vec->at(i), p3Size, 1, hFile);
+		}
+	}
+
+	void LiarPluginWrite::WriteLiarFaces(Liar::LiarGeometry* geo, FILE* hFile)
+	{
+		size_t size = geo->GetVertexFaceSize();
+		
+		// write size;
+		fwrite(&size, sizeof(int), 1, hFile);
+		// write data
+		size_t pSize = sizeof(Liar::LiarVertexDefine);
+		for (size_t i = 0; i < size; ++i)
+		{
+			fwrite(geo->GetFace(i), pSize, 1, hFile);
 		}
 	}
 
@@ -167,37 +199,18 @@ namespace Liar
 		for (size_t i = 0; i < matSize; ++i)
 		{
 			Liar::LiarMaterial* mat = mesh->GetMat(i);
-			size_t texSize = mat->GetTexSize();
+
+			// write matType
+			WriteString(mat->GetType(), hFile);
+
 			// write texSize;
+			size_t texSize = mat->GetTexSize();
 			fwrite(&texSize, sizeof(int), 1, hFile);
 			// write texture
 			for (int i = 0; i < texSize; ++i)
 			{
 				WriteLiarTexture(mat->GetTexture(i), hFile);
 			}
-		}
-	}
-
-	void LiarPluginWrite::WriteLiarVertexBuffer(Liar::LiarPluginCfg* liarPluginCfg, Liar::LiarVertexBuffer* buff, FILE* hFile)
-	{
-		// write pos
-		size_t p3Size = sizeof(Liar::Vector3D);
-		fwrite(buff->position, p3Size, 1, hFile);
-		// write normal
-		if (liarPluginCfg->vertexNormal)
-		{
-			fwrite(buff->normal, p3Size, 1, hFile);
-		}
-		// write color
-		if (liarPluginCfg->vertexColor)
-		{
-			fwrite(buff->color, p3Size, 1, hFile);
-		}
-		// write uv
-		if (liarPluginCfg->textureCoord)
-		{
-			size_t p2Size = sizeof(Liar::Vector2D);
-			fwrite(buff->uv, p2Size, 1, hFile);
 		}
 	}
 
