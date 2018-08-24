@@ -57,16 +57,18 @@ namespace Liar
 
 	private:
 		Liar::LiarTexContext* m_texContext;
-		std::string m_textureType;
+		int m_textureType;
 
 	public:
 		Liar::LiarTexContext* GetTexContext() { return m_texContext; };
 		void SetPath(const char*);
 		void SetPath(const std::string&);
-		std::string& GetType() { return m_textureType; };
+
+		void SetType(int v) { m_textureType = v; };
+		int GetType() const { return m_textureType; };
 
 #ifndef PLUGINS
-		void Render(Liar::Shader&, int);
+		void Render(Liar::Shader&, size_t);
 #endif // ! PLUGINS
 
 	};

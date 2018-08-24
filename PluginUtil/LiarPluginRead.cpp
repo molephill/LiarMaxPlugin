@@ -236,7 +236,9 @@ namespace Liar
 		baseName = basePath + baseName;
 
 		// read type
-		ReadString(tex->GetType(), pFile);
+		int type = 0;
+		fread(&type, sizeof(int), 1, pFile);
+		tex->SetType(type);
 
 		// set name
 		tex->SetPath(baseName);

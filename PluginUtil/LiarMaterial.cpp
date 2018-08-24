@@ -1,7 +1,8 @@
 #include "LiarMaterial.h"
+#include <LiarStringUtil.h>
 
 #ifndef PLUGINS
-#include <stb_image.h>
+#include <LiarTextureHelper.h>
 #include <AssetsMgr.hpp>
 #endif // !PLUGINS
 
@@ -25,29 +26,24 @@ namespace Liar
 	void LiarTexContext::Upload(const char* fileName)
 	{
 		m_path = fileName;
+		std::string ext = Liar::StringUtil::GetLast(m_path, ".");
+		Liar::StringUtil::StringToUpper(ext);
 
-		int width, height, nrComponents;
-		unsigned char *data = stbi_load(fileName, &width, &height, &nrComponents, 0);
-		if (data)
+		if (ext == "DDS")
 		{
-			GLenum format;
-			if (nrComponents == 1)
-				format = GL_RED;
-			else if (nrComponents == 3)
-				format = GL_RGB;
-			else if (nrComponents == 4)
-				format = GL_RGBA;
+			m_textureId = Liar::LiarTextureHelper::LoadDDS(fileName);
+		}
+		else
+		{
+			m_textureId = Liar::LiarTextureHelper::Load(fileName);
+		}
 
-			glGenTextures(1, &m_textureId);
-			glBindTexture(GL_TEXTURE_2D, m_textureId);
-			glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-			glGenerateMipmap(GL_TEXTURE_2D);
-
+		if (m_textureId > 0)
+		{
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			stbi_image_free(data);
 		}
 		else
 		{
@@ -66,7 +62,7 @@ namespace Liar
 
 	// ====================  ÎÆÀí ================
 
-	LiarTexture::LiarTexture(bool init): m_textureType("")
+	LiarTexture::LiarTexture(bool init): m_textureType(0)
 	{
 		if (init) m_texContext = new Liar::LiarTexContext();
 	}
@@ -91,13 +87,13 @@ namespace Liar
 	}
 
 #ifndef PLUGINS
-	void LiarTexture::Render(Liar::Shader& shader, int i)
+	void LiarTexture::Render(Liar::Shader& shader, size_t texNum)
 	{
 		if (!m_texContext) return;
 		std::string name = "texture";
-		name = name + std::to_string(i);
-		shader.SetInt(name, i);
-		glActiveTexture(GL_TEXTURE0 + i);
+		name = name + std::to_string(texNum);
+		shader.SetInt(name, texNum);
+		glActiveTexture(GL_TEXTURE0 + texNum);
 		glBindTexture(GL_TEXTURE_2D, m_texContext->GetTextureId());
 	}
 

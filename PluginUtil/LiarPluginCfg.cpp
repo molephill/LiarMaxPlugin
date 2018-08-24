@@ -6,7 +6,7 @@ namespace Liar
 	LiarPluginCfg::LiarPluginCfg()
 		:exportGeom(true), exportMaterial(true),
 		vertexNormal(true), textureCoord(true)
-		, quaternions(true)
+		, quaternions(true), revertUV(true)
 		, skin(true)
 		, perVertex(true)
 

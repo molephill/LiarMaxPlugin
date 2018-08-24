@@ -205,7 +205,7 @@ namespace Liar
 				if (ctr->textureCoord)
 				{
 					tmpUVIndex = tmpFaceEx->texCoord[tmpFaceVertexIndex];
-					Liar::LiarStructUtil::ParsePoint3(tmp, tmpGameMesh->GetTexVertex(tmpUVIndex), revertYZ);
+					Liar::LiarStructUtil::ParsePoint3(tmp, tmpGameMesh->GetTexVertex(tmpUVIndex), ctr->revertUV);
 					tmpUVIndex = liarMesh->GetGeo()->GetRawData()->GetIndex(LIAR_UV, *tmp);
 					Liar::Vector3D* texCoord = liarMesh->GetGeo()->GetRawData()->AddTex(tmpUVIndex);
 					texCoord->Copy(*tmp);
@@ -246,27 +246,6 @@ namespace Liar
 
 		delete tmp;
 
-		/*std::ofstream foutLog("C:/Users/Administrator/Desktop/test/log1.txt");
-		size_t size = liarMesh->GetGeo()->GetIndicesSize();
-		foutLog << "Indices:" << size << std::endl;
-		for (size_t indexindex = 0; indexindex < size;)
-		{
-			foutLog << liarMesh->GetGeo()->GetIndices()->at(indexindex++) << "," << liarMesh->GetGeo()->GetIndices()->at(indexindex++) << "," << liarMesh->GetGeo()->GetIndices()->at(indexindex++) << std::endl;
-		}
-
-		int tmpVertexNum = tmpVertexCount;
-		foutLog << "Vertex:" << tmpVertexNum << std::endl;
-		for (int i = 0; i < tmpVertexNum; i++)
-		{
-			Liar::LiarVertexBuffer* tmpVetex = liarMesh->GetGeo()->GetBuffer(i);
-			foutLog << "Vertex Index:" << i << std::endl;
-			foutLog << "position:(" << tmpVetex->position->x << "," << tmpVetex->position->y << "," << tmpVetex->position->z << ")" << std::endl;
-			foutLog << "normal:(" << tmpVetex->normal->x << "," << tmpVetex->normal->y << "," << tmpVetex->normal->z << ")" << std::endl;
-			foutLog << "uv:(" << tmpVetex->uv->x << "," << tmpVetex->uv->y << ")" << std::endl;
-		}
-
-		foutLog.close();*/
-
 		for (std::vector<IGameMaterial*>::iterator it = materials.begin(); it != materials.end(); ++it)
 		{
 			IGameMaterial* tmpGameMaterial = *it;
@@ -293,8 +272,9 @@ namespace Liar
 
 					// 获取类型
 					int mapSlot = tmpGameTextureMap->GetStdMapSlot();
-					Liar::StringUtil::GetWSTR2Char(tmpGameTextureMap->GetTextureClass(), liarTex->GetType());
-					Liar::StringUtil::StringToUpper(liarTex->GetType());
+					liarTex->SetType(mapSlot);
+					/*Liar::StringUtil::GetWSTR2Char(tmpGameTextureMap->GetTextureClass(), liarTex->GetType());
+					Liar::StringUtil::StringToUpper(liarTex->GetType());*/
 				}
 			}
 		}

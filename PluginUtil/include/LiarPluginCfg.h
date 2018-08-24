@@ -18,6 +18,7 @@ namespace Liar
 	public:
 		// export options
 		bool exportGeom;
+		bool revertUV;
 		bool exportSplines;
 		bool exportController;
 		bool exportMaterial;

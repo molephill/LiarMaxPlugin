@@ -328,11 +328,11 @@ namespace Liar
 
 	void LiarMesh::Render(Liar::Shader& shader)
 	{
-		m_geometry->Render();
 		for (size_t i = 0; i < m_materials->size(); ++i)
 		{
 			m_materials->at(i)->Render(shader);
 		}
+		m_geometry->Render();
 	}
 
 #endif // PLUGINS

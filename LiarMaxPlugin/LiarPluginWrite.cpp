@@ -221,8 +221,8 @@ namespace Liar
 		WriteString(texName, hFile);
 
 		// write type
-		std::string& texType = tex->GetType();
-		WriteString(texType, hFile);
+		int type = tex->GetType();
+		fwrite(&type, sizeof(int), 1, hFile);
 	}
 
 	void LiarPluginWrite::WriteString(std::string& s, FILE* hFile)

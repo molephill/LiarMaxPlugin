@@ -15,6 +15,7 @@
 #define IDC_EXP_MATERIAL                1004
 #define IDC_EXP_MODIFIERS               1005
 #define IDC_EXP_OBJECT_SPACE            1006
+#define IDC_EXP_REVERT_UV               1006
 #define IDC_EXP_BASE_ON_SMGRPS          1007
 #define IDC_EXP_MAPPING_CHANNEL         1008
 #define IDC_EXP_VERTEX_NORMAL           1009
@@ -39,7 +40,6 @@
 #define IDC_STATIC_FRAME_SPIN           1028
 #define IDC_SAMPLE_FRAME_SPIN           1029
 #define IDC_EXP_SKELETON                1030
-#define IDC_SAMPLE_FRAME_SPIN2          1031
 #define IDC_COLOR                       1456
 #define IDC_EDIT                        1490
 #define IDC_SPIN                        1496

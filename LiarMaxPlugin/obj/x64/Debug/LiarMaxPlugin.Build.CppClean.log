@@ -1,21 +1,21 @@
-e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarvertexbuffer.obj
-e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarmaxplugin.obj
-e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\matrices.obj
-e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\dllentry.obj
-e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarplugincfg.obj
-e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarpluginwrite.obj
-e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarmaterial.obj
-e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarmaxnodeparse.obj
-e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarmaxdialogmgr.obj
 e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarmesh.obj
 e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarpluginread.obj
-e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\vc140.pdb
+e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarmaxdialogmgr.obj
+e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\dllentry.obj
+e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\matrices.obj
+e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarmaxplugin.obj
+e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarplugincfg.obj
+e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarpluginwrite.obj
+e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarvertexbuffer.obj
+e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarmaxnodeparse.obj
 e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarmaxplugin.lib
 e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarmaxplugin.exp
 d:\inittools\3dmax2019\3ds max 2019\plugins\liarmaxplugin.ilk
 d:\inittools\3dmax2019\3ds max 2019\plugins\liarmaxplugin.dle
 d:\inittools\3dmax2019\3ds max 2019\plugins\liarmaxplugin.dle.pdb
 e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarmaxplugin.res
+e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarmaterial.obj
+e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\vc140.pdb
 e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarmaxplugin.tlog\cl.command.1.tlog
 e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarmaxplugin.tlog\cl.read.1.tlog
 e:\c++\liarmaxplugin\liarmaxplugin\obj\x64\debug\liarmaxplugin.tlog\cl.write.1.tlog

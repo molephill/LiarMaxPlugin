@@ -38,14 +38,15 @@ namespace Liar
 		ReleaseISpinner(spin);
 
 		CheckDlgButton(hWnd, IDC_EXP_GEOMETRY, m_pluginCfg->exportGeom);
+		CheckDlgButton(hWnd, IDC_EXP_REVERT_UV, m_pluginCfg->exportGeom);
 		CheckDlgButton(hWnd, IDC_EXP_SPLINES, m_pluginCfg->exportSplines);
 		CheckDlgButton(hWnd, IDC_EXP_CONTROLLERS, m_pluginCfg->exportController);
 		CheckDlgButton(hWnd, IDC_EXP_MATERIAL, m_pluginCfg->exportMaterial);
 		CheckDlgButton(hWnd, IDC_EXP_MODIFIERS, m_pluginCfg->exportModifier);
 
-		CheckDlgButton(hWnd, IDC_EXP_OBJECT_SPACE, m_pluginCfg->objectSpace);
-		CheckDlgButton(hWnd, IDC_EXP_BASE_ON_SMGRPS, m_pluginCfg->faceBaseOnSmgrsp);
-		CheckDlgButton(hWnd, IDC_EXP_MAPPING_CHANNEL, m_pluginCfg->mappingChannels);
+		//CheckDlgButton(hWnd, IDC_EXP_OBJECT_SPACE, m_pluginCfg->objectSpace);
+		//CheckDlgButton(hWnd, IDC_EXP_BASE_ON_SMGRPS, m_pluginCfg->faceBaseOnSmgrsp);
+		//CheckDlgButton(hWnd, IDC_EXP_MAPPING_CHANNEL, m_pluginCfg->mappingChannels);
 		CheckDlgButton(hWnd, IDC_EXP_VERTEX_NORMAL, m_pluginCfg->vertexNormal);
 		CheckDlgButton(hWnd, IDC_EXP_VERTEX_UV, m_pluginCfg->textureCoord);
 		CheckDlgButton(hWnd, IDC_EXP_VERTEX_CORLOR, m_pluginCfg->vertexColor);
@@ -129,14 +130,15 @@ namespace Liar
 	void LiarMaxDialogMgr::ConfirmHandle(HWND hWnd)
 	{
 		m_pluginCfg->exportGeom = IsDlgButtonChecked(hWnd, IDC_EXP_GEOMETRY) > 0 ? true : false;
+		m_pluginCfg->exportGeom = IsDlgButtonChecked(hWnd, IDC_EXP_REVERT_UV) > 0 ? true : false;
 		m_pluginCfg->exportSplines = IsDlgButtonChecked(hWnd, IDC_EXP_SPLINES) > 0 ? true : false;
 		m_pluginCfg->exportController = IsDlgButtonChecked(hWnd, IDC_EXP_CONTROLLERS) > 0 ? true : false;
 		m_pluginCfg->exportMaterial = IsDlgButtonChecked(hWnd, IDC_EXP_MATERIAL) > 0 ? true : false;
 		m_pluginCfg->exportModifier = IsDlgButtonChecked(hWnd, IDC_EXP_MODIFIERS) > 0 ? true : false;
 
-		m_pluginCfg->objectSpace = IsDlgButtonChecked(hWnd, IDC_EXP_OBJECT_SPACE) > 0 ? true : false;
-		m_pluginCfg->faceBaseOnSmgrsp = IsDlgButtonChecked(hWnd, IDC_EXP_BASE_ON_SMGRPS) > 0 ? true : false;
-		m_pluginCfg->mappingChannels = IsDlgButtonChecked(hWnd, IDC_EXP_MAPPING_CHANNEL) > 0 ? true : false;
+		//m_pluginCfg->objectSpace = IsDlgButtonChecked(hWnd, IDC_EXP_OBJECT_SPACE) > 0 ? true : false;
+		//m_pluginCfg->faceBaseOnSmgrsp = IsDlgButtonChecked(hWnd, IDC_EXP_BASE_ON_SMGRPS) > 0 ? true : false;
+		//m_pluginCfg->mappingChannels = IsDlgButtonChecked(hWnd, IDC_EXP_MAPPING_CHANNEL) > 0 ? true : false;
 		m_pluginCfg->vertexNormal = IsDlgButtonChecked(hWnd, IDC_EXP_VERTEX_NORMAL) > 0 ? true : false;
 		m_pluginCfg->textureCoord = IsDlgButtonChecked(hWnd, IDC_EXP_VERTEX_UV) > 0 ? true : false;
 		m_pluginCfg->vertexColor = IsDlgButtonChecked(hWnd, IDC_EXP_VERTEX_CORLOR) > 0 ? true : false;
@@ -174,9 +176,9 @@ namespace Liar
 
 	void LiarMaxDialogMgr::SetGeoEnable(HWND hWnd)
 	{
-		EnableWindow(GetDlgItem(hWnd, IDC_EXP_OBJECT_SPACE), m_pluginCfg->exportGeom);
-		EnableWindow(GetDlgItem(hWnd, IDC_EXP_BASE_ON_SMGRPS), m_pluginCfg->exportGeom);
-		EnableWindow(GetDlgItem(hWnd, IDC_EXP_MAPPING_CHANNEL), m_pluginCfg->exportGeom);
+		//EnableWindow(GetDlgItem(hWnd, IDC_EXP_OBJECT_SPACE), m_pluginCfg->exportGeom);
+		//EnableWindow(GetDlgItem(hWnd, IDC_EXP_BASE_ON_SMGRPS), m_pluginCfg->exportGeom);
+		//EnableWindow(GetDlgItem(hWnd, IDC_EXP_MAPPING_CHANNEL), m_pluginCfg->exportGeom);
 		EnableWindow(GetDlgItem(hWnd, IDC_EXP_VERTEX_NORMAL), m_pluginCfg->exportGeom);
 		EnableWindow(GetDlgItem(hWnd, IDC_EXP_VERTEX_UV), m_pluginCfg->exportGeom);
 		EnableWindow(GetDlgItem(hWnd, IDC_EXP_VERTEX_CORLOR), m_pluginCfg->exportGeom);
