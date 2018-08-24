@@ -259,22 +259,29 @@ namespace Liar
 				IGameTextureMap* tmpGameTextureMap = tmpGameMaterial->GetIGameTextureMap(tmpTextureMapIndex);
 				if (tmpGameTextureMap != NULL)
 				{
-					Liar::LiarTexture* liarTex = new Liar::LiarTexture(true);
-					liarMaterial->GetTextures()->push_back(liarTex);
+					std::string texCls;
+					Liar::StringUtil::GetTChar2Char(tmpGameTextureMap->GetTextureClass(), texCls);
+					Liar::StringUtil::StringToUpper(texCls);
+					if (strcmp(texCls.c_str(), "BITMAP") == 0)
+					{
+						//文件路径
+						std::string tmpBitmapPath("");
+						Liar::StringUtil::GetTChar2Char(tmpGameTextureMap->GetBitmapFileName(), tmpBitmapPath);
 
-					//文件路径
-					std::string tmpBitmapPath("");
-					Liar::StringUtil::GetWSTR2Char(tmpGameTextureMap->GetBitmapFileName(), tmpBitmapPath);
+						if (tmpBitmapPath != "")
+						{
+							Liar::LiarTexture* liarTex = new Liar::LiarTexture(true);
+							liarMaterial->GetTextures()->push_back(liarTex);
 
-					//文件名
-					tmpBitmapPath = Liar::StringUtil::GetLast(tmpBitmapPath);
-					liarTex->GetTexContext()->SetPath(tmpBitmapPath);
+							//文件名
+							tmpBitmapPath = Liar::StringUtil::GetLast(tmpBitmapPath);
+							liarTex->GetTexContext()->SetPath(tmpBitmapPath);
 
-					// 获取类型
-					int mapSlot = tmpGameTextureMap->GetStdMapSlot();
-					liarTex->SetType(mapSlot);
-					/*Liar::StringUtil::GetWSTR2Char(tmpGameTextureMap->GetTextureClass(), liarTex->GetType());
-					Liar::StringUtil::StringToUpper(liarTex->GetType());*/
+							// 获取类型
+							int mapSlot = tmpGameTextureMap->GetStdMapSlot();
+							liarTex->SetType(mapSlot);
+						}
+					}
 				}
 			}
 		}

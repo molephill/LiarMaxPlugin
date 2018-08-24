@@ -78,14 +78,18 @@ namespace Liar
 			wcstombs_s(&converted, tmpName, len, name, _TRUNCATE);
 			out = tmpName;*/
 
-			char *pszBuf = NULL;
-			int needBytes = WideCharToMultiByte(CP_ACP, 0, name, -1, NULL, 0, NULL, NULL);
-			if (needBytes > 0) {
-				pszBuf = new char[needBytes + 1];
-				ZeroMemory(pszBuf, (needBytes + 1) * sizeof(char));
-				WideCharToMultiByte(CP_ACP, 0, name, -1, pszBuf, needBytes, NULL, NULL);
-			}
-			out = pszBuf;
+			int nLen = WideCharToMultiByte(CP_ACP, 0, name, -1, NULL, 0, NULL, NULL);
+
+			if (nLen <= 0) return;
+
+			char* pszDst = new char[nLen];
+			if (NULL == pszDst) return;
+
+			WideCharToMultiByte(CP_ACP, 0, name, -1, pszDst, nLen, NULL, NULL);
+			pszDst[nLen - 1] = 0;
+
+			out = pszDst;
+			delete[] pszDst;
 
 		}
 #endif // !PLUGINS
