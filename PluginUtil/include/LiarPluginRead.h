@@ -18,9 +18,11 @@ namespace Liar
 	public:
 #ifndef PLUGINS
 		static Liar::Model* ReadModel(const char*, const char* texBasePath = nullptr);
+        static Liar::Model* ReadModel(const std::string&, const char* texBasePath = nullptr);
 #endif // !PLUGINS
 		static void ReadNode(const char*, Liar::LiarNode&);
 		static Liar::LiarMesh* ReadMesh(const char* path, const char* basePath=nullptr);
+        static Liar::LiarMesh* ReadMesh(const std::string& path, const char* basePath = nullptr);
 
 	private:
 

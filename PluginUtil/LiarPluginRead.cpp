@@ -1,11 +1,16 @@
 #include "LiarPluginRead.h"
 #include <LiarStringUtil.h>
+#include "Log.hpp"
 
 namespace Liar
 {
 
 #ifndef PLUGINS
 	// ======================= read model ===========================
+    Liar::Model* LiarPluginRead::ReadModel(const std::string& path, const char* texBasePath)
+    {
+        return Liar::LiarPluginRead::ReadModel(path.c_str(), texBasePath);
+    }
 	Liar::Model* LiarPluginRead::ReadModel(const char* path, const char* texBasePath)
 	{
 		Liar::LiarNode* node = new Liar::LiarNode();
@@ -45,6 +50,8 @@ namespace Liar
 #else
 		pFile = fopen(path, "rb+");
 #endif
+//        if(!pFile) LOG("ERROR::MODEL::FILE_NOT_SUCCESFULLY_READ");
+        
 		std::string basePath = path;
 		basePath = Liar::StringUtil::GetHead(basePath, "/");
 
@@ -83,6 +90,10 @@ namespace Liar
 		}
 	}
 
+    Liar::LiarMesh* LiarPluginRead::ReadMesh(const std::string& path, const char* texBasePath)
+    {
+        return Liar::LiarPluginRead::ReadMesh(path.c_str(), texBasePath);
+    }
 	Liar::LiarMesh* LiarPluginRead::ReadMesh(const char* path, const char* texBasePath)
 	{
 		FILE* pFile;

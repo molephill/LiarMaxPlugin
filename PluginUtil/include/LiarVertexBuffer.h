@@ -14,15 +14,15 @@ namespace Liar
 	{
 	public:
 		LiarVertexDefine() :positionIndex(0), normalIndex(0), texCoordIndex(0), colorIndex(0) {};
-		LiarVertexDefine(unsigned long posIndex, unsigned long normIndex, unsigned long texIndex, unsigned long corIndex) :
+		LiarVertexDefine(unsigned int posIndex, unsigned int normIndex, unsigned int texIndex, unsigned int corIndex) :
 			positionIndex(posIndex), normalIndex(normIndex), texCoordIndex(texIndex), colorIndex(corIndex) {}
 		~LiarVertexDefine() {};
 		
 	public:
-		unsigned long positionIndex;
-		unsigned long normalIndex;
-		unsigned long texCoordIndex;
-		unsigned long colorIndex;
+		unsigned int positionIndex;
+		unsigned int normalIndex;
+		unsigned int texCoordIndex;
+		unsigned int colorIndex;
 
 	public:
 		bool operator==(const LiarVertexDefine& rhs) const
@@ -30,7 +30,7 @@ namespace Liar
 			return rhs.positionIndex == positionIndex && rhs.normalIndex == normalIndex && rhs.texCoordIndex == texCoordIndex && rhs.colorIndex == colorIndex;
 		}
 
-		bool Equal(unsigned long posIndex, unsigned long normIndex, unsigned long texIndex, unsigned long corIndex = 0)
+		bool Equal(unsigned int posIndex, unsigned int normIndex, unsigned int texIndex, unsigned int corIndex = 0)
 		{
 			return positionIndex == posIndex && normalIndex == normIndex && texCoordIndex == texIndex && colorIndex == corIndex;
 		}
