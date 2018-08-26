@@ -59,8 +59,8 @@ namespace Liar
 		std::vector<Liar::LiarVertexBuffer*>* GetBuffers() { return m_allVertexBuffers; };
 		std::vector<unsigned int>* GetIndices() { return m_indices; };
 
-		size_t GetBufferSize() { return m_allVertexBuffers ? m_allVertexBuffers->size() : 0; };
-		size_t GetIndicesSize() { return m_indices->size(); };
+		int GetBufferSize() { return m_allVertexBuffers ? m_allVertexBuffers->size() : 0; };
+		int GetIndicesSize() { return m_indices->size(); };
 
 		void SetVertexOpen(int v) { m_vertexOpen = v; };
 

@@ -178,21 +178,21 @@ namespace Liar
 		}
 		// ============================ fill_data ======================
 
-		size_t positionSize = Liar::LiarVertexBuffer::GetPositionSize();
-		size_t normalSize = Liar::LiarVertexBuffer::GetNormalSize();
-		size_t colorSize = Liar::LiarVertexBuffer::GetColorSize();
-		size_t uvSize = Liar::LiarVertexBuffer::GetUVSize();
+		int positionSize = Liar::LiarVertexBuffer::GetPositionSize();
+		int normalSize = Liar::LiarVertexBuffer::GetNormalSize();
+		int colorSize = Liar::LiarVertexBuffer::GetColorSize();
+		int uvSize = Liar::LiarVertexBuffer::GetUVSize();
 
 		bool normal = Liar::LairVersionCtr::CheckVertexOpen(m_vertexOpen, LIAR_NORMAL);
 		bool color = Liar::LairVersionCtr::CheckVertexOpen(m_vertexOpen, LIAR_COLOR);
 		bool uv = Liar::LairVersionCtr::CheckVertexOpen(m_vertexOpen, LIAR_UV);
 
-		size_t positionOffSize = Liar::LiarVertexBuffer::GetPositionOffSize();
-		size_t normalOffSize = Liar::LiarVertexBuffer::GetNormalOffSize();
-		size_t colorOffSize = Liar::LiarVertexBuffer::GetColorOffSize();
-		size_t uvOffSize = Liar::LiarVertexBuffer::GetUVOffSize();
+		int positionOffSize = Liar::LiarVertexBuffer::GetPositionOffSize();
+		int normalOffSize = Liar::LiarVertexBuffer::GetNormalOffSize();
+		int colorOffSize = Liar::LiarVertexBuffer::GetColorOffSize();
+		int uvOffSize = Liar::LiarVertexBuffer::GetUVOffSize();
 
-		size_t oneSize = positionSize;
+		int oneSize = positionSize;
 		if (normal) 
 		{
 			oneSize += normalSize;
@@ -225,8 +225,8 @@ namespace Liar
 
 
 		//size_t oneSize = Liar::LiarVertexBuffer::GetBuffSize();
-		size_t bufferSize = m_allVertexBuffers->size();
-		size_t totalSize = bufferSize * oneSize;
+		int bufferSize = static_cast<int>(m_allVertexBuffers->size());
+		int totalSize = bufferSize * oneSize;
 
 		glBufferData(GL_ARRAY_BUFFER, totalSize, nullptr, GL_STATIC_DRAW);
 		for (size_t i = 0; i < bufferSize; ++i)
@@ -239,7 +239,7 @@ namespace Liar
 			if (color) glBufferSubData(GL_ARRAY_BUFFER, start + colorOffSize, colorSize, buffData->color);
 		}
 
-		size_t indiceSize1 = GetIndicesSize() * sizeof(unsigned int);
+		int indiceSize1 = GetIndicesSize() * sizeof(unsigned int);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indiceSize1, m_indices->data(), GL_STATIC_DRAW);
 

@@ -94,10 +94,11 @@ namespace Liar
 	void LiarTexture::Render(Liar::Shader& shader, size_t texNum)
 	{
 		if (!m_texContext) return;
+        int index = static_cast<int>(texNum);
 		std::string name = "texture";
-		name = name + std::to_string(texNum);
-		shader.SetInt(name, texNum);
-		glActiveTexture(GL_TEXTURE0 + texNum);
+		name = name + std::to_string(index);
+		shader.SetInt(name, index);
+		glActiveTexture(GL_TEXTURE0 + index);
 		glBindTexture(GL_TEXTURE_2D, m_texContext->GetTextureId());
 	}
 

@@ -103,24 +103,24 @@ namespace Liar
 
 #ifndef PLUGINS
 	public:
-		static size_t GetPositionSize() { return sizeof(Liar::Vector3D); };
-		static size_t GetNormalSize() { return sizeof(Liar::Vector3D); };
-		static size_t GetColorSize() { return sizeof(Liar::Vector3D); };
-		static size_t GetUVSize() { return sizeof(Liar::Vector3D); };
+		static int GetPositionSize() { return sizeof(Liar::Vector3D); };
+		static int GetNormalSize() { return sizeof(Liar::Vector3D); };
+		static int GetColorSize() { return sizeof(Liar::Vector3D); };
+		static int GetUVSize() { return sizeof(Liar::Vector3D); };
 
-		static size_t GetPositionOffSize() { return 0; };
-		static size_t GetNormalOffSize() { return Liar::LiarVertexBuffer::GetPositionSize(); };
-		static size_t GetColorOffSize() 
+		static int GetPositionOffSize() { return 0; };
+		static int GetNormalOffSize() { return Liar::LiarVertexBuffer::GetPositionSize(); };
+		static int GetColorOffSize()
 		{
 			return Liar::LiarVertexBuffer::GetNormalOffSize() + Liar::LiarVertexBuffer::GetNormalSize();
 		}
 
-		static size_t GetUVOffSize() 
+		static int GetUVOffSize()
 		{
 			return Liar::LiarVertexBuffer::GetColorOffSize() + Liar::LiarVertexBuffer::GetColorSize();
 		}
 
-		static size_t GetBuffSize() 
+		static int GetBuffSize() 
 		{
 			return Liar::LiarVertexBuffer::GetPositionSize() + Liar::LiarVertexBuffer::GetNormalSize()
 				+ Liar::LiarVertexBuffer::GetColorSize() + Liar::LiarVertexBuffer::GetUVSize();
