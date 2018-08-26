@@ -538,11 +538,11 @@ namespace Liar
 	}
 
 	inline void Vector3D::Negative() {
-		x = -x; y = -y, z = -z;
+		x = -x; y = -y; z = -z;
 	}
 
 	inline void Vector3D::Add(const Vector3D& rhs) {
-		x += rhs.x; y += rhs.y, z += rhs.z;
+        x += rhs.x; y += rhs.y; z += rhs.z;
 	}
 
 	inline void Vector3D::Add(float v) {
@@ -762,11 +762,11 @@ namespace Liar
 	}
 
 	inline void Vector4D::Negative() {
-		x = -x; y = -y, z = -z; w = -w;
+        x = -x; y = -y; z = -z; w = -w;
 	}
 
 	inline void Vector4D::Add(const Vector4D& rhs) {
-		x += rhs.x; y += rhs.y, z += rhs.z; w += rhs.w;
+        x += rhs.x; y += rhs.y; z += rhs.z; w += rhs.w;
 	}
 
 	inline void Vector4D::Add(float v) {

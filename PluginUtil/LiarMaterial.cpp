@@ -2,14 +2,14 @@
 #include <LiarStringUtil.h>
 
 #ifndef PLUGINS
-#include <LiarTextureHelper.h>
-#include <AssetsMgr.hpp>
+#include "LiarTextureHelper.h"
+#include "AssetsMgr.hpp"
 #endif // !PLUGINS
 
 namespace Liar
 {
 
-	// ====================  Œ∆¿Ìƒ⁄»› ================
+	// ====================  texture_content ================
 	LiarTexContext::LiarTexContext() :m_path("")
 	{
 #ifndef PLUGINS

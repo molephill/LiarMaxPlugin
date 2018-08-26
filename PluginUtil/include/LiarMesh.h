@@ -67,10 +67,10 @@ namespace Liar
 		Liar::LiarVertexRawData* GetRawData() { return m_rawData; };
 
 		Liar::LiarVertexDefine* FindVertexDefine(const Liar::LiarVertexDefine&);
-		Liar::LiarVertexDefine* FindVertexDefine(unsigned long, unsigned long, unsigned long, unsigned long cor = 0);
+		Liar::LiarVertexDefine* FindVertexDefine(unsigned int, unsigned int, unsigned int, unsigned int cor = 0);
 
 		int FindVertexDefineIndex(const Liar::LiarVertexDefine&) const;
-		int FindVertexDefineIndex(unsigned long, unsigned long, unsigned long, unsigned long cor = 0) const;
+		int FindVertexDefineIndex(unsigned int, unsigned int, unsigned int, unsigned int cor = 0) const;
 
 		std::vector<Liar::LiarVertexDefine*>* GetVertexFaces() { return m_vertexFaces; };
 		size_t GetVertexFaceSize() const { return m_vertexFaces ? m_vertexFaces->size() : 0; };

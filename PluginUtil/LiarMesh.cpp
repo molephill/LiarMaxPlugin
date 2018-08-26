@@ -103,7 +103,7 @@ namespace Liar
 		return FindVertexDefine(rhs.positionIndex, rhs.normalIndex, rhs.texCoordIndex, rhs.colorIndex);
 	}
 
-	Liar::LiarVertexDefine* LiarGeometry::FindVertexDefine(unsigned long posIndex, unsigned long normIndex, unsigned long texIndex, unsigned long cor)
+	Liar::LiarVertexDefine* LiarGeometry::FindVertexDefine(unsigned int posIndex, unsigned int normIndex, unsigned int texIndex, unsigned int cor)
 	{
 		for (std::vector<Liar::LiarVertexDefine*>::iterator it = m_vertexFaces->begin(); it != m_vertexFaces->end(); ++it)
 		{
@@ -120,7 +120,7 @@ namespace Liar
 		return FindVertexDefineIndex(rhs.positionIndex, rhs.normalIndex, rhs.texCoordIndex, rhs.colorIndex);
 	}
 
-	int LiarGeometry::FindVertexDefineIndex(unsigned long posIndex, unsigned long normIndex, unsigned long texIndex, unsigned long cor) const
+	int LiarGeometry::FindVertexDefineIndex(unsigned int posIndex, unsigned int normIndex, unsigned int texIndex, unsigned int cor) const
 	{
 		size_t size = GetVertexFaceSize();
 		for (size_t i = 0; i < size; ++i)
@@ -128,7 +128,7 @@ namespace Liar
 			Liar::LiarVertexDefine* tmp = m_vertexFaces->at(i);
 			if (tmp->Equal(posIndex, normIndex, texIndex, cor))
 			{
-				return i;
+				return static_cast<int>(i);
 			}
 		}
 		return -1;
@@ -183,7 +183,6 @@ namespace Liar
 		size_t colorSize = Liar::LiarVertexBuffer::GetColorSize();
 		size_t uvSize = Liar::LiarVertexBuffer::GetUVSize();
 
-		bool pos = true;
 		bool normal = Liar::LairVersionCtr::CheckVertexOpen(m_vertexOpen, LIAR_NORMAL);
 		bool color = Liar::LairVersionCtr::CheckVertexOpen(m_vertexOpen, LIAR_COLOR);
 		bool uv = Liar::LairVersionCtr::CheckVertexOpen(m_vertexOpen, LIAR_UV);

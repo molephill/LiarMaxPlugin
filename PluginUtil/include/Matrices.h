@@ -161,7 +161,7 @@ namespace Liar
 		union Matrix3Union
 		{
 			float ss[3][3];
-			float s[6];
+			float s[9];
 		}m;
 	};
 
@@ -192,11 +192,13 @@ namespace Liar
 		void					SetRow(int, const std::vector<float>&);
 		void					SetRow(int, const Liar::Vector4D&);
 		void					SetRow(int, const Liar::Vector3D&);
+        void                    SetRow(int, float, float, float, float);
 
 		void					SetCol(int, const float row[4]);
 		void					SetCol(int, const std::vector<float>&);
 		void					SetCol(int, const Liar::Vector4D&);
 		void					SetCol(int, const Liar::Vector3D&);
+        void                    SetCol(int, float, float, float, float w = 1.0f);
 
 		const float*			GetRawData() const { return m.s; };
 
@@ -229,10 +231,11 @@ namespace Liar
 		Liar::Matrix4&    RotateZ(float angle);                   // rotate on Z-axis with degree
 		Liar::Matrix4&    Scale(float scale);                     // uniform scale
 		Liar::Matrix4&    Scale(float sx, float sy, float sz);    // scale by (sx, sy, sz) on each axis
-		Liar::Matrix4&    LookAt(float tx, float ty, float tz);   // face object to the target direction
-		Liar::Matrix4&    LookAt(float tx, float ty, float tz, float ux, float uy, float uz);
-		Liar::Matrix4&    LookAt(const Liar::Vector3D& target);
-		Liar::Matrix4&    LookAt(const Liar::Vector3D& target, const Liar::Vector3D& up);
+        
+        static void LookAt(float, float, float, float, float, float, Matrix4&);// face object to the target direction
+		static void LookAt(float, float, float, float, float, float, float, float, float, Matrix4&);
+		static void LookAt(const Liar::Vector3D&, const Liar::Vector3D&, Matrix4&);
+        static void LookAt(const Liar::Vector3D&, const Liar::Vector3D&, const Liar::Vector3D& up, Matrix4&);
 		//@@Matrix4&    skew(float angle, const Vector3& axis); //
 
 		// operators
@@ -698,10 +701,22 @@ namespace Liar
 
 	inline Matrix4 Matrix4::operator*(const Matrix4& n) const
 	{
-		return Matrix4(m.s[0] * n[0] + m.s[4] * n[1] + m.s[8] * n[2] + m.s[12] * n[3],		m.s[1] * n[0] + m.s[5] * n[1] + m.s[9] * n[2] + m.s[13] * n[3],		m.s[2] * n[0] + m.s[6] * n[1] + m.s[10] * n[2] + m.s[14] * n[3],	m.s[3] * n[0] + m.s[7] * n[1] + m.s[11] * n[2] + m.s[15] * n[3],
-						m.s[0] * n[4] + m.s[4] * n[5] + m.s[8] * n[6] + m.s[12] * n[7],		m.s[1] * n[4] + m.s[5] * n[5] + m.s[9] * n[6] + m.s[13] * n[7],		m.s[2] * n[4] + m.s[6] * n[5] + m.s[10] * n[6] + m.s[14] * n[7],	m.s[3] * n[4] + m.s[7] * n[5] + m.s[11] * n[6] + m.s[15] * n[7],
-						m.s[0] * n[8] + m.s[4] * n[9] + m.s[8] * n[10] + m.s[12] * n[11],	m.s[1] * n[8] + m.s[5] * n[9] + m.s[9] * n[10] + m.s[13] * n[11],	m.s[2] * n[8] + m.s[6] * n[9] + m.s[10] * n[10] + m.s[14] * n[11],	m.s[3] * n[8] + m.s[7] * n[9] + m.s[11] * n[10] + m.s[15] * n[11],
-						m.s[0] * n[12] + m.s[4] * n[13] + m.s[8] * n[14] + m.s[12] * n[15], m.s[1] * n[12] + m.s[5] * n[13] + m.s[9] * n[14] + m.s[13] * n[15], m.s[2] * n[12] + m.s[6] * n[13] + m.s[10] * n[14] + m.s[14] * n[15], m.s[3] * n[12] + m.s[7] * n[13] + m.s[11] * n[14] + m.s[15] * n[15]);
+		return Matrix4(m.s[0] * n[0] + m.s[4] * n[1] + m.s[8] * n[2] + m.s[12] * n[3],
+                       m.s[1] * n[0] + m.s[5] * n[1] + m.s[9] * n[2] + m.s[13] * n[3],
+                       m.s[2] * n[0] + m.s[6] * n[1] + m.s[10] * n[2] + m.s[14] * n[3],
+                       m.s[3] * n[0] + m.s[7] * n[1] + m.s[11] * n[2] + m.s[15] * n[3],
+                       m.s[0] * n[4] + m.s[4] * n[5] + m.s[8] * n[6] + m.s[12] * n[7],
+                       m.s[1] * n[4] + m.s[5] * n[5] + m.s[9] * n[6] + m.s[13] * n[7],
+                       m.s[2] * n[4] + m.s[6] * n[5] + m.s[10] * n[6] + m.s[14] * n[7],
+                       m.s[3] * n[4] + m.s[7] * n[5] + m.s[11] * n[6] + m.s[15] * n[7],
+                       m.s[0] * n[8] + m.s[4] * n[9] + m.s[8] * n[10] + m.s[12] * n[11],
+                       m.s[1] * n[8] + m.s[5] * n[9] + m.s[9] * n[10] + m.s[13] * n[11],
+                       m.s[2] * n[8] + m.s[6] * n[9] + m.s[10] * n[10] + m.s[14] * n[11],
+                       m.s[3] * n[8] + m.s[7] * n[9] + m.s[11] * n[10] + m.s[15] * n[11],
+                       m.s[0] * n[12] + m.s[4] * n[13] + m.s[8] * n[14] + m.s[12] * n[15],
+                       m.s[1] * n[12] + m.s[5] * n[13] + m.s[9] * n[14] + m.s[13] * n[15],
+                       m.s[2] * n[12] + m.s[6] * n[13] + m.s[10] * n[14] + m.s[14] * n[15],
+                       m.s[3] * n[12] + m.s[7] * n[13] + m.s[11] * n[14] + m.s[15] * n[15]);
 	}
 
 	inline Matrix4& Matrix4::operator*=(const Matrix4& n)
