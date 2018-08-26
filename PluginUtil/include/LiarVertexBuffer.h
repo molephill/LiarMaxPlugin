@@ -71,6 +71,10 @@ namespace Liar
 		Liar::Vector3D* AddNorm(size_t);
 		Liar::Vector3D* AddColor(size_t);
 		Liar::Vector3D* AddTex(size_t);
+        
+        bool HasNorm() { return m_norm ? true : false; };
+        bool HasColor() { return m_color ? true : false; };
+        bool HasTexCoord() { return m_texCoord ? true : false; };
 
 		Liar::Vector3D* AddData(int, size_t);
 		int GetIndex(int, float, float, float);
