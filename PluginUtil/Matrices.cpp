@@ -382,6 +382,11 @@ namespace Liar
 	{
 		m.s[index] = v.x;  m.s[index + 4] = v.y;  m.s[index + 8] = v.z;
 	}
+    
+    void Matrix4::SetRow(int index, float x, float y, float z, float w)
+    {
+        m.s[index] = x;  m.s[index + 4] = y;  m.s[index + 8] = z;  m.s[index + 12] = w;
+    }
 
 	void Matrix4::SetCol(int index, const float col[4])
 	{
@@ -402,6 +407,11 @@ namespace Liar
 	{
 		m.s[index * 4] = v.x;  m.s[index * 4 + 1] = v.y;  m.s[index * 4 + 2] = v.z;
 	}
+    
+    void Matrix4::SetCol(int index, float x, float y, float z, float w)
+    {
+        m.s[index * 4] = x;  m.s[index * 4 + 1] = y;  m.s[index * 4 + 2] = z;  m.s[index * 4 + 3] = w;
+    }
 
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -846,144 +856,98 @@ namespace Liar
 	// translation values.
 	// NOTE: It is for rotating object to look at the target, NOT for camera
 	///////////////////////////////////////////////////////////////////////////////
-	Matrix4& Matrix4::LookAt(const Vector3D& target)
+	void Matrix4::LookAt(const Vector3D& pos, const Vector3D& target, Matrix4& out)
 	{
-		return LookAt(target.x, target.y, target.z);
+		LookAt(pos.x, pos.y, pos.z, target.x, target.y, target.z, out);
 	}
 
-	Matrix4& Matrix4::LookAt(const Vector3D& target, const Vector3D& upVec)
+	void Matrix4::LookAt(const Vector3D& pos,const Vector3D& target, const Vector3D& upVec, Matrix4& out)
 	{
-		return LookAt(target.x, target.y, target.z, upVec.x, upVec.y, upVec.z);
+        LookAt(pos.x, pos.y, pos.z, target.x, target.y, target.z, upVec.x, upVec.y, upVec.z, out);
 	}
 
-	Matrix4& Matrix4::LookAt(float tx, float ty, float tz)
+	void Matrix4::LookAt(float x, float y, float z, float tx, float ty, float tz, Matrix4& out)
 	{
-		//// compute forward vector and normalize
-		//Vector3D position = Vector3D(m12, m13, m14);
-		//Vector3D forward = target - position;
-		//forward.Normalize();
-		//Vector3D up;             // up vector of object
-		//Vector3D left;           // left vector of object
-
-		//						// compute temporal up vector
-		//						// if forward vector is near Y-axis, use up vector (0,0,-1) or (0,0,1)
-		//if (fabs(forward.x) < EPSILON && fabs(forward.z) < EPSILON)
-		//{
-		//	// forward vector is pointing +Y axis
-		//	if (forward.y > 0)
-		//		up.Set(0, 0, -1);
-		//	// forward vector is pointing -Y axis
-		//	else
-		//		up.Set(0, 0, 1);
-		//}
-		//else
-		//{
-		//	// assume up vector is +Y axis
-		//	up.Set(0, 1, 0);
-		//}
-
-		//// compute left vector
-		//left = up.Cross(forward);
-		//left.Normalize();
-
-		//// re-compute up vector
-		//up = forward.Cross(left);
-		////up.normalize();
-
-		//// NOTE: overwrite rotation and scale info of the current matrix
-		//this->SetCol(0, left);
-		//this->SetCol(1, up);
-		//this->SetCol(2, forward);
-
 		// compute forward vector and normalize
-		Liar::Vector3D* forward = new Liar::Vector3D(m.s[12], m.s[13], m.s[14]);
-		forward->Sub(tx, ty, tz);
-		forward->Normalize();
+        
+        float tmpx = x, tmpy = y, tmpz = z;
+        tmpx -= tx; tmpy -= ty; tmpz -= tz;
+        
+        float xxyyzz = tmpx*tmpx + tmpy*tmpy + tmpz*tmpz;
+        float invLength = 1.0f / sqrtf(xxyyzz);
+        tmpx *= invLength;
+        tmpy *= invLength;
+        tmpz *= invLength;
 
-		Liar::Vector3D* tmp = new Liar::Vector3D();
+        float upx = 0.0f, upy = 0.0f, upz = 0.0;
 
 		// compute temporal up vector
 		// if forward vector is near Y-axis, use up vector (0,0,-1) or (0,0,1)
-		if (fabs(forward->x) < EPSILON && fabs(forward->z) < EPSILON)
+		if (fabs(tmpx) < EPSILON && fabs(tmpz) < EPSILON)
 		{
 			// forward vector is pointing +Y axis
-			if (forward->y > 0)
-				tmp->Set(0.0, 0.0, -1.0f);
+			if (tmpy > 0)
+            {
+                upx = 0.0f;
+                upy = 0.0f;
+                upz = -1.0f;
+            }
 			// forward vector is pointing -Y axis
 			else
-				tmp->Set(0.0f, 0.0f, 1.0f);
+            {
+                upx = 0.0f;
+                upy = 0.0f;
+                upz = 1.0f;
+            }
 		}
 		else
 		{
 			// assume up vector is +Y axis
-			tmp->Set(0.0f, 1.0f, 0.0f);
+            upx = 0.0f;
+            upy = 1.0f;
+            upz = 0.0f;
 		}
-
-		this->SetCol(2, *forward);
-
-		// compute left vector
-		tmp->CrossC(*forward);
-		tmp->Normalize();
-
-		// re-compute up vector
-		forward->CrossC(*tmp);
-		forward->Normalize();
-		//up.normalize();
-
-		// NOTE: overwrite rotation and scale info of the current matrix
-		this->SetCol(0, *tmp);
-		this->SetCol(1, *forward);
-
-		delete tmp;
-		delete forward;
-
-		return *this;
+        
+        LookAt(x, y, z, tx, ty, tz, upx, upy, upz, out);
 	}
 
-	Matrix4& Matrix4::LookAt(float tx, float ty, float tz, float ux, float uy, float uz)
+	void Matrix4::LookAt(float px, float py, float pz,
+                         float tx, float ty, float tz,
+                         float ux, float uy, float uz,
+                         Matrix4& out)
 	{
-		//// compute forward vector and normalize
-		//Vector3D position = Vector3D(m12, m13, m14);
-		//Vector3D forward = target - position;
-		//forward.Normalize();
-
-		//// compute left vector
-		//Vector3D left = upVec.Cross(forward);
-		//left.Normalize();
-
-		//// compute orthonormal up vector
-		//Vector3D up = forward.Cross(left);
-		//up.Normalize();
-
-		//// NOTE: overwrite rotation and scale info of the current matrix
-		//this->SetCol(0, left);
-		//this->SetCol(1, up);
-		//this->SetCol(2, forward);
-
 		// compute forward vector and normalize
-		Liar::Vector3D* forward = new Liar::Vector3D(m.s[12], m.s[13], m.s[14]);
+		Liar::Vector3D* forward = new Liar::Vector3D(px, py, pz);
 		forward->Sub(tx, ty, tz);
 		forward->Normalize();
 
 		// compute left vector
 		Liar::Vector3D* left = new Liar::Vector3D(ux, uy, uz);
+        left->Normalize();
 		left->CrossC(*forward);
 		left->Normalize();
 
-		this->SetCol(0, *left);
-		this->SetCol(2, *forward);
+        out.Identity();
+        
+        Liar::Matrix4* trans = new Liar::Matrix4();
+        trans->SetCol(3, px, py, pz);
+        
+		out.SetCol(0, *left);
+		out.SetCol(2, *forward);
 
 		// compute orthonormal up vector
 		forward->CrossC(*left);
 		forward->Normalize();
 
 		// NOTE: overwrite rotation and scale info of the current matrix
-		this->SetCol(1, *forward);
+		out.SetCol(1, *forward);
 
 		delete forward;
 		delete left;
-
-		return *this;
+        
+        out *= (*trans);
+        
+        delete trans;
 	}
 
 
