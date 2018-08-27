@@ -41,61 +41,15 @@ namespace Liar
 	LiarGeometry::LiarGeometry():
 		m_rawData(new Liar::LiarVertexRawData())
 		, m_vertexFaces(new std::vector<Liar::LiarVertexDefine*>())
+		, m_indicesSize(0)
 	{
-#ifndef PLUGINS
-		m_allVertexBuffers = new std::vector<Liar::LiarVertexBuffer*>();
-#endif // PLUGINS
 		m_indices = new std::vector<unsigned int>();
 		m_vertexOpen = 0;
 	}
 
 	LiarGeometry::~LiarGeometry()
 	{
-#ifdef PLUGINS
-		if (m_allVertexBuffers)
-		{
-#endif // PLUGINS
-
-			EraseIndexBuff(0);
-			std::vector<Liar::LiarVertexBuffer*>().swap(*m_allVertexBuffers);
-			delete m_allVertexBuffers;
-#ifdef PLUGINS
-		}
-#endif // PLUGINS
-
-		std::vector<unsigned int>().swap(*m_indices);
-		delete m_indices;
-
-		delete m_rawData;
-	}
-
-	Liar::LiarVertexBuffer* LiarGeometry::GetBuffer(size_t index)
-	{
-		if (m_allVertexBuffers && index < m_allVertexBuffers->size())
-		{
-			return m_allVertexBuffers->at(index);
-		}
-		else
-		{
-			return nullptr;
-		}
-	}
-
-	void LiarGeometry::EraseIndexBuff(int index)
-	{
-#ifdef PLUGINS
-		if (m_allVertexBuffers)
-		{
-#endif // PLUGINS
-			for (std::vector<Liar::LiarVertexBuffer*>::iterator it = m_allVertexBuffers->begin() + index; it != m_allVertexBuffers->end();)
-			{
-				delete *it;
-				it = m_allVertexBuffers->erase(it);
-			}
-#ifdef PLUGINS
-		}
-#endif // PLUGINS
-
+		
 	}
 
 	Liar::LiarVertexDefine* LiarGeometry::FindVertexDefine(const Liar::LiarVertexDefine& rhs)
@@ -136,13 +90,6 @@ namespace Liar
 
 	std::ostream& operator<<(std::ostream& os, const Liar::LiarGeometry& m)
 	{
-		size_t buffSize = m.m_allVertexBuffers->size();
-		os << "buffSize: " << buffSize << "\n";
-		for (size_t i = 0; i < buffSize; ++i)
-		{
-			os << "buffer index: " << i << "\nbuffer info: " << *(m.m_allVertexBuffers->at(i)) << "\n";
-		}
-
 		size_t indicesSize = m.m_indices->size();
 		os << "indicesSize: " << indicesSize << "\n";
 		for (size_t i = 0; i < indicesSize;)
@@ -164,33 +111,19 @@ namespace Liar
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-		// ============================ fill_data ======================
-		size_t size = m_vertexFaces->size();
-		for (size_t i = 0; i < size; ++i)
-		{
-			Liar::LiarVertexDefine* tmp = m_vertexFaces->at(i);
-			Liar::LiarVertexBuffer* buffer = new Liar::LiarVertexBuffer();
-			buffer->position = m_rawData->GetPos(tmp->positionIndex);
-			buffer->normal = m_rawData->GetNorm(tmp->normalIndex);
-			buffer->color = m_rawData->GetColor(tmp->colorIndex);
-			buffer->uv = m_rawData->GetTexCoord(tmp->texCoordIndex);
-			m_allVertexBuffers->push_back(buffer);
-		}
-		// ============================ fill_data ======================
-
 		int positionSize = Liar::LiarVertexBuffer::GetPositionSize();
 		int normalSize = Liar::LiarVertexBuffer::GetNormalSize();
 		int colorSize = Liar::LiarVertexBuffer::GetColorSize();
 		int uvSize = Liar::LiarVertexBuffer::GetUVSize();
 
-		bool normal = Liar::LairVersionCtr::CheckVertexOpen(m_vertexOpen, LIAR_NORMAL);
-		bool color = Liar::LairVersionCtr::CheckVertexOpen(m_vertexOpen, LIAR_COLOR);
-		bool uv = Liar::LairVersionCtr::CheckVertexOpen(m_vertexOpen, LIAR_UV);
-
 		int positionOffSize = Liar::LiarVertexBuffer::GetPositionOffSize();
 		int normalOffSize = Liar::LiarVertexBuffer::GetNormalOffSize();
 		int colorOffSize = Liar::LiarVertexBuffer::GetColorOffSize();
 		int uvOffSize = Liar::LiarVertexBuffer::GetUVOffSize();
+
+		bool normal = m_rawData->HasNorm();
+		bool color = m_rawData->HasColor();
+		bool uv = m_rawData->HasTexCoord();
 
 		int oneSize = positionSize;
 		if (normal) 
@@ -223,20 +156,18 @@ namespace Liar
 		}
 		colorOffSize = uvOffSize + normalSize;
 
-
-		//size_t oneSize = Liar::LiarVertexBuffer::GetBuffSize();
-		int bufferSize = static_cast<int>(m_allVertexBuffers->size());
+		int bufferSize = static_cast<int>(m_vertexFaces->size());
 		int totalSize = bufferSize * oneSize;
 
 		glBufferData(GL_ARRAY_BUFFER, totalSize, nullptr, GL_STATIC_DRAW);
 		for (size_t i = 0; i < bufferSize; ++i)
 		{
+			Liar::LiarVertexDefine* tmp = m_vertexFaces->at(i);
 			size_t start = i * oneSize;
-			Liar::LiarVertexBuffer* buffData = m_allVertexBuffers->at(i);
-			glBufferSubData(GL_ARRAY_BUFFER, start + positionOffSize, positionSize, buffData->position);
-			if (normal) glBufferSubData(GL_ARRAY_BUFFER, start + normalOffSize, normalSize, buffData->normal);
-			if (uv) glBufferSubData(GL_ARRAY_BUFFER, start + uvOffSize, uvSize, buffData->uv);
-			if (color) glBufferSubData(GL_ARRAY_BUFFER, start + colorOffSize, colorSize, buffData->color);
+			glBufferSubData(GL_ARRAY_BUFFER, start + positionOffSize, positionSize, m_rawData->GetPos(tmp->positionIndex));
+			if (normal) glBufferSubData(GL_ARRAY_BUFFER, start + normalOffSize, normalSize, m_rawData->GetNorm(tmp->normalIndex));
+			if (uv) glBufferSubData(GL_ARRAY_BUFFER, start + uvOffSize, uvSize, m_rawData->GetTexCoord(tmp->texCoordIndex));
+			if (color) glBufferSubData(GL_ARRAY_BUFFER, start + colorOffSize, colorSize, m_rawData->GetColor(tmp->colorIndex));
 		}
 
 		int indiceSize1 = GetIndicesSize() * sizeof(unsigned int);
@@ -272,13 +203,22 @@ namespace Liar
 			glEnableVertexAttribArray(curId);
 		}
 
+		ReleaseData();
+	}
+
+	void LiarGeometry::ReleaseData()
+	{
+		m_indicesSize = GetIndicesSize();
+		std::vector<unsigned int>().swap(*m_indices);
+		delete m_indices;
+		delete m_rawData;
 	}
 
 	void LiarGeometry::Render()
 	{
 		// draw mesh
 		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, GetIndicesSize(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, m_indicesSize, GL_UNSIGNED_INT, 0);
 	}
 
 #endif // !PLUGINS

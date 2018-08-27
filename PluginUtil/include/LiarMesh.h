@@ -48,18 +48,18 @@ namespace Liar
 		~LiarGeometry();
 
 	private:
-		std::vector<Liar::LiarVertexBuffer*>* m_allVertexBuffers;
 		std::vector<unsigned int>* m_indices;
 		int m_vertexOpen;
 
 		Liar::LiarVertexRawData* m_rawData;
 		std::vector<Liar::LiarVertexDefine*>* m_vertexFaces;
 
-	public:
-		std::vector<Liar::LiarVertexBuffer*>* GetBuffers() { return m_allVertexBuffers; };
-		std::vector<unsigned int>* GetIndices() { return m_indices; };
+		int m_indicesSize;
 
-		int GetBufferSize() { return m_allVertexBuffers ? static_cast<int>(m_allVertexBuffers->size()) : 0; };
+		void ReleaseData();
+
+	public:
+		std::vector<unsigned int>* GetIndices() { return m_indices; };
 		int GetIndicesSize() { return static_cast<int>(m_indices->size()); };
 
 		void SetVertexOpen(int v) { m_vertexOpen = v; };
@@ -76,9 +76,6 @@ namespace Liar
 		size_t GetVertexFaceSize() const { return m_vertexFaces ? m_vertexFaces->size() : 0; };
 		LiarVertexDefine* GetFace(size_t index) { return m_vertexFaces->at(index); };
 
-		LiarVertexBuffer* GetBuffer(size_t);
-
-		void EraseIndexBuff(int);
 		friend std::ostream& operator<<(std::ostream& os, const Liar::LiarGeometry& m);
         
 #ifndef PLUGINS
