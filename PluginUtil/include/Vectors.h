@@ -332,12 +332,7 @@ namespace Liar
 	}
 
 	inline Vector2D& Vector2D::Normalize() {
-		//@@const float EPSILON = 0.000001f;
 		float xxyy = x*x + y*y;
-		//@@if(xxyy < EPSILON)
-		//@@    return *this;
-
-		//float invLength = invSqrt(xxyy);
 		float invLength = 1.0f / sqrtf(xxyy);
 		x *= invLength;
 		y *= invLength;
@@ -519,17 +514,13 @@ namespace Liar
 		float l1 = this->Length();
 		float l2 = vec.Length();
 		float d = this->Dot(vec);
-		float angle = acosf(d / (l1 * l2)) / 3.141592f * 180.0f;
+		//float angle = acosf(d / (l1 * l2)) / 3.141592f * 180.0f;
+		float angle = acosf(d / (l1 * l2)) * RAD2DEG;
 		return angle;
 	}
 
 	inline Vector3D& Vector3D::Normalize() {
-		//@@const float EPSILON = 0.000001f;
 		float xxyyzz = x*x + y*y + z*z;
-		//@@if(xxyyzz < EPSILON)
-		//@@    return *this; // do nothing if it is ~zero vector
-
-		//float invLength = invSqrt(xxyyzz);
 		float invLength = 1.0f / sqrtf(xxyyzz);
 		x *= invLength;
 		y *= invLength;
@@ -621,10 +612,7 @@ namespace Liar
 	}
 
 	inline void Vector3D::CrossC(const Vector3D& rhs) {
-		float tx = x, ty = y, tz = z;
-		x = ty*rhs.z - tz*rhs.y;
-		y = tz*rhs.x - tx*rhs.z;
-		z = tx*rhs.y - ty*rhs.x;
+		Cross(rhs.x, rhs.y, rhs.z);
 	}
 
 	inline bool Vector3D::Equal(const Vector3D& rhs, float epsilon) const {
@@ -747,13 +735,7 @@ namespace Liar
 	}
 
 	inline Vector4D& Vector4D::Normalize() {
-		//NOTE: leave w-component untouched
-		//@@const float EPSILON = 0.000001f;
 		float xxyyzz = x*x + y*y + z*z;
-		//@@if(xxyyzz < EPSILON)
-		//@@    return *this; // do nothing if it is zero vector
-
-		//float invLength = invSqrt(xxyyzz);
 		float invLength = 1.0f / sqrtf(xxyyzz);
 		x *= invLength;
 		y *= invLength;

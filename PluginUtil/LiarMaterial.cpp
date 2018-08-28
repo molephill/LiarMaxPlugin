@@ -33,7 +33,7 @@ namespace Liar
 		{
 			m_textureId = Liar::LiarTextureHelper::LoadDDS(fileName);
 		}
-		if (ext == "TGA")
+		else if (ext == "TGA")
 		{
 			m_textureId = Liar::LiarTextureHelper::LoadTGA(fileName);
 		}
