@@ -2,6 +2,7 @@
 
 #include <LiarMesh.h>
 #include <LiarPluginCfg.h>
+#include <LiarSkeletonAnim.h>
 
 #include <IGame.h>
 #include <IGameObject.h>
@@ -25,7 +26,9 @@ namespace Liar
 	private:
 		Liar::LiarNode* m_rootNode;
 		std::vector<Liar::LiarMesh*>* m_allMeshs;
-		std::vector<IGameNode*>* m_allBones;
+		std::vector<Liar::LiarBone*>* m_allBones;
+		std::vector<Liar::LiarMaterialNode*>* m_allMats;
+		Liar::LiarSkeletonAnim* m_anim;
 
 	public:
 		int ParseRootNode(Liar::LiarPluginCfg*, bool);
@@ -39,12 +42,15 @@ namespace Liar
 		void ParseValidMeshNode(Liar::LiarPluginCfg*, IGameNode*, IGameObject::ObjectTypes, Liar::LiarNode*, int&);
 		void ParseChildNode(Liar::LiarPluginCfg*, IGameNode*, Liar::LiarNode*, int&);
 		void ParseGameMesh(Liar::LiarPluginCfg*, IGameMesh*, Liar::LiarNode*, int&);
+		void ParseGeometory(Liar::LiarPluginCfg*, IGameMesh*, int&);
+
+		void ParseMatNodes(IGameScene*);
 
 		void ParseBones(Liar::LiarPluginCfg*, IGameNode*);
+		void ParseSkin(Liar::LiarPluginCfg*, IGameMesh*, Liar::LiarMesh*);
+		void ParseAnim(Liar::LiarPluginCfg*);
 
-	private:
-		void ParseGeometory(Liar::LiarPluginCfg*, IGameMesh*, int&);
-		void ParseAnim(Liar::LiarPluginCfg*, IGameMesh*);
+		Liar::LiarBone* GetLiarBone(IGameNode*);
 	};
 
 }

@@ -5,6 +5,7 @@
 #include <PluginDefine.h>
 #include <LiarStringUtil.h>
 #include <LiarMaterial.h>
+#include <LiarSkeleton.h>
 #include "LiarVertexBuffer.h"
 
 #ifndef PLUGINS

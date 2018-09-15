@@ -12,6 +12,7 @@
 #define IDC_EXP_GEOMETRY                1001
 #define IDC_EXP_SPLINES                 1002
 #define IDC_EXP_CONTROLLERS             1003
+#define IDC_EXP_ANIM                    1003
 #define IDC_EXP_MATERIAL                1004
 #define IDC_EXP_MODIFIERS               1005
 #define IDC_EXP_OBJECT_SPACE            1006
@@ -40,6 +41,7 @@
 #define IDC_STATIC_FRAME_SPIN           1028
 #define IDC_SAMPLE_FRAME_SPIN           1029
 #define IDC_EXP_SKELETON                1030
+#define IDC_EDIT_ANIM                   1032
 #define IDC_COLOR                       1456
 #define IDC_EDIT                        1490
 #define IDC_SPIN                        1496
@@ -50,7 +52,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        102
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1032
+#define _APS_NEXT_CONTROL_VALUE         1033
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

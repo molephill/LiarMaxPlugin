@@ -40,9 +40,9 @@ namespace Liar
 		CheckDlgButton(hWnd, IDC_EXP_GEOMETRY, m_pluginCfg->exportGeom);
 		CheckDlgButton(hWnd, IDC_EXP_REVERT_UV, m_pluginCfg->exportGeom);
 		CheckDlgButton(hWnd, IDC_EXP_SPLINES, m_pluginCfg->exportSplines);
-		CheckDlgButton(hWnd, IDC_EXP_CONTROLLERS, m_pluginCfg->exportController);
 		CheckDlgButton(hWnd, IDC_EXP_MATERIAL, m_pluginCfg->exportMaterial);
 		CheckDlgButton(hWnd, IDC_EXP_MODIFIERS, m_pluginCfg->exportModifier);
+		CheckDlgButton(hWnd, IDC_EXP_ANIM, m_pluginCfg->exportController);
 
 		//CheckDlgButton(hWnd, IDC_EXP_OBJECT_SPACE, m_pluginCfg->objectSpace);
 		//CheckDlgButton(hWnd, IDC_EXP_BASE_ON_SMGRPS, m_pluginCfg->faceBaseOnSmgrsp);
@@ -51,14 +51,14 @@ namespace Liar
 		CheckDlgButton(hWnd, IDC_EXP_VERTEX_UV, m_pluginCfg->textureCoord);
 		CheckDlgButton(hWnd, IDC_EXP_VERTEX_CORLOR, m_pluginCfg->vertexColor);
 
-		CheckDlgButton(hWnd, IDC_EXP_RELATIVE, m_pluginCfg->relative);
+		/*CheckDlgButton(hWnd, IDC_EXP_RELATIVE, m_pluginCfg->relative);
 		CheckDlgButton(hWnd, IDC_EXP_CONSTRAINTS, m_pluginCfg->constraints);
 		CheckDlgButton(hWnd, IDC_EXP_SAMPLECONT, m_pluginCfg->forceSample);
-		CheckDlgButton(hWnd, IDC_EXP_QUATERNIONS, m_pluginCfg->quaternions);
+		CheckDlgButton(hWnd, IDC_EXP_QUATERNIONS, m_pluginCfg->quaternions);*/
 
 		CheckDlgButton(hWnd, IDC_EXP_SKELETON, m_pluginCfg->skeleton);
 		CheckDlgButton(hWnd, IDC_EXP_SKIN, m_pluginCfg->skin);
-		CheckDlgButton(hWnd, IDC_EXP_GENMOD, m_pluginCfg->general);
+		//CheckDlgButton(hWnd, IDC_EXP_GENMOD, m_pluginCfg->general);
 
 
 		int ID = IDC_COORD_MAX + m_pluginCfg->coordSystemType;
@@ -87,8 +87,8 @@ namespace Liar
 			m_pluginCfg->exportGeom = IsDlgButtonChecked(hWnd, IDC_EXP_GEOMETRY) > 0 ? true : false;
 			SetGeoEnable(hWnd);
 			break;
-		case IDC_EXP_CONTROLLERS:
-			m_pluginCfg->exportController = IsDlgButtonChecked(hWnd, IDC_EXP_CONTROLLERS) > 0 ? true : false;
+		case IDC_EXP_ANIM:
+			m_pluginCfg->exportController = IsDlgButtonChecked(hWnd, IDC_EXP_ANIM) > 0 ? true : false;
 			SetControllerEnable(hWnd);
 			break;
 		case IDC_EXP_MODIFIERS:
@@ -132,9 +132,9 @@ namespace Liar
 		m_pluginCfg->exportGeom = IsDlgButtonChecked(hWnd, IDC_EXP_GEOMETRY) > 0 ? true : false;
 		m_pluginCfg->exportGeom = IsDlgButtonChecked(hWnd, IDC_EXP_REVERT_UV) > 0 ? true : false;
 		m_pluginCfg->exportSplines = IsDlgButtonChecked(hWnd, IDC_EXP_SPLINES) > 0 ? true : false;
-		m_pluginCfg->exportController = IsDlgButtonChecked(hWnd, IDC_EXP_CONTROLLERS) > 0 ? true : false;
 		m_pluginCfg->exportMaterial = IsDlgButtonChecked(hWnd, IDC_EXP_MATERIAL) > 0 ? true : false;
 		m_pluginCfg->exportModifier = IsDlgButtonChecked(hWnd, IDC_EXP_MODIFIERS) > 0 ? true : false;
+		m_pluginCfg->exportController = IsDlgButtonChecked(hWnd, IDC_EXP_ANIM) > 0 ? true : false;
 
 		//m_pluginCfg->objectSpace = IsDlgButtonChecked(hWnd, IDC_EXP_OBJECT_SPACE) > 0 ? true : false;
 		//m_pluginCfg->faceBaseOnSmgrsp = IsDlgButtonChecked(hWnd, IDC_EXP_BASE_ON_SMGRPS) > 0 ? true : false;
@@ -143,14 +143,14 @@ namespace Liar
 		m_pluginCfg->textureCoord = IsDlgButtonChecked(hWnd, IDC_EXP_VERTEX_UV) > 0 ? true : false;
 		m_pluginCfg->vertexColor = IsDlgButtonChecked(hWnd, IDC_EXP_VERTEX_CORLOR) > 0 ? true : false;
 
-		m_pluginCfg->relative = IsDlgButtonChecked(hWnd, IDC_EXP_RELATIVE) > 0 ? true : false;
+		/*m_pluginCfg->relative = IsDlgButtonChecked(hWnd, IDC_EXP_RELATIVE) > 0 ? true : false;
 		m_pluginCfg->constraints = IsDlgButtonChecked(hWnd, IDC_EXP_CONSTRAINTS) > 0 ? true : false;
 		m_pluginCfg->forceSample = IsDlgButtonChecked(hWnd, IDC_EXP_SAMPLECONT) > 0 ? true : false;
-		m_pluginCfg->quaternions = IsDlgButtonChecked(hWnd, IDC_EXP_QUATERNIONS) > 0 ? true : false;
+		m_pluginCfg->quaternions = IsDlgButtonChecked(hWnd, IDC_EXP_QUATERNIONS) > 0 ? true : false;*/
 
 		m_pluginCfg->skeleton = IsDlgButtonChecked(hWnd, IDC_EXP_SKELETON) > 0 ? true : false;
 		m_pluginCfg->skin = IsDlgButtonChecked(hWnd, IDC_EXP_SKIN) > 0 ? true : false;
-		m_pluginCfg->general = IsDlgButtonChecked(hWnd, IDC_EXP_GENMOD) > 0 ? true : false;
+		//m_pluginCfg->general = IsDlgButtonChecked(hWnd, IDC_EXP_GENMOD) > 0 ? true : false;
 
 		if (IsDlgButtonChecked(hWnd, IDC_COORD_MAX))
 		{
@@ -186,10 +186,11 @@ namespace Liar
 
 	void LiarMaxDialogMgr::SetControllerEnable(HWND hWnd)
 	{
-		EnableWindow(GetDlgItem(hWnd, IDC_EXP_RELATIVE), m_pluginCfg->exportController);
+		/*EnableWindow(GetDlgItem(hWnd, IDC_EXP_RELATIVE), m_pluginCfg->exportController);
 		EnableWindow(GetDlgItem(hWnd, IDC_EXP_CONSTRAINTS), m_pluginCfg->exportController);
 		EnableWindow(GetDlgItem(hWnd, IDC_EXP_SAMPLECONT), m_pluginCfg->exportController);
-		EnableWindow(GetDlgItem(hWnd, IDC_EXP_QUATERNIONS), m_pluginCfg->exportController);
+		EnableWindow(GetDlgItem(hWnd, IDC_EXP_QUATERNIONS), m_pluginCfg->exportController);*/
+		EnableWindow(GetDlgItem(hWnd, IDC_EDIT_ANIM), m_pluginCfg->exportController);
 	}
 
 	void LiarMaxDialogMgr::SetModifierEnable(HWND hWnd)

@@ -3,48 +3,90 @@
 
 namespace Liar
 {
-	// ================ vertex raw data ==============================
-	LiarVertexRawData::LiarVertexRawData() :m_pos(new std::vector<Vector3D*>()), m_norm(nullptr), m_color(nullptr), m_texCoord(nullptr)
+	// =================================== anim_skin_define ===================================
+	LiarAnimSkinDefine::LiarAnimSkinDefine() :m_vertIndex(0), m_skins(new std::vector<Liar::LiarSkin*>())
 	{
+	}
+
+	LiarAnimSkinDefine::~LiarAnimSkinDefine()
+	{
+		for (std::vector<LiarSkin*>::iterator it = m_skins->begin(); it != m_skins->end();)
+		{
+			delete (*it);
+			it = m_skins->erase(it);
+		}
+		delete m_skins;
+	}
+
+	Liar::LiarSkin* LiarAnimSkinDefine::AddSkin(int boneId, float weight)
+	{
+		for (std::vector<Liar::LiarSkin*>::iterator it = m_skins->begin(); it != m_skins->end(); ++it)
+		{
+			if ((*it)->bonId == boneId)
+			{
+				return *it;
+			}
+		}
+
+		Liar::LiarSkin* skin = new Liar::LiarSkin();
+		skin->bonId = boneId;
+		skin->weight = weight;
+		m_skins->push_back(skin);
+		return skin;
+	}
+
+	// ================ vertex raw data ==============================
+	LiarVertexRawData::LiarVertexRawData() :m_pos(new std::vector<Vector3D*>())
+		, m_norm(nullptr), m_color(nullptr), m_texCoord(nullptr), m_skinDefines(nullptr)
+	{
+	}
+
+	void LiarVertexRawData::EraseAll(std::vector<Liar::Vector3D*>* vec)
+	{
+		if (vec)
+		{
+			for (std::vector<Vector3D*>::iterator it = vec->begin(); it != vec->end();)
+			{
+				delete (*it);
+				it = vec->erase(it);
+			}
+			delete vec;
+		}
 	}
 
 	LiarVertexRawData::~LiarVertexRawData()
 	{
-		for (std::vector<Vector3D*>::iterator it = m_pos->begin(); it != m_pos->end();)
-		{
-			delete (*it);
-			it = m_pos->erase(it);
-		}
-		delete m_pos;
+		EraseAll(m_pos);
+		EraseAll(m_norm);
+		EraseAll(m_color);
+		EraseAll(m_texCoord);
+		m_pos = nullptr;
+		m_norm = nullptr;
+		m_color = nullptr;
+		m_texCoord = nullptr;
+	}
 
-		if (m_norm)
+	Liar::LiarAnimSkinDefine* LiarVertexRawData::GetAnimSkinDefine(unsigned int verIndex, bool add)
+	{
+		if (!m_skinDefines) m_skinDefines = new std::vector<Liar::LiarAnimSkinDefine*>();
+		for (std::vector<Liar::LiarAnimSkinDefine*>::iterator it = m_skinDefines->begin(); it != m_skinDefines->end(); ++it)
 		{
-			for (std::vector<Vector3D*>::iterator it = m_norm->begin(); it != m_norm->end();)
+			if ((*it)->GetVertIndex() == verIndex)
 			{
-				delete (*it);
-				it = m_norm->erase(it);
+				return *it;
 			}
-			delete m_norm;
-		}
-
-		if (m_color)
-		{
-			for (std::vector<Vector3D*>::iterator it = m_color->begin(); it != m_color->end();)
-			{
-				delete (*it);
-				it = m_color->erase(it);
-			}
-			delete m_color;
 		}
 
-		if (m_color)
+		if (add)
 		{
-			for (std::vector<Vector3D*>::iterator it = m_texCoord->begin(); it != m_texCoord->end();)
-			{
-				delete (*it);
-				it = m_texCoord->erase(it);
-			}
-			delete m_texCoord;
+			Liar::LiarAnimSkinDefine* skinDefine = new Liar::LiarAnimSkinDefine();
+			skinDefine->SetVertIndex(verIndex);
+			m_skinDefines->push_back(skinDefine);
+			return skinDefine;
+		}
+		else
+		{
+			return nullptr;
 		}
 	}
 

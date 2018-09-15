@@ -1,6 +1,9 @@
 #include "LiarPluginRead.h"
 #include <LiarStringUtil.h>
+
+#ifndef PLUGINS
 #include "Log.hpp"
+#endif // !PLUGINS
 
 namespace Liar
 {

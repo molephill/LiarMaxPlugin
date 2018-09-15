@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vectors.h"
+#include "LiarSkeleton.h"
 #include <vector>
 
 #ifndef PLUGINS
@@ -10,6 +11,7 @@
 
 namespace Liar
 {
+	// =================================== vertex_define ===================================
 	class LiarVertexDefine
 	{
 	public:
@@ -37,6 +39,25 @@ namespace Liar
 
 	};
 
+	// =================================== anim_skin_define ===================================
+	class LiarAnimSkinDefine
+	{
+	public:
+		LiarAnimSkinDefine();
+		~LiarAnimSkinDefine();
+
+	private:
+		unsigned int m_vertIndex;
+		std::vector<Liar::LiarSkin*>* m_skins;
+
+	public:
+		void SetVertIndex(unsigned int v) { m_vertIndex = v; };
+		unsigned int GetVertIndex() const { return m_vertIndex; };
+
+		Liar::LiarSkin* AddSkin(int, float);
+	};
+
+	// =================================== raw_data ===================================
 	class LiarVertexRawData
 	{
 	public:
@@ -48,6 +69,8 @@ namespace Liar
 		std::vector<Vector3D*>* m_norm;					// normal
 		std::vector<Vector3D*>* m_color;				// color
 		std::vector<Vector3D*>* m_texCoord;				// tex
+
+		std::vector<Liar::LiarAnimSkinDefine*>* m_skinDefines;
 
 	public:
 		std::vector<Vector3D*>* GetPos() { return m_pos; };
@@ -80,8 +103,12 @@ namespace Liar
 		int GetIndex(int, float, float, float);
 		int GetIndex(int, const Liar::Vector3D&);
 
+		// ======================
+		Liar::LiarAnimSkinDefine* GetAnimSkinDefine(unsigned int, bool add = false);
+
 	private:
 		std::vector<Liar::Vector3D*>* GetData(int);
+		void EraseAll(std::vector<Liar::Vector3D*>*);
 	};
 
 	class LiarVertexBuffer

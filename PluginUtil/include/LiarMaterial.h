@@ -9,11 +9,12 @@
 
 #ifndef PLUGINS
 #include "Shader.hpp"
+#else
+#include <IGame.h>
 #endif // !PLUGINS
 
 namespace Liar
 {
-
 	// ====================  纹理内容 ================
 	class LiarTexContext
 	{
@@ -101,6 +102,35 @@ namespace Liar
 #else
 	public:
 		void Render(Liar::Shader&);
+#endif // PLUGINS
+
+	};
+
+	// ==================== 材质内容 =================
+	class LiarMaterialNode
+	{
+	public:
+		LiarMaterialNode();
+		~LiarMaterialNode();
+
+	public:
+		std::string name;
+		std::string type;
+		std::vector<Liar::LiarTexture*>* texs;
+		int index;
+
+#ifdef PLUGINS
+		IGameMaterial* node;
+
+		bool operator==(const Liar::LiarMaterialNode& rhs) const
+		{
+			return rhs.node == node;
+		}
+
+		bool Equal(const Liar::LiarMaterialNode& rhs)
+		{
+			return rhs.node == node;
+		}
 #endif // PLUGINS
 
 	};

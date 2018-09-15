@@ -9,6 +9,31 @@
 namespace Liar
 {
 
+	// ==================== material node =================
+	LiarMaterialNode::LiarMaterialNode():
+		name(""), type(""), index(0), texs(new std::vector<Liar::LiarTexture*>())
+	{
+#ifdef PLUGINS
+		node = nullptr;
+#endif // PLUGINS
+	}
+
+	LiarMaterialNode::~LiarMaterialNode()
+	{
+		for (std::vector<Liar::LiarTexture*>::iterator it = texs->begin() + index; it != texs->end();)
+		{
+			delete *it;
+			it = texs->erase(it);
+		}
+		std::vector<Liar::LiarTexture*>().swap(*texs);
+		delete texs;
+
+#ifdef PLUGINS
+		node = nullptr;
+#endif // PLUGINS
+	}
+
+
 	// ====================  texture_content ================
 	LiarTexContext::LiarTexContext() :m_path("")
 	{

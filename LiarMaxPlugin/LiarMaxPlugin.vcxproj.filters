@@ -54,6 +54,15 @@
     <ClCompile Include="..\PluginUtil\LiarPluginRead.cpp">
       <Filter>Source Files\Includes</Filter>
     </ClCompile>
+    <ClCompile Include="..\PluginUtil\Quaternion.cpp">
+      <Filter>Source Files\Includes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PluginUtil\LiarSkeleton.cpp">
+      <Filter>Source Files\Includes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PluginUtil\LiarSkeletonAnim.cpp">
+      <Filter>Source Files\Includes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="LiarMaxPlugin.def">
@@ -107,6 +116,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\PluginUtil\include\LiarPluginRead.h">
+      <Filter>Header Files\Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PluginUtil\include\Quaternion.h">
+      <Filter>Header Files\Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PluginUtil\include\LiarSkeleton.h">
+      <Filter>Header Files\Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PluginUtil\include\LiarSkeletonAnim.h">
       <Filter>Header Files\Includes</Filter>
     </ClInclude>
   </ItemGroup>

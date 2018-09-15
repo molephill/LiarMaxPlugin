@@ -14,7 +14,7 @@ namespace Liar
 		, objectSpace(false), faceBaseOnSmgrsp(false), vertexColor(false), mappingChannels(false)
 
 		, relative(false), constraints(false), forceSample(false)
-		, skeleton(false), general(false)
+		, skeleton(true), general(false)
 		, perFace(false)
 		, staticFrame(0), framePerSample(4)
 		, pluginVersion(100)
