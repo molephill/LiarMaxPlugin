@@ -40,6 +40,8 @@ namespace Liar
 		size_t GetBoneSize() const { return m_allBones ? m_allBones->size() : 0; };
 		Liar::LiarBone* GetBone(size_t index) { return m_allBones ? m_allBones->at(index) : nullptr; };
 
+		Liar::LiarSkeletonAnim* GetAnim() { return m_anim; };
+
 	private:
 		void ParseGameNode(Liar::LiarPluginCfg*, IGameNode*, Liar::LiarNode*, int&);
 		void ParseValidMeshNode(Liar::LiarPluginCfg*, IGameNode*, IGameObject::ObjectTypes, Liar::LiarNode*, int&);

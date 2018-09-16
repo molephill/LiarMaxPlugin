@@ -34,6 +34,10 @@ namespace Liar
 		LiarKeyFrame* GetRotationKey(unsigned int, bool add = false);
 		LiarKeyFrame* GetScaleKey(unsigned int, bool add = false);
 
+		std::vector<Liar::LiarKeyFrame*>* GetPositionKeys() { return m_allPositionKeys; };
+		std::vector<Liar::LiarKeyFrame*>* GetRotationKeys() { return m_allRotationKeys; };
+		std::vector<Liar::LiarKeyFrame*>* GetScaleKeys() { return m_allScaleKeys; };
+
 	private:
 		void EraseAll(std::vector<Liar::LiarKeyFrame*>*);
 		LiarKeyFrame* GetKeyFrame(std::vector<Liar::LiarKeyFrame*>*, unsigned int);

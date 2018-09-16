@@ -133,11 +133,40 @@ namespace Liar
 			fwrite(&bone->parentId, sizeof(int), 1, hFile);
 			Liar::LiarPluginWrite::WriteString(bone->name, hFile);
 		}
+		fclose(hFile);
 	}
 
 	void LiarPluginWrite::WrtieLiarAnim(Liar::LiarMaxNodeParse* parse, Liar::LiarPluginCfg* liarPlugin, const std::string& path)
 	{
+		if (!liarPlugin->exportAnim) return;
+		Liar::LiarSkeletonAnim* anim = parse->GetAnim();
+		if (!anim) return;
 
+		char fullName[MAX_PATH];
+		sprintf_s(fullName, "%s\\%s.anim", path.c_str(), liarPlugin->animName.c_str());
+		FILE* hFile = fopen(fullName, "wb");
+
+		WriteLiarKeyFrame(anim->GetRotationKeys(), hFile);
+		WriteLiarKeyFrame(anim->GetRotationKeys(), hFile);
+		WriteLiarKeyFrame(anim->GetScaleKeys(), hFile);
+
+		fclose(hFile);
+	}
+
+	void LiarPluginWrite::WriteLiarKeyFrame(std::vector<Liar::LiarKeyFrame*>* vec, FILE* hFile)
+	{
+		size_t len = vec ? vec->size() : 0;
+		size_t p3Size = sizeof(Liar::Vector3D);
+		// write length
+		fwrite(&len, sizeof(int), 1, hFile);
+		for (size_t i = 0; i < len; ++i)
+		{
+			// write keyframe;
+			Liar::LiarKeyFrame* frame = vec->at(i);
+			// write frame
+			fwrite(&frame->frameIndex, sizeof(int), 1, hFile);
+			fwrite(frame->keyVec, p3Size, 1, hFile);
+		}
 	}
 
 	void LiarPluginWrite::WriteLiarMesh(Liar::LiarMesh* mesh, const std::string& path, Liar::LiarPluginCfg* liarPlugin, int vetOpen)
