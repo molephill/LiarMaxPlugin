@@ -19,33 +19,22 @@ namespace Liar
 		// export options
 		bool exportGeom;
 		bool revertUV;
-		bool exportSplines;
-		bool exportController;
 		bool exportMaterial;
 		bool exportModifier;
+		bool exportAnim;
 
 		// geom options;
-		bool objectSpace;
-		bool faceBaseOnSmgrsp;
-		bool mappingChannels;
 		bool vertexNormal;
 		bool vertexColor;
 		bool textureCoord;
 
 		// controller options;
-		bool relative;
-		bool constraints;
-		bool forceSample;
-		bool quaternions;
+		std::string animName;
 
 		// modifiers options;
 		bool skeleton;
 		bool skin;
-		bool general;
-
-		// normals;
-		bool perVertex;
-		bool perFace;
+		std::string skeletonName;
 
 		// frame
 		int staticFrame;

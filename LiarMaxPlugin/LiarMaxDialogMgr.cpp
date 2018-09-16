@@ -39,10 +39,9 @@ namespace Liar
 
 		CheckDlgButton(hWnd, IDC_EXP_GEOMETRY, m_pluginCfg->exportGeom);
 		CheckDlgButton(hWnd, IDC_EXP_REVERT_UV, m_pluginCfg->exportGeom);
-		CheckDlgButton(hWnd, IDC_EXP_SPLINES, m_pluginCfg->exportSplines);
 		CheckDlgButton(hWnd, IDC_EXP_MATERIAL, m_pluginCfg->exportMaterial);
 		CheckDlgButton(hWnd, IDC_EXP_MODIFIERS, m_pluginCfg->exportModifier);
-		CheckDlgButton(hWnd, IDC_EXP_ANIM, m_pluginCfg->exportController);
+		CheckDlgButton(hWnd, IDC_EXP_ANIM, m_pluginCfg->exportAnim);
 
 		//CheckDlgButton(hWnd, IDC_EXP_OBJECT_SPACE, m_pluginCfg->objectSpace);
 		//CheckDlgButton(hWnd, IDC_EXP_BASE_ON_SMGRPS, m_pluginCfg->faceBaseOnSmgrsp);
@@ -63,9 +62,6 @@ namespace Liar
 
 		int ID = IDC_COORD_MAX + m_pluginCfg->coordSystemType;
 		CheckRadioButton(hWnd, IDC_COORD_MAX, IDC_COORD_OPENGL, ID);
-
-		ID = IDC_NORMALS_LIST + m_pluginCfg->perFace;
-		CheckRadioButton(hWnd, IDC_NORMALS_LIST, IDC_NORMALS_FACE, ID);
 
 		SetGeoEnable(hWnd);
 		SetControllerEnable(hWnd);
@@ -88,7 +84,7 @@ namespace Liar
 			SetGeoEnable(hWnd);
 			break;
 		case IDC_EXP_ANIM:
-			m_pluginCfg->exportController = IsDlgButtonChecked(hWnd, IDC_EXP_ANIM) > 0 ? true : false;
+			m_pluginCfg->exportAnim = IsDlgButtonChecked(hWnd, IDC_EXP_ANIM) > 0 ? true : false;
 			SetControllerEnable(hWnd);
 			break;
 		case IDC_EXP_MODIFIERS:
@@ -108,7 +104,7 @@ namespace Liar
 
 			if (result == TRUE)
 			{
-				Liar::LiarPluginWrite::WriteMesh(parse, m_pluginCfg, path);
+				Liar::LiarPluginWrite::WriteLiarNode(parse, m_pluginCfg, path);
 				MessageBox(hWnd, L"导出成功!", L"导出", MB_ICONINFORMATION);
 			}
 			else
@@ -131,26 +127,16 @@ namespace Liar
 	{
 		m_pluginCfg->exportGeom = IsDlgButtonChecked(hWnd, IDC_EXP_GEOMETRY) > 0 ? true : false;
 		m_pluginCfg->exportGeom = IsDlgButtonChecked(hWnd, IDC_EXP_REVERT_UV) > 0 ? true : false;
-		m_pluginCfg->exportSplines = IsDlgButtonChecked(hWnd, IDC_EXP_SPLINES) > 0 ? true : false;
 		m_pluginCfg->exportMaterial = IsDlgButtonChecked(hWnd, IDC_EXP_MATERIAL) > 0 ? true : false;
 		m_pluginCfg->exportModifier = IsDlgButtonChecked(hWnd, IDC_EXP_MODIFIERS) > 0 ? true : false;
-		m_pluginCfg->exportController = IsDlgButtonChecked(hWnd, IDC_EXP_ANIM) > 0 ? true : false;
+		m_pluginCfg->exportAnim = IsDlgButtonChecked(hWnd, IDC_EXP_ANIM) > 0 ? true : false;
 
-		//m_pluginCfg->objectSpace = IsDlgButtonChecked(hWnd, IDC_EXP_OBJECT_SPACE) > 0 ? true : false;
-		//m_pluginCfg->faceBaseOnSmgrsp = IsDlgButtonChecked(hWnd, IDC_EXP_BASE_ON_SMGRPS) > 0 ? true : false;
-		//m_pluginCfg->mappingChannels = IsDlgButtonChecked(hWnd, IDC_EXP_MAPPING_CHANNEL) > 0 ? true : false;
 		m_pluginCfg->vertexNormal = IsDlgButtonChecked(hWnd, IDC_EXP_VERTEX_NORMAL) > 0 ? true : false;
 		m_pluginCfg->textureCoord = IsDlgButtonChecked(hWnd, IDC_EXP_VERTEX_UV) > 0 ? true : false;
 		m_pluginCfg->vertexColor = IsDlgButtonChecked(hWnd, IDC_EXP_VERTEX_CORLOR) > 0 ? true : false;
 
-		/*m_pluginCfg->relative = IsDlgButtonChecked(hWnd, IDC_EXP_RELATIVE) > 0 ? true : false;
-		m_pluginCfg->constraints = IsDlgButtonChecked(hWnd, IDC_EXP_CONSTRAINTS) > 0 ? true : false;
-		m_pluginCfg->forceSample = IsDlgButtonChecked(hWnd, IDC_EXP_SAMPLECONT) > 0 ? true : false;
-		m_pluginCfg->quaternions = IsDlgButtonChecked(hWnd, IDC_EXP_QUATERNIONS) > 0 ? true : false;*/
-
 		m_pluginCfg->skeleton = IsDlgButtonChecked(hWnd, IDC_EXP_SKELETON) > 0 ? true : false;
 		m_pluginCfg->skin = IsDlgButtonChecked(hWnd, IDC_EXP_SKIN) > 0 ? true : false;
-		//m_pluginCfg->general = IsDlgButtonChecked(hWnd, IDC_EXP_GENMOD) > 0 ? true : false;
 
 		if (IsDlgButtonChecked(hWnd, IDC_COORD_MAX))
 		{
@@ -172,13 +158,19 @@ namespace Liar
 		spin = GetISpinner(GetDlgItem(hWnd, IDC_SAMPLE_FRAME));
 		m_pluginCfg->framePerSample = spin->GetIVal();
 		ReleaseISpinner(spin);
+
+		WStr szName;
+		HWND hAnimNameEdit = ::GetDlgItem(hWnd, IDC_EXP_ANIM);
+		GetWindowText(hAnimNameEdit, szName);
+		Liar::StringUtil::GetWSTR2Char(szName, m_pluginCfg->animName);
+
+		HWND hSkeleNameEdit = ::GetDlgItem(hWnd, IDC_EXP_ANIM);
+		GetWindowText(hSkeleNameEdit, szName);
+		Liar::StringUtil::GetWSTR2Char(szName, m_pluginCfg->skeletonName);
 	}
 
 	void LiarMaxDialogMgr::SetGeoEnable(HWND hWnd)
 	{
-		//EnableWindow(GetDlgItem(hWnd, IDC_EXP_OBJECT_SPACE), m_pluginCfg->exportGeom);
-		//EnableWindow(GetDlgItem(hWnd, IDC_EXP_BASE_ON_SMGRPS), m_pluginCfg->exportGeom);
-		//EnableWindow(GetDlgItem(hWnd, IDC_EXP_MAPPING_CHANNEL), m_pluginCfg->exportGeom);
 		EnableWindow(GetDlgItem(hWnd, IDC_EXP_VERTEX_NORMAL), m_pluginCfg->exportGeom);
 		EnableWindow(GetDlgItem(hWnd, IDC_EXP_VERTEX_UV), m_pluginCfg->exportGeom);
 		EnableWindow(GetDlgItem(hWnd, IDC_EXP_VERTEX_CORLOR), m_pluginCfg->exportGeom);
@@ -186,23 +178,18 @@ namespace Liar
 
 	void LiarMaxDialogMgr::SetControllerEnable(HWND hWnd)
 	{
-		/*EnableWindow(GetDlgItem(hWnd, IDC_EXP_RELATIVE), m_pluginCfg->exportController);
-		EnableWindow(GetDlgItem(hWnd, IDC_EXP_CONSTRAINTS), m_pluginCfg->exportController);
-		EnableWindow(GetDlgItem(hWnd, IDC_EXP_SAMPLECONT), m_pluginCfg->exportController);
-		EnableWindow(GetDlgItem(hWnd, IDC_EXP_QUATERNIONS), m_pluginCfg->exportController);*/
-		EnableWindow(GetDlgItem(hWnd, IDC_EDIT_ANIM), m_pluginCfg->exportController);
+		EnableWindow(GetDlgItem(hWnd, IDC_EDIT_ANIM), m_pluginCfg->exportAnim);
 	}
 
 	void LiarMaxDialogMgr::SetModifierEnable(HWND hWnd)
 	{
 		EnableWindow(GetDlgItem(hWnd, IDC_EXP_SKELETON), m_pluginCfg->exportModifier);
 		EnableWindow(GetDlgItem(hWnd, IDC_EXP_SKIN), m_pluginCfg->exportModifier);
-		EnableWindow(GetDlgItem(hWnd, IDC_EXP_GENMOD), m_pluginCfg->exportModifier);
+		EnableWindow(GetDlgItem(hWnd, IDC_EDIT_SKELETON), m_pluginCfg->exportModifier);
 	}
 
-	void LiarMaxDialogMgr::SetVertexNormalEnable(HWND hWnd)
+	void LiarMaxDialogMgr::SetVertexNormalEnable(HWND)
 	{
-		EnableWindow(GetDlgItem(hWnd, IDC_NORMALS_LIST), m_pluginCfg->vertexNormal);
-		EnableWindow(GetDlgItem(hWnd, IDC_NORMALS_FACE), m_pluginCfg->vertexNormal);
+		
 	}
 }

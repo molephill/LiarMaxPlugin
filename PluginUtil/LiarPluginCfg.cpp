@@ -4,20 +4,21 @@ namespace Liar
 {
 
 	LiarPluginCfg::LiarPluginCfg()
-		:exportGeom(true), exportMaterial(true),
-		vertexNormal(true), textureCoord(true)
-		, quaternions(true), revertUV(true)
+		:exportGeom(true), exportMaterial(true)
+		,revertUV(true)
+		, exportAnim(true), exportModifier(true)
+
+		, vertexNormal(true), textureCoord(true)
+
+		, skeleton(true)
 		, skin(true)
-		, perVertex(true)
 
-		, exportSplines(false), exportController(false), exportModifier(false)
-		, objectSpace(false), faceBaseOnSmgrsp(false), vertexColor(false), mappingChannels(false)
-
-		, relative(false), constraints(false), forceSample(false)
-		, skeleton(true), general(false)
-		, perFace(false)
 		, staticFrame(0), framePerSample(4)
+
 		, pluginVersion(100)
+
+		, skeletonName("")
+		, animName("")
 	{
 #ifdef PLUGINS
 		coordSystemType = IGameConversionManager::CoordSystem::IGAME_OGL;

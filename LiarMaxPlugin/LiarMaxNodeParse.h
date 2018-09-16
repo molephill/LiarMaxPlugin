@@ -50,7 +50,7 @@ namespace Liar
 		void ParseSkin(Liar::LiarPluginCfg*, IGameMesh*, Liar::LiarMesh*);
 		void ParseAnim(Liar::LiarPluginCfg*);
 
-		Liar::LiarBone* GetLiarBone(IGameNode*);
+		Liar::LiarBone* GetLiarBone(std::string&);
 	};
 
 }

@@ -98,7 +98,7 @@ namespace Liar
 		}
 	}
 
-	void LiarPluginWrite::WriteMesh(Liar::LiarMaxNodeParse* parse, Liar::LiarPluginCfg* liarPlugin, const std::string& path)
+	void LiarPluginWrite::WriteLiarNode(Liar::LiarMaxNodeParse* parse, Liar::LiarPluginCfg* liarPlugin, const std::string& path)
 	{
 		// write ModelHierarchy
 		WriteModelHierarchy(parse, liarPlugin, path);
@@ -160,6 +160,27 @@ namespace Liar
 		LiarPluginWrite::WriteLiarVecs(raw->GetNorm(), hFile);
 		LiarPluginWrite::WriteLiarVecs(raw->GetTexCoord(), hFile);
 		LiarPluginWrite::WriteLiarVecs(raw->GetColor(), hFile);
+
+		// write skin
+		size_t skinDefineLen = raw->GetSkinDefineLen();
+		fwrite(&skinDefineLen, sizeof(int), 1, hFile);
+		for (int i = 0; i < skinDefineLen; ++i)
+		{
+			Liar::LiarAnimSkinDefine* skinDefine = raw->GetAnimSkinDefine(i);
+			// write skinDefine
+			int vertIndex = skinDefine->GetVertIndex();
+			fwrite(&vertIndex, sizeof(int), 1, hFile);
+			// write weight
+			size_t skinLen = skinDefine->GetSkinLen();
+			fwrite(&skinLen, sizeof(int), 1, hFile);
+			for (int j = 0; j < skinLen; ++j)
+			{
+				// wirte skin
+				Liar::LiarSkin* skin = skinDefine->GetSkin(j);
+				fwrite(&(skin->bonId), sizeof(int), 1, hFile);
+				fwrite(&(skin->weight), sizeof(float), 1, hFile);
+			}
+		}
 	}
 
 	void LiarPluginWrite::WriteLiarVecs(std::vector<Liar::Vector3D*>* vec, FILE* hFile)

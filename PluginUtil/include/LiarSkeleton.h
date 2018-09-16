@@ -47,14 +47,27 @@ namespace Liar
 		int parentId;
 		std::string name;
 
+	public:
+
 #ifdef PLUGINS
 		IGameNode* node;
-		bool Equal(IGameNode* rhs)
-		{
-			return rhs == node;
-		}
 #endif // PLUGINS
 
+
+		bool operator==(const Liar::LiarBone& rhs) const
+		{
+			return rhs.name == name;
+		}
+
+		bool Equal(const char* cname)
+		{
+			return strcmp(name.c_str(), cname) == 0;
+		}
+
+		bool Equal(const std::string& cname)
+		{
+			return cname == name;
+		}
 	};
 
 	class LiarSkeleton

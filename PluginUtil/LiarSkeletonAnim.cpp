@@ -28,6 +28,7 @@ namespace Liar
 		if (!findKey && add)
 		{
 			findKey = new Liar::LiarKeyFrame();
+			findKey->frameIndex = frameIndex;
 			m_allPositionKeys->push_back(findKey);
 		}
 		return findKey;
@@ -40,6 +41,7 @@ namespace Liar
 		if (!findKey && add)
 		{
 			findKey = new Liar::LiarKeyFrame();
+			findKey->frameIndex = frameIndex;
 			m_allRotationKeys->push_back(findKey);
 		}
 		return findKey;
@@ -52,6 +54,7 @@ namespace Liar
 		if (!findKey && add)
 		{
 			findKey = new Liar::LiarKeyFrame();
+			findKey->frameIndex = frameIndex;
 			m_allScaleKeys->push_back(findKey);
 		}
 		return findKey;

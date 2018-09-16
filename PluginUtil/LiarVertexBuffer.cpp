@@ -66,7 +66,7 @@ namespace Liar
 		m_texCoord = nullptr;
 	}
 
-	Liar::LiarAnimSkinDefine* LiarVertexRawData::GetAnimSkinDefine(unsigned int verIndex, bool add)
+	Liar::LiarAnimSkinDefine* LiarVertexRawData::GetAnimSkinDefine(int verIndex, bool add)
 	{
 		if (!m_skinDefines) m_skinDefines = new std::vector<Liar::LiarAnimSkinDefine*>();
 		for (std::vector<Liar::LiarAnimSkinDefine*>::iterator it = m_skinDefines->begin(); it != m_skinDefines->end(); ++it)

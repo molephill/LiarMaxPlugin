@@ -8,12 +8,15 @@ namespace Liar
 	class LiarPluginWrite
 	{
 	public:
-		static void WriteMesh(Liar::LiarMaxNodeParse*, Liar::LiarPluginCfg*, const std::string&);
+		static void WriteLiarNode(Liar::LiarMaxNodeParse*, Liar::LiarPluginCfg*, const std::string&);
 		
 	private:
 		static void WriteModelHierarchy(Liar::LiarMaxNodeParse*, Liar::LiarPluginCfg*, const std::string& path);
 		static void WriteNode(Liar::LiarMaxNodeParse*, Liar::LiarNode*, FILE*);
 		static void SetMeshSaveName(Liar::LiarMaxNodeParse*, int, const std::string&, const std::string&);
+
+		static void WriteSkelenton(Liar::LiarMaxNodeParse*, Liar::LiarPluginCfg*, const std::string&);
+		static void WrtieAnim(Liar::LiarMaxNodeParse*, Liar::LiarPluginCfg*, const std::string&);
 
 		static void WriteLiarMesh(Liar::LiarMesh*, const std::string&, Liar::LiarPluginCfg* liarPlugin, int);
 		static void WriteLiarGeometery(Liar::LiarPluginCfg*, Liar::LiarGeometry*, FILE*);

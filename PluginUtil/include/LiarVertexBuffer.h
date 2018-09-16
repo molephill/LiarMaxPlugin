@@ -47,12 +47,19 @@ namespace Liar
 		~LiarAnimSkinDefine();
 
 	private:
-		unsigned int m_vertIndex;
+		int m_vertIndex;
 		std::vector<Liar::LiarSkin*>* m_skins;
 
 	public:
-		void SetVertIndex(unsigned int v) { m_vertIndex = v; };
-		unsigned int GetVertIndex() const { return m_vertIndex; };
+		void SetVertIndex(int v) { m_vertIndex = v; };
+		int GetVertIndex() const { return m_vertIndex; };
+
+		size_t GetSkinLen() const { return m_skins ? m_skins->size() : 0; };
+		std::vector<Liar::LiarSkin*>* GetSkins() { return m_skins; };
+
+		Liar::LiarSkin* GetSkin(int i) {
+			return m_skins ? m_skins->at(i) : nullptr;
+		}
 
 		Liar::LiarSkin* AddSkin(int, float);
 	};
@@ -104,7 +111,9 @@ namespace Liar
 		int GetIndex(int, const Liar::Vector3D&);
 
 		// ======================
-		Liar::LiarAnimSkinDefine* GetAnimSkinDefine(unsigned int, bool add = false);
+		Liar::LiarAnimSkinDefine* GetAnimSkinDefine(int, bool add = false);
+		std::vector<Liar::LiarAnimSkinDefine*>* GetSkinDefines() { return m_skinDefines; };
+		size_t GetSkinDefineLen() const { return m_skinDefines ? m_skinDefines->size() : 0; };
 
 	private:
 		std::vector<Liar::Vector3D*>* GetData(int);

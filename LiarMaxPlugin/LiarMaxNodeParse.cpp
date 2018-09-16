@@ -159,11 +159,11 @@ namespace Liar
 		
 	}
 
-	Liar::LiarBone* LiarMaxNodeParse::GetLiarBone(IGameNode* node)
+	Liar::LiarBone* LiarMaxNodeParse::GetLiarBone(std::string& name)
 	{
 		for (std::vector<Liar::LiarBone*>::const_iterator cit = m_allBones->begin(); cit != m_allBones->end(); ++cit)
 		{
-			if ((*cit)->Equal(node))
+			if ((*cit)->Equal(name))
 			{
 				return *cit;
 			}
@@ -176,9 +176,11 @@ namespace Liar
 		if (ctr->skeleton)
 		{
 			IGameObject::ObjectTypes tmpObjectType = varGameNode->GetIGameObject()->GetIGameType();
+			std::string boneName;
 			if (tmpObjectType == IGameObject::IGAME_BONE)
 			{
-				Liar::LiarBone* findBone = GetLiarBone(varGameNode);
+				Liar::StringUtil::GetWSTR2Char(varGameNode->GetName(), boneName);
+				Liar::LiarBone* findBone = GetLiarBone(boneName);
 				if (!findBone)
 				{
 					Liar::LiarBone* liarBone = new Liar::LiarBone();
@@ -194,7 +196,8 @@ namespace Liar
 					}
 					else
 					{
-						Liar::LiarBone* liarParent = GetLiarBone(parent);
+						Liar::StringUtil::GetWSTR2Char(parent->GetName(), boneName);
+						Liar::LiarBone* liarParent = GetLiarBone(boneName);
 						liarBone->id = static_cast<int>(m_allBones->size());
 						liarBone->parentId = liarParent ? liarParent->id : -1;
 					}
@@ -399,11 +402,16 @@ namespace Liar
 
 	void LiarMaxNodeParse::ParseSkin(Liar::LiarPluginCfg* ctr, IGameMesh* tmpGameMesh, Liar::LiarMesh* liarMesh)
 	{
+		if (!ctr->exportModifier) return;
+
 		//判断有没有修改器，有修改器的就是骨骼动画
+		std::string boneName;
+		std::string modfierName;
 		int tmpModifiersNum = tmpGameMesh->GetNumModifiers();
 		for (int tmpModifierIndex = 0; tmpModifierIndex < tmpModifiersNum; tmpModifierIndex++)
 		{
 			IGameModifier* tmpGameModifier = tmpGameMesh->GetIGameModifier(tmpModifierIndex);
+			Liar::StringUtil::GetWSTR2Char(tmpGameModifier->GetUIName(), modfierName);
 
 			//只处理骨骼动画修改器
 			if (tmpGameModifier->IsSkin())
@@ -420,10 +428,11 @@ namespace Liar
 					if (type == IGameSkin::IGAME_RIGID)
 					{
 						INode* bNode = tmpGameSkin->GetBone(i, 0);
-						Liar::LiarBone* liarBone = GetLiarBone((IGameNode*)bNode);
+						Liar::StringUtil::GetWSTR2Char(bNode->GetName(), boneName);
+						Liar::LiarBone* liarBone = GetLiarBone(boneName);
 						if (liarBone)
 						{
-							Liar::LiarAnimSkinDefine* skinDefine = liarMesh->GetGeo()->GetRawData()->GetAnimSkinDefine(i);
+							Liar::LiarAnimSkinDefine* skinDefine = liarMesh->GetGeo()->GetRawData()->GetAnimSkinDefine(i, true);
 							Liar::LiarSkin* liarSkin = skinDefine->AddSkin(liarBone->id, 1.0f);
 							liarSkin->node = bNode;
 							//liarSkin->bonId = tmpGameSkin->GetBoneID(i, 0);
@@ -434,11 +443,12 @@ namespace Liar
 						int boneNum = tmpGameSkin->GetNumberOfBones(i);
 						if (boneNum > 0)
 						{
-							Liar::LiarAnimSkinDefine* skinDefine = liarMesh->GetGeo()->GetRawData()->GetAnimSkinDefine(i);
+							Liar::LiarAnimSkinDefine* skinDefine = liarMesh->GetGeo()->GetRawData()->GetAnimSkinDefine(i, true);
 							for (int j = 0; j < boneNum; ++j)
 							{
 								INode* bNode = tmpGameSkin->GetBone(i, j);
-								Liar::LiarBone* liarBone = GetLiarBone((IGameNode*)bNode);
+								Liar::StringUtil::GetWSTR2Char(bNode->GetName(), boneName);
+								Liar::LiarBone* liarBone = GetLiarBone(boneName);
 								if (liarBone)
 								{
 									float weight = tmpGameSkin->GetWeight(i, j);
@@ -458,6 +468,8 @@ namespace Liar
 
 	void LiarMaxNodeParse::ParseAnim(Liar::LiarPluginCfg* ctr)
 	{
+		if (!ctr->exportAnim) return;
+
 		IGameScene* tmpGameScene = GetIGameInterface();
 		TimeValue tmpTimeValueBegin = tmpGameScene->GetSceneStartTime();
 		TimeValue tmpTimeValueEnd = tmpGameScene->GetSceneEndTime();
@@ -465,6 +477,7 @@ namespace Liar
 		int tmpFrameCount = (tmpTimeValueEnd - tmpTimeValueBegin) / tmpTimeValueTicks;
 
 		m_anim = new Liar::LiarSkeletonAnim;
+		std::string boneName;
 
 		bool revertYZ = false;
 		for (int i = 0; i<tmpFrameCount; i++)
@@ -472,7 +485,8 @@ namespace Liar
 			for (int j = 0; j<m_allBones->size(); ++j)
 			{
 				IGameNode* node = m_allBones->at(j)->node;
-				LiarBone* liarBone = GetLiarBone(node);
+				Liar::StringUtil::GetWSTR2Char(node->GetName(), boneName);
+				LiarBone* liarBone = GetLiarBone(boneName);
 
 				if (liarBone)
 				{

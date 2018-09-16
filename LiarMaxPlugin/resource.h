@@ -42,6 +42,7 @@
 #define IDC_SAMPLE_FRAME_SPIN           1029
 #define IDC_EXP_SKELETON                1030
 #define IDC_EDIT_ANIM                   1032
+#define IDC_EDIT_SKELETON               1033
 #define IDC_COLOR                       1456
 #define IDC_EDIT                        1490
 #define IDC_SPIN                        1496
