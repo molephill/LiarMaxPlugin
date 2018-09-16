@@ -34,8 +34,11 @@ namespace Liar
 		int ParseRootNode(Liar::LiarPluginCfg*, bool);
 
 		Liar::LiarNode* GetRootNode() { return m_rootNode; };
-		size_t GetMeshSize() { return m_allMeshs->size(); };
+		size_t GetMeshSize() const { return m_allMeshs->size(); };
 		Liar::LiarMesh* GetMesh(size_t index) { return m_allMeshs->at(index); };
+
+		size_t GetBoneSize() const { return m_allBones ? m_allBones->size() : 0; };
+		Liar::LiarBone* GetBone(size_t index) { return m_allBones ? m_allBones->at(index) : nullptr; };
 
 	private:
 		void ParseGameNode(Liar::LiarPluginCfg*, IGameNode*, Liar::LiarNode*, int&);

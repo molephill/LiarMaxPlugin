@@ -116,6 +116,30 @@ namespace Liar
 		}
 	}
 
+	void LiarPluginWrite::WriteLiarSkelenton(Liar::LiarMaxNodeParse* parse, Liar::LiarPluginCfg* liarPlugin, const std::string& path)
+	{
+		if (!liarPlugin->exportModifier) return;
+		
+		char fullName[MAX_PATH];
+		sprintf_s(fullName, "%s\\%s.skeleton", path.c_str(), liarPlugin->skeletonName.c_str());
+		FILE* hFile = fopen(fullName, "wb");
+		size_t boneLen = parse->GetBoneSize();
+		// write bone size;
+		fwrite(&boneLen, sizeof(int), 1, hFile);
+		for (size_t i = 0; i < boneLen; ++i)
+		{
+			Liar::LiarBone* bone = parse->GetBone(i);
+			fwrite(&bone->id, sizeof(int), 1, hFile);
+			fwrite(&bone->parentId, sizeof(int), 1, hFile);
+			Liar::LiarPluginWrite::WriteString(bone->name, hFile);
+		}
+	}
+
+	void LiarPluginWrite::WrtieLiarAnim(Liar::LiarMaxNodeParse* parse, Liar::LiarPluginCfg* liarPlugin, const std::string& path)
+	{
+
+	}
+
 	void LiarPluginWrite::WriteLiarMesh(Liar::LiarMesh* mesh, const std::string& path, Liar::LiarPluginCfg* liarPlugin, int vetOpen)
 	{
 		std::string& meshName = mesh->saveName;

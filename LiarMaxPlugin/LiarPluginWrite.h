@@ -15,8 +15,8 @@ namespace Liar
 		static void WriteNode(Liar::LiarMaxNodeParse*, Liar::LiarNode*, FILE*);
 		static void SetMeshSaveName(Liar::LiarMaxNodeParse*, int, const std::string&, const std::string&);
 
-		static void WriteSkelenton(Liar::LiarMaxNodeParse*, Liar::LiarPluginCfg*, const std::string&);
-		static void WrtieAnim(Liar::LiarMaxNodeParse*, Liar::LiarPluginCfg*, const std::string&);
+		static void WriteLiarSkelenton(Liar::LiarMaxNodeParse*, Liar::LiarPluginCfg*, const std::string&);
+		static void WrtieLiarAnim(Liar::LiarMaxNodeParse*, Liar::LiarPluginCfg*, const std::string&);
 
 		static void WriteLiarMesh(Liar::LiarMesh*, const std::string&, Liar::LiarPluginCfg* liarPlugin, int);
 		static void WriteLiarGeometery(Liar::LiarPluginCfg*, Liar::LiarGeometry*, FILE*);
