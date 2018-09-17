@@ -114,6 +114,12 @@ namespace Liar
 
 			WriteLiarMesh(mesh, folder, liarPlugin, vetOpen);
 		}
+
+		// write skeleton
+		WriteLiarSkelenton(parse, liarPlugin, folder);
+
+		// write anim
+		WrtieLiarAnim(parse, liarPlugin, folder);
 	}
 
 	void LiarPluginWrite::WriteLiarSkelenton(Liar::LiarMaxNodeParse* parse, Liar::LiarPluginCfg* liarPlugin, const std::string& path)
@@ -146,27 +152,35 @@ namespace Liar
 		sprintf_s(fullName, "%s\\%s.anim", path.c_str(), liarPlugin->animName.c_str());
 		FILE* hFile = fopen(fullName, "wb");
 
-		WriteLiarKeyFrame(anim->GetRotationKeys(), hFile);
-		WriteLiarKeyFrame(anim->GetRotationKeys(), hFile);
-		WriteLiarKeyFrame(anim->GetScaleKeys(), hFile);
+		// write key len
+		size_t keyLen = anim->GetKeyLen();
+		fwrite(&keyLen, sizeof(int), 1, hFile);
+
+		// write tick frame
+		int tickFrame = anim->GetTickFrame();
+		fwrite(&tickFrame, sizeof(int), 1, hFile);
+
+		size_t p3Size = sizeof(Liar::Vector3D);
+		for (size_t i = 0; i < keyLen; ++i)
+		{
+			Liar::LiarKeyFrame* keyFrame = anim->GetKey(i);
+
+			// write boneKey len
+			size_t boneKeyLen = keyFrame->GetBoneKeyLen();
+			fwrite(&boneKeyLen, sizeof(int), 1, hFile);
+
+			for (size_t j = 0; j < boneKeyLen; ++j)
+			{
+				Liar::LiarBoneKeyFrame* boneKeyFrame = keyFrame->GetBoneKeyFrame(j);
+				int boneId = boneKeyFrame->GetBoneId();
+				fwrite(&boneId, sizeof(int), 1, hFile);
+				fwrite(boneKeyFrame->GetPositionKey(), p3Size, 1, hFile);
+				fwrite(boneKeyFrame->GetRotationKey(), p3Size, 1, hFile);
+				fwrite(boneKeyFrame->GetScaleKey(), p3Size, 1, hFile);
+			}
+		}
 
 		fclose(hFile);
-	}
-
-	void LiarPluginWrite::WriteLiarKeyFrame(std::vector<Liar::LiarKeyFrame*>* vec, FILE* hFile)
-	{
-		size_t len = vec ? vec->size() : 0;
-		size_t p3Size = sizeof(Liar::Vector3D);
-		// write length
-		fwrite(&len, sizeof(int), 1, hFile);
-		for (size_t i = 0; i < len; ++i)
-		{
-			// write keyframe;
-			Liar::LiarKeyFrame* frame = vec->at(i);
-			// write frame
-			fwrite(&frame->frameIndex, sizeof(int), 1, hFile);
-			fwrite(frame->keyVec, p3Size, 1, hFile);
-		}
 	}
 
 	void LiarPluginWrite::WriteLiarMesh(Liar::LiarMesh* mesh, const std::string& path, Liar::LiarPluginCfg* liarPlugin, int vetOpen)

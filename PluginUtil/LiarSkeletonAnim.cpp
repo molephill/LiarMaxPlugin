@@ -3,8 +3,8 @@
 namespace Liar
 {
 	LiarKeyFrame::LiarKeyFrame():
-		frameIndex(0)
-		, keyVec(new Liar::Vector3D())
+		m_frameIndex(0)
+		, m_boneKeys(new std::vector<LiarBoneKeyFrame*>())
 	{
 	}
 
@@ -13,87 +13,79 @@ namespace Liar
 		
 	}
 
+	Liar::LiarBoneKeyFrame* LiarKeyFrame::GetBoneKeyFrameById(int boneId, bool add)
+	{
+		Liar::LiarBoneKeyFrame* find = nullptr;
+		for (std::vector<Liar::LiarBoneKeyFrame*>::iterator it = m_boneKeys->begin(); it < m_boneKeys->end(); ++it)
+		{
+			if ((*it)->GetBoneId() == boneId)
+			{
+				find = *it;
+				break;
+			}
+		}
+
+		if (!find && add)
+		{
+			find = new Liar::LiarBoneKeyFrame();
+			find->SetBoneId(boneId);
+			m_boneKeys->push_back(find);
+		}
+
+		return find;
+	}
+
+	// ===================== bone keyFrame ====================
+	LiarBoneKeyFrame::LiarBoneKeyFrame():
+		m_positonKey(new Liar::Vector3D()), m_rotationKey(new Liar::Vector3D()), m_scaleKey(new Liar::Vector3D())
+	{
+
+	}
+
+	LiarBoneKeyFrame::~LiarBoneKeyFrame()
+	{
+		delete m_positonKey;
+		delete m_rotationKey;
+		delete m_scaleKey;
+	}
+
 	// ===================== anim ==============
 	LiarSkeletonAnim::LiarSkeletonAnim():
-		m_allPositionKeys(nullptr)
-		, m_allRotationKeys(nullptr)
-		, m_allScaleKeys(nullptr)
+		m_allKeys(new std::vector<LiarKeyFrame*>())
+		, m_tickFrame(0)
 	{
-	}
-
-	Liar::LiarKeyFrame* LiarSkeletonAnim::GetPositionKey(unsigned int frameIndex, bool add)
-	{
-		if (add && !m_allPositionKeys) m_allPositionKeys = new std::vector<Liar::LiarKeyFrame*>();
-		Liar::LiarKeyFrame* findKey = GetKeyFrame(m_allPositionKeys, frameIndex);
-		if (!findKey && add)
-		{
-			findKey = new Liar::LiarKeyFrame();
-			findKey->frameIndex = frameIndex;
-			m_allPositionKeys->push_back(findKey);
-		}
-		return findKey;
-	}
-
-	Liar::LiarKeyFrame* LiarSkeletonAnim::GetRotationKey(unsigned int frameIndex, bool add)
-	{
-		if (add && !m_allRotationKeys) m_allRotationKeys = new std::vector<Liar::LiarKeyFrame*>();
-		Liar::LiarKeyFrame* findKey = GetKeyFrame(m_allRotationKeys, frameIndex);
-		if (!findKey && add)
-		{
-			findKey = new Liar::LiarKeyFrame();
-			findKey->frameIndex = frameIndex;
-			m_allRotationKeys->push_back(findKey);
-		}
-		return findKey;
-	}
-
-	Liar::LiarKeyFrame* LiarSkeletonAnim::GetScaleKey(unsigned int frameIndex, bool add)
-	{
-		if (add && !m_allScaleKeys) m_allScaleKeys = new std::vector<Liar::LiarKeyFrame*>();
-		Liar::LiarKeyFrame* findKey = GetKeyFrame(m_allScaleKeys, frameIndex);
-		if (!findKey && add)
-		{
-			findKey = new Liar::LiarKeyFrame();
-			findKey->frameIndex = frameIndex;
-			m_allScaleKeys->push_back(findKey);
-		}
-		return findKey;
-	}
-
-	Liar::LiarKeyFrame* LiarSkeletonAnim::GetKeyFrame(std::vector<Liar::LiarKeyFrame*>* vec, unsigned int frameIndex)
-	{
-		if (vec)
-		{
-			for (std::vector<Liar::LiarKeyFrame*>::iterator it = vec->begin(); it != vec->end(); ++it)
-			{
-				if ((*it)->frameIndex == frameIndex)
-				{
-					return *it;
-				}
-			}
-		}
-
-		return nullptr;
-	}
-
-	void LiarSkeletonAnim::EraseAll(std::vector<Liar::LiarKeyFrame*>* vec)
-	{
-		if (vec)
-		{
-			for (std::vector<Liar::LiarKeyFrame*>::iterator it = vec->begin(); it < vec->end();)
-			{
-				delete *it;
-				it = vec->erase(it);
-			}
-			std::vector<Liar::LiarKeyFrame*>().swap(*vec);
-			delete vec;
-		}
 	}
 
 	LiarSkeletonAnim::~LiarSkeletonAnim()
 	{
-		EraseAll(m_allPositionKeys);
-		EraseAll(m_allRotationKeys);
-		EraseAll(m_allScaleKeys);
+		for (std::vector<Liar::LiarKeyFrame*>::iterator it = m_allKeys->begin(); it < m_allKeys->end();)
+		{
+			delete *it;
+			it = m_allKeys->erase(it);
+		}
+		std::vector<Liar::LiarKeyFrame*>().swap(*m_allKeys);
+		delete m_allKeys;
+	}
+
+	Liar::LiarKeyFrame* LiarSkeletonAnim::GetKey(unsigned int frameIndex, bool add)
+	{
+		Liar::LiarKeyFrame* find = nullptr;
+		for (std::vector<Liar::LiarKeyFrame*>::iterator it = m_allKeys->begin(); it < m_allKeys->end(); ++it)
+		{
+			if ((*it)->GetFrameIndex() == frameIndex)
+			{
+				find = *it;
+				break;
+			}
+		}
+
+		if (!find && add)
+		{
+			find = new Liar::LiarKeyFrame();
+			find->SetFrameIndex(frameIndex);
+			m_allKeys->push_back(find);
+		}
+
+		return find;
 	}
 }

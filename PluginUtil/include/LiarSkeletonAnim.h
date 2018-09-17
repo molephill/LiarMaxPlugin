@@ -5,6 +5,29 @@
 
 namespace Liar
 {
+	// ================= bone frame ==================== //
+	class LiarBoneKeyFrame
+	{
+	public:
+		LiarBoneKeyFrame();
+		~LiarBoneKeyFrame();
+
+	private:
+		int m_boneId;
+		Liar::Vector3D* m_positonKey;
+		Liar::Vector3D* m_rotationKey;
+		Liar::Vector3D* m_scaleKey;
+
+	public:
+		bool operator==(const LiarBoneKeyFrame& rhs) const { return rhs.m_boneId == m_boneId; };
+		int GetBoneId() const { return m_boneId; };
+		void SetBoneId(int id) { m_boneId = id; };
+
+		Liar::Vector3D* GetPositionKey() { return m_positonKey; };
+		Liar::Vector3D* GetRotationKey() { return m_rotationKey; };
+		Liar::Vector3D* GetScaleKey() { return m_scaleKey; };
+	};
+
 	// ================== key frame ======================= //
 	class LiarKeyFrame
 	{
@@ -12,10 +35,21 @@ namespace Liar
 		LiarKeyFrame();
 		~LiarKeyFrame();
 
+	private:
+		unsigned int m_frameIndex;
+		std::vector<Liar::LiarBoneKeyFrame*>* m_boneKeys;
+
 	public:
-		unsigned int frameIndex;
-		Liar::Vector3D* keyVec;
+		void SetFrameIndex(unsigned int index) { m_frameIndex = index; };
+		unsigned int GetFrameIndex() const { return m_frameIndex; };
+
+		size_t GetBoneKeyLen() { return m_boneKeys ? m_boneKeys->size() : 0; };
+		Liar::LiarBoneKeyFrame* GetBoneKeyFrameById(int, bool add = false);
+		Liar::LiarBoneKeyFrame* GetBoneKeyFrame(size_t index) { return m_boneKeys->at(index); };
+
+		bool operator==(const LiarKeyFrame& rhs) const { return rhs.m_frameIndex == m_frameIndex; };
 	};
+
 
 	// ================== anim ======================= //
 	class LiarSkeletonAnim
@@ -25,22 +59,15 @@ namespace Liar
 		~LiarSkeletonAnim();
 
 	private:
-		std::vector<Liar::LiarKeyFrame*>* m_allPositionKeys;
-		std::vector<Liar::LiarKeyFrame*>* m_allRotationKeys;
-		std::vector<Liar::LiarKeyFrame*>* m_allScaleKeys;
+		std::vector<Liar::LiarKeyFrame*>* m_allKeys;
+		int m_tickFrame;
 
 	public:
-		LiarKeyFrame* GetPositionKey(unsigned int, bool add = false);
-		LiarKeyFrame* GetRotationKey(unsigned int, bool add = false);
-		LiarKeyFrame* GetScaleKey(unsigned int, bool add = false);
+		Liar::LiarKeyFrame* GetKey(unsigned int, bool add = false);
+		size_t GetKeyLen() const { return m_allKeys->size(); };
 
-		std::vector<Liar::LiarKeyFrame*>* GetPositionKeys() { return m_allPositionKeys; };
-		std::vector<Liar::LiarKeyFrame*>* GetRotationKeys() { return m_allRotationKeys; };
-		std::vector<Liar::LiarKeyFrame*>* GetScaleKeys() { return m_allScaleKeys; };
-
-	private:
-		void EraseAll(std::vector<Liar::LiarKeyFrame*>*);
-		LiarKeyFrame* GetKeyFrame(std::vector<Liar::LiarKeyFrame*>*, unsigned int);
+		void SetTickFrame(int tick) { m_tickFrame = tick; };
+		int GetTickFrame() const { return m_tickFrame; };
 	};
 }
 

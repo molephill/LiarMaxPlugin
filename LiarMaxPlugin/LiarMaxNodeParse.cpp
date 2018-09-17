@@ -477,41 +477,35 @@ namespace Liar
 		int tmpFrameCount = (tmpTimeValueEnd - tmpTimeValueBegin) / tmpTimeValueTicks;
 
 		m_anim = new Liar::LiarSkeletonAnim;
+		m_anim->SetTickFrame(tmpTimeValueTicks);
 		std::string boneName;
 
 		bool revertYZ = false;
-		for (int i = 0; i<tmpFrameCount; i++)
+		for (int i = 0; i <= tmpFrameCount; ++i)
 		{
-			for (int j = 0; j<m_allBones->size(); ++j)
+			Liar::LiarKeyFrame* keyFrame = m_anim->GetKey(i, true);
+
+			for (int j = 0; j < m_allBones->size(); ++j)
 			{
 				IGameNode* node = m_allBones->at(j)->node;
 				Liar::StringUtil::GetWSTR2Char(node->GetName(), boneName);
-				LiarBone* liarBone = GetLiarBone(boneName);
+				Liar::LiarBone* liarBone = GetLiarBone(boneName);
 
 				if (liarBone)
 				{
-					GMatrix gm = node->GetLocalTM(i*tmpTimeValueTicks);
+					GMatrix gm = node->GetLocalTM(i*tmpTimeValueTicks + tmpTimeValueBegin);
 					Point3 pos = gm.Translation();
 					Point3 rota = gm.Rotation().Vector();
 					Point3 scale = gm.Scaling();
-					
-					
-					if (pos.x != 0.0f || pos.y != 0.0f || pos.z != 0.0f)
-					{
-						Liar::LiarKeyFrame* keyFrame = m_anim->GetPositionKey(i, true);
-						Liar::LiarStructUtil::ParsePoint3(keyFrame->keyVec, pos, revertYZ);
-					}
 
-					if (rota.x != 0.0f || rota.y != 0.0f || rota.z != 0.0f)
+					if (pos.x != 0.0f || pos.y != 0.0f || pos.z != 0.0f
+						|| rota.x != 0.0f || rota.y != 0.0f || rota.z != 0.0f
+						|| scale.x != 1.0f || scale.y != 1.0f || scale.z != 1.0f)
 					{
-						Liar::LiarKeyFrame* keyFrame = m_anim->GetRotationKey(i, true);
-						Liar::LiarStructUtil::ParsePoint3(keyFrame->keyVec, rota, revertYZ);
-					}
-
-					if (scale.x != 1.0f || scale.y != 1.0f || scale.z != 1.0f)
-					{
-						Liar::LiarKeyFrame* keyFrame = m_anim->GetScaleKey(i, true);
-						Liar::LiarStructUtil::ParsePoint3(keyFrame->keyVec, scale, revertYZ);
+						Liar::LiarBoneKeyFrame* boneFrame = keyFrame->GetBoneKeyFrameById(liarBone->id, true);
+						Liar::LiarStructUtil::ParsePoint3(boneFrame->GetPositionKey(), pos, revertYZ);
+						Liar::LiarStructUtil::ParsePoint3(boneFrame->GetRotationKey(), rota, revertYZ);
+						Liar::LiarStructUtil::ParsePoint3(boneFrame->GetScaleKey(), scale, revertYZ);
 					}
 				}
 			}

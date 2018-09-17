@@ -29,8 +29,6 @@ namespace Liar
 
 		static void WriteLiarTexture(Liar::LiarTexture*, FILE*);
 
-		static void WriteLiarKeyFrame(std::vector<Liar::LiarKeyFrame*>*, FILE*);
-
 		static void WriteString(std::string&, FILE*);
 
 		static int GetVertexVer(Liar::LiarPluginCfg*);
