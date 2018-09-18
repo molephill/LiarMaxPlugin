@@ -296,7 +296,7 @@ namespace Liar
 				{
 					tmpNormalIndex = tmpFaceEx->norm[tmpFaceVertexIndex];
 					Liar::LiarStructUtil::ParsePoint3(tmp, tmpGameMesh->GetNormal(tmpNormalIndex), revertYZ);
-					tmpNormalIndex = liarMesh->GetGeo()->GetRawData()->GetIndex(LIAR_NORMAL, *tmp);
+					tmpNormalIndex = liarMesh->GetGeo()->GetRawData()->GetIndex(Liar::LiarVertexType::LiarVertexType_NORMAL, *tmp);
 					Liar::Vector3D* norm = liarMesh->GetGeo()->GetRawData()->AddNorm(tmpNormalIndex);
 					norm->Copy(*tmp);
 				}
@@ -306,7 +306,7 @@ namespace Liar
 				{
 					tmpColorIndex = tmpFaceEx->color[tmpFaceVertexIndex];
 					Liar::LiarStructUtil::ParsePoint3(tmp, tmpGameMesh->GetColorVertex(tmpColorIndex), revertYZ);
-					tmpColorIndex = liarMesh->GetGeo()->GetRawData()->GetIndex(LIAR_COLOR, *tmp);
+					tmpColorIndex = liarMesh->GetGeo()->GetRawData()->GetIndex(Liar::LiarVertexType::LiarVertexType_COLOR, *tmp);
 					Liar::Vector3D* color = liarMesh->GetGeo()->GetRawData()->AddColor(tmpColorIndex);
 					color->Copy(*tmp);
 				}
@@ -316,7 +316,7 @@ namespace Liar
 				{
 					tmpUVIndex = tmpFaceEx->texCoord[tmpFaceVertexIndex];
 					Liar::LiarStructUtil::ParsePoint3(tmp, tmpGameMesh->GetTexVertex(tmpUVIndex), ctr->revertUV);
-					tmpUVIndex = liarMesh->GetGeo()->GetRawData()->GetIndex(LIAR_UV, *tmp);
+					tmpUVIndex = liarMesh->GetGeo()->GetRawData()->GetIndex(Liar::LiarVertexType::LiarVertexType_TEX, *tmp);
 					Liar::Vector3D* texCoord = liarMesh->GetGeo()->GetRawData()->AddTex(tmpUVIndex);
 					texCoord->Copy(*tmp);
 				}
@@ -477,36 +477,46 @@ namespace Liar
 		int tmpFrameCount = (tmpTimeValueEnd - tmpTimeValueBegin) / tmpTimeValueTicks;
 
 		m_anim = new Liar::LiarSkeletonAnim;
-		m_anim->SetTickFrame(tmpTimeValueTicks);
+
 		std::string boneName;
 
 		bool revertYZ = false;
-		for (int i = 0; i <= tmpFrameCount; ++i)
+		for (int j = 0; j < m_allBones->size(); ++j)
 		{
-			Liar::LiarKeyFrame* keyFrame = m_anim->GetKey(i, true);
+			IGameNode* node = m_allBones->at(j)->node;
+			Liar::StringUtil::GetWSTR2Char(node->GetName(), boneName);
+			Liar::LiarBone* liarBone = GetLiarBone(boneName);
 
-			for (int j = 0; j < m_allBones->size(); ++j)
+			if (liarBone)
 			{
-				IGameNode* node = m_allBones->at(j)->node;
-				Liar::StringUtil::GetWSTR2Char(node->GetName(), boneName);
-				Liar::LiarBone* liarBone = GetLiarBone(boneName);
+				Liar::LiarTrack* track = m_anim->GetTrack(liarBone->id, true);
 
-				if (liarBone)
+				for (int i = 0; i <= tmpFrameCount; ++i)
 				{
-					GMatrix gm = node->GetLocalTM(i*tmpTimeValueTicks + tmpTimeValueBegin);
+					int nowMS = i*tmpTimeValueTicks;
+					GMatrix gm = node->GetLocalTM(nowMS + tmpTimeValueBegin);
 					Point3 pos = gm.Translation();
 					Point3 rota = gm.Rotation().Vector();
 					Point3 scale = gm.Scaling();
 
-					if (pos.x != 0.0f || pos.y != 0.0f || pos.z != 0.0f
-						|| rota.x != 0.0f || rota.y != 0.0f || rota.z != 0.0f
-						|| scale.x != 1.0f || scale.y != 1.0f || scale.z != 1.0f)
+					if (!Liar::LiarStructUtil::Equal(pos, 0.0f, 0.0f, 0.0f, Liar::EPSILON))
 					{
-						Liar::LiarBoneKeyFrame* boneFrame = keyFrame->GetBoneKeyFrameById(liarBone->id, true);
-						Liar::LiarStructUtil::ParsePoint3(boneFrame->GetPositionKey(), pos, revertYZ);
-						Liar::LiarStructUtil::ParsePoint3(boneFrame->GetRotationKey(), rota, revertYZ);
-						Liar::LiarStructUtil::ParsePoint3(boneFrame->GetScaleKey(), scale, revertYZ);
+						Liar::LiarKeyFrame* keyFrame = track->GetKeyFrame(Liar::LiarVertexAttr::LiarVertexAttr_TRANSFORM, nowMS, true);
+						Liar::LiarStructUtil::ParsePoint3(keyFrame->GetKey(), pos, revertYZ);
 					}
+
+					if (!Liar::LiarStructUtil::Equal(rota, 0.0f, 0.0f, 0.0f, Liar::EPSILON))
+					{
+						Liar::LiarKeyFrame* keyFrame = track->GetKeyFrame(Liar::LiarVertexAttr::LiarVertexAttr_ROTATION, nowMS, true);
+						Liar::LiarStructUtil::ParsePoint3(keyFrame->GetKey(), rota, revertYZ);
+					}
+
+					if (!Liar::LiarStructUtil::Equal(scale, 1.0f, 1.0f, 1.0f, Liar::EPSILON))
+					{
+						Liar::LiarKeyFrame* keyFrame = track->GetKeyFrame(Liar::LiarVertexAttr::LiarVertexAttr_SCALE, nowMS, true);
+						Liar::LiarStructUtil::ParsePoint3(keyFrame->GetKey(), scale, revertYZ);
+					}
+
 				}
 			}
 		}

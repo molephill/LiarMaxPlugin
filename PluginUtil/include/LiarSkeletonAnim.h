@@ -3,51 +3,49 @@
 #include <Vectors.h>
 #include <vector>
 
+#include <PluginDefine.h>
+
 namespace Liar
 {
 	// ================= bone frame ==================== //
-	class LiarBoneKeyFrame
-	{
-	public:
-		LiarBoneKeyFrame();
-		~LiarBoneKeyFrame();
-
-	private:
-		int m_boneId;
-		Liar::Vector3D* m_positonKey;
-		Liar::Vector3D* m_rotationKey;
-		Liar::Vector3D* m_scaleKey;
-
-	public:
-		bool operator==(const LiarBoneKeyFrame& rhs) const { return rhs.m_boneId == m_boneId; };
-		int GetBoneId() const { return m_boneId; };
-		void SetBoneId(int id) { m_boneId = id; };
-
-		Liar::Vector3D* GetPositionKey() { return m_positonKey; };
-		Liar::Vector3D* GetRotationKey() { return m_rotationKey; };
-		Liar::Vector3D* GetScaleKey() { return m_scaleKey; };
-	};
-
-	// ================== key frame ======================= //
 	class LiarKeyFrame
 	{
 	public:
-		LiarKeyFrame();
+		LiarKeyFrame(int time = 0);
 		~LiarKeyFrame();
 
 	private:
-		unsigned int m_frameIndex;
-		std::vector<Liar::LiarBoneKeyFrame*>* m_boneKeys;
+		int m_time;
+		Liar::Vector3D* m_key;
 
 	public:
-		void SetFrameIndex(unsigned int index) { m_frameIndex = index; };
-		unsigned int GetFrameIndex() const { return m_frameIndex; };
+		int GetTime() const { return m_time; };
+		Liar::Vector3D* GetKey() { return m_key; };
+	};
 
-		size_t GetBoneKeyLen() { return m_boneKeys ? m_boneKeys->size() : 0; };
-		Liar::LiarBoneKeyFrame* GetBoneKeyFrameById(int, bool add = false);
-		Liar::LiarBoneKeyFrame* GetBoneKeyFrame(size_t index) { return m_boneKeys->at(index); };
+	// ================== track ======================= //
+	class LiarTrack
+	{
+	public:
+		LiarTrack(int boneId = 0);
+		~LiarTrack();
 
-		bool operator==(const LiarKeyFrame& rhs) const { return rhs.m_frameIndex == m_frameIndex; };
+	private:
+		int m_boneId;
+		std::vector<Liar::LiarKeyFrame*>* m_positionFrames;
+		std::vector<Liar::LiarKeyFrame*>* m_rotationFrames;
+		std::vector<Liar::LiarKeyFrame*>* m_scaleFrames;
+
+	public:
+		Liar::LiarKeyFrame* GetKeyFrame(Liar::LiarVertexAttr, int, bool add);
+		Liar::LiarKeyFrame* GetKeyFrame(Liar::LiarVertexAttr, size_t);
+		int GetBoneId() const { return m_boneId; };
+		size_t GetNumFrames(Liar::LiarVertexAttr) const;
+
+	private:
+		Liar::LiarKeyFrame* GetKeyFrame(std::vector<Liar::LiarKeyFrame*>*, int, bool add);
+		std::vector<Liar::LiarKeyFrame*>* GetKeyFrames(Liar::LiarVertexAttr) const;
+		void EraseFrames(std::vector<Liar::LiarKeyFrame*>*);
 	};
 
 
@@ -59,15 +57,12 @@ namespace Liar
 		~LiarSkeletonAnim();
 
 	private:
-		std::vector<Liar::LiarKeyFrame*>* m_allKeys;
-		int m_tickFrame;
+		std::vector<Liar::LiarTrack*>* m_tracks;
 
 	public:
-		Liar::LiarKeyFrame* GetKey(unsigned int, bool add = false);
-		size_t GetKeyLen() const { return m_allKeys->size(); };
-
-		void SetTickFrame(int tick) { m_tickFrame = tick; };
-		int GetTickFrame() const { return m_tickFrame; };
+		Liar::LiarTrack* GetTrack(int, bool add = false);
+		Liar::LiarTrack* GetTrackByIndex(size_t index) { return m_tracks->at(index); };
+		size_t GetTrackLen() const { return m_tracks->size(); };
 	};
 }
 

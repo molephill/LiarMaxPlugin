@@ -160,11 +160,11 @@ namespace Liar
 		ReleaseISpinner(spin);
 
 		WStr szName;
-		HWND hAnimNameEdit = ::GetDlgItem(hWnd, IDC_EXP_ANIM);
+		HWND hAnimNameEdit = ::GetDlgItem(hWnd, IDC_EDIT_ANIM);
 		GetWindowText(hAnimNameEdit, szName);
 		Liar::StringUtil::GetWSTR2Char(szName, m_pluginCfg->animName);
 
-		HWND hSkeleNameEdit = ::GetDlgItem(hWnd, IDC_EXP_ANIM);
+		HWND hSkeleNameEdit = ::GetDlgItem(hWnd, IDC_EDIT_SKELETON);
 		GetWindowText(hSkeleNameEdit, szName);
 		Liar::StringUtil::GetWSTR2Char(szName, m_pluginCfg->skeletonName);
 	}

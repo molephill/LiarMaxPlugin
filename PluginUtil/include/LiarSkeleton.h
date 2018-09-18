@@ -27,11 +27,6 @@ namespace Liar
 		{
 			return rhs.node == node;
 		}
-
-		bool Equal(const Liar::LiarSkin& rhs)
-		{
-			return rhs.node == node;
-		}
 #endif // PLUGINS
 
 	};
@@ -52,8 +47,6 @@ namespace Liar
 #ifdef PLUGINS
 		IGameNode* node;
 #endif // PLUGINS
-
-
 		bool operator==(const Liar::LiarBone& rhs) const
 		{
 			return rhs.name == name;

@@ -37,7 +37,7 @@ namespace Liar
 		fwrite(&(liarPluginCfg->pluginVersion), sizeof(unsigned int), 1, hFile);
 
 		// get vertex_open_status
-		int vetOpen = Liar::LiarPluginWrite::GetVertexVer(liarPluginCfg);
+		int vetOpen = 0;
 		// write vertex open status
 		fwrite(&vetOpen, sizeof(int), 1, hFile);
 
@@ -104,7 +104,7 @@ namespace Liar
 		WriteModelHierarchy(parse, liarPlugin, path);
 
 		// get vertex_open_status
-		int vetOpen = Liar::LiarPluginWrite::GetVertexVer(liarPlugin);
+		int vetOpen =0;
 
 		std::string folder = Liar::StringUtil::GetHead(path, "\\");
 		size_t meshSize = parse->GetMeshSize();
@@ -152,35 +152,43 @@ namespace Liar
 		sprintf_s(fullName, "%s\\%s.anim", path.c_str(), liarPlugin->animName.c_str());
 		FILE* hFile = fopen(fullName, "wb");
 
-		// write key len
-		size_t keyLen = anim->GetKeyLen();
-		fwrite(&keyLen, sizeof(int), 1, hFile);
+		// write track len
+		size_t trackLen = anim->GetTrackLen();
+		fwrite(&trackLen, sizeof(int), 1, hFile);
 
-		// write tick frame
-		int tickFrame = anim->GetTickFrame();
-		fwrite(&tickFrame, sizeof(int), 1, hFile);
-
-		size_t p3Size = sizeof(Liar::Vector3D);
-		for (size_t i = 0; i < keyLen; ++i)
+		for (size_t i = 0; i < trackLen; ++i)
 		{
-			Liar::LiarKeyFrame* keyFrame = anim->GetKey(i);
+			Liar::LiarTrack* track = anim->GetTrackByIndex(i);
 
-			// write boneKey len
-			size_t boneKeyLen = keyFrame->GetBoneKeyLen();
-			fwrite(&boneKeyLen, sizeof(int), 1, hFile);
+			// write boneId
+			int boneId = track->GetBoneId();
+			fwrite(&boneId, sizeof(int), 1, hFile);
 
-			for (size_t j = 0; j < boneKeyLen; ++j)
-			{
-				Liar::LiarBoneKeyFrame* boneKeyFrame = keyFrame->GetBoneKeyFrame(j);
-				int boneId = boneKeyFrame->GetBoneId();
-				fwrite(&boneId, sizeof(int), 1, hFile);
-				fwrite(boneKeyFrame->GetPositionKey(), p3Size, 1, hFile);
-				fwrite(boneKeyFrame->GetRotationKey(), p3Size, 1, hFile);
-				fwrite(boneKeyFrame->GetScaleKey(), p3Size, 1, hFile);
-			}
+			// write keys
+			WriteLiarKeyFrames(track, Liar::LiarVertexAttr::LiarVertexAttr_TRANSFORM, hFile);
+			WriteLiarKeyFrames(track, Liar::LiarVertexAttr::LiarVertexAttr_ROTATION, hFile);
+			WriteLiarKeyFrames(track, Liar::LiarVertexAttr::LiarVertexAttr_SCALE, hFile);
 		}
 
 		fclose(hFile);
+	}
+
+	void LiarPluginWrite::WriteLiarKeyFrames(Liar::LiarTrack* track, Liar::LiarVertexAttr type, FILE* hFile)
+	{
+		// write key frame num
+		size_t num = track->GetNumFrames(type);
+		fwrite(&num, sizeof(int), 1, hFile);
+
+		size_t p3Size = sizeof(Liar::Vector3D);
+		for (size_t i = 0; i < num; ++i)
+		{
+			Liar::LiarKeyFrame* keyFrame = track->GetKeyFrame(type, i);
+			
+			// write keyFrame
+			int time = keyFrame->GetTime();
+			fwrite(&time, sizeof(int), 1, hFile);
+			fwrite(keyFrame->GetKey(), p3Size, 1, hFile);
+		}
 	}
 
 	void LiarPluginWrite::WriteLiarMesh(Liar::LiarMesh* mesh, const std::string& path, Liar::LiarPluginCfg* liarPlugin, int vetOpen)
@@ -319,26 +327,5 @@ namespace Liar
 		// wirte char num;
 		fwrite(&size, sizeof(int), 1, hFile);
 		fwrite(&s.front(), sizeof(char), size, hFile);
-	}
-
-	int LiarPluginWrite::GetVertexVer(Liar::LiarPluginCfg* liarPluginCfg)
-	{
-		int ver = 0;
-		if (liarPluginCfg->vertexNormal)
-		{
-			ver |= (1 << LIAR_NORMAL);
-		}
-
-		if (liarPluginCfg->vertexColor)
-		{
-			ver |= (1 << LIAR_COLOR);
-		}
-
-		if (liarPluginCfg->textureCoord)
-		{
-			ver |= (1 << LIAR_UV);
-		}
-
-		return ver;
 	}
 }

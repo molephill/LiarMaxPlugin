@@ -1,8 +1,21 @@
-#pragma once
+///////////////////////////////////////////////////////////////////////////////
+// Vectors.h
+// =========
+// 2D/3D/4D vectors
+//
+//  AUTHOR: Song Ho Ahn (song.ahn@gmail.com)
+// CREATED: 2007-02-14
+// UPDATED: 2016-04-04
+//
+// Copyright (C) 2007-2013 Song Ho Ahn
+///////////////////////////////////////////////////////////////////////////////
+
+
+#ifndef VECTORS_H_DEF
+#define VECTORS_H_DEF
 
 #include <cmath>
 #include <iostream>
-
 #include <PluginDefine.h>
 
 namespace Liar
@@ -16,35 +29,20 @@ namespace Liar
 		float y;
 
 		// ctors
-		Vector2D() : x(0.0f), y(0.0f) {};
+		Vector2D() : x(0), y(0) {};
 		Vector2D(float x, float y) : x(x), y(y) {};
 
 		// utils functions
 		void        Set(float x, float y);
 		float       Length() const;                         //
 		float       Distance(const Vector2D& vec) const;     // distance between two vectors
-		Vector2D&   Normalize();                            //
+		float       Distance(float, float) const;     // distance between two vectors
+		Vector2D&    Normalize();                            //
 		float       Dot(const Vector2D& vec) const;          // dot product
-		bool        Equal(const Vector2D& vec, float e) const; // compare with epsilon
-		Vector2D	Clone() const;
+		float       Dot(float, float) const;          // dot product
+		bool        Equal(const Vector2D& vec, float e = Liar::EPSILON) const; // compare with epsilon
+		bool        Equal(float, float, float e = Liar::EPSILON) const; // compare with epsilon
 
-		void		Negative();
-
-		void		Add(const Vector2D&);
-		void		Add(float);
-		void		Add(float, float);
-
-		void		Sub(const Vector2D&);
-		void		Sub(float);
-		void		Sub(float, float);
-
-		void		Mul(const Vector2D&);
-		void		Mul(float);
-		void		Mul(float, float);
-
-		void		Div(const Vector2D&);
-		void		Div(float);
-		void		Div(float, float);
 															  // operators
 		Vector2D     operator-() const;                      // unary operator (negate)
 		Vector2D     operator+(const Vector2D& rhs) const;    // add rhs
@@ -56,10 +54,7 @@ namespace Liar
 		Vector2D&    operator*=(const float scale);          // scale and update this object
 		Vector2D&    operator*=(const Vector2D& rhs);         // multiply each element and update this object
 		Vector2D     operator/(const float scale) const;     // inverse scale
-		Vector2D     operator/(const Vector2D&) const;       // inverse scale
 		Vector2D&    operator/=(const float scale);          // scale and update this object
-		void		 operator=(const Vector2D&);
-		
 		bool        operator==(const Vector2D& rhs) const;   // exact compare, no epsilon
 		bool        operator!=(const Vector2D& rhs) const;   // exact compare, no epsilon
 		bool        operator<(const Vector2D& rhs) const;    // comparison for sort
@@ -82,45 +77,22 @@ namespace Liar
 		float z;
 
 		// ctors
-		Vector3D() : x(0.0f), y(0.0f), z(0.0f) {};
+		Vector3D() : x(0), y(0), z(0) {};
 		Vector3D(float x, float y, float z) : x(x), y(y), z(z) {};
 
 		// utils functions
 		void        Set(float x, float y, float z);
 		float       Length() const;                         //
 		float       Distance(const Vector3D& vec) const;     // distance between two vectors
+		float       Distance(float, float, float) const;     // distance between two vectors
 		float       Angle(const Vector3D& vec) const;        // angle between two vectors
-		Vector3D&   Normalize();                            //
+		Vector3D&    Normalize();                            //
 		float       Dot(const Vector3D& vec) const;          // dot product
+		float       Dot(float, float, float) const;          // dot product
 		Vector3D    Cross(const Vector3D& vec) const;        // cross product
-		void		Cross(float, float, float);		// cross product
-		void		CrossC(const Liar::Vector3D& vec);		// cross product
-		bool        Equal(const Vector3D& vec, float e = EPSILON) const; // compare with epsilon
-		bool        Equal(float, float, float, float e = EPSILON) const; // compare with epsilon
-		Vector3D	Clone() const;
-		void		Copy(const Liar::Vector3D& v) { x = v.x; y = v.y; z = v.z; };
-
-		void		Negative();
-
-		void		Add(const Vector3D&);
-		void		Add(float);
-		void		Add(float, const Vector2D&);
-		void		Add(const Vector2D&, float);
-		void		Add(float, float, float);
-
-		void		Sub(const Vector3D&);
-		void		Sub(float);
-		void		Sub(float, const Vector2D&);
-		void		Sub(const Vector2D&, float);
-		void		Sub(float, float, float);
-
-		void		Mul(const Vector3D&);
-		void		Mul(float);
-		void		Mul(float, float, float);
-
-		void		Div(const Vector3D&);
-		void		Div(float);
-		void		Div(float, float, float);
+		Vector3D    Cross(float, float, float) const;        // cross product
+		bool        Equal(const Vector3D& vec, float e = Liar::EPSILON) const; // compare with epsilon
+		bool        Equal(float, float, float, float e = Liar::EPSILON) const; // compare with epsilon
 
 															  // operators
 		Vector3D     operator-() const;                      // unary operator (negate)
@@ -133,10 +105,7 @@ namespace Liar
 		Vector3D&    operator*=(const float scale);          // scale and update this object
 		Vector3D&    operator*=(const Vector3D& rhs);         // product each element and update this object
 		Vector3D     operator/(const float scale) const;     // inverse scale
-		Vector3D     operator/(const Vector3D&) const;     // inverse scale
 		Vector3D&    operator/=(const float scale);          // scale and update this object
-		void		 operator=(const Vector3D&);
-
 		bool        operator==(const Vector3D& rhs) const;   // exact compare, no epsilon
 		bool        operator!=(const Vector3D& rhs) const;   // exact compare, no epsilon
 		bool        operator<(const Vector3D& rhs) const;    // comparison for sort
@@ -160,45 +129,19 @@ namespace Liar
 		float w;
 
 		// ctors
-		Vector4D() : x(0.0f), y(0.0f), z(0.0f), w(0.0f) {};
+		Vector4D() : x(0), y(0), z(0), w(0) {};
 		Vector4D(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {};
 
 		// utils functions
 		void        Set(float x, float y, float z, float w);
 		float       Length() const;                         //
 		float       Distance(const Vector4D& vec) const;     // distance between two vectors
-		Vector4D&   Normalize();                            //
+		float       Distance(float, float, float, float) const;     // distance between two vectors
+		Vector4D&    Normalize();                            //
 		float       Dot(const Vector4D& vec) const;          // dot product
-		bool        Equal(const Vector4D& vec, float e) const; // compare with epsilon
-		Vector4D	Clone() const;
-
-		void		Negative();
-
-		void		Add(const Vector4D&);
-		void		Add(float);
-		void		Add(float, const Vector3D&);
-		void		Add(const Vector3D&, float);
-		void		Add(float, float, const Vector2D&);
-		void		Add(float, const Vector2D&, float);
-		void		Add(const Vector2D&, float, float);
-		void		Add(float, float, float, float);
-
-		void		Sub(const Vector4D&);
-		void		Sub(float);
-		void		Sub(float, const Vector3D&);
-		void		Sub(const Vector3D&, float);
-		void		Sub(float, float, const Vector2D&);
-		void		Sub(float, const Vector2D&, float);
-		void		Sub(const Vector2D&, float, float);
-		void		Sub(float, float, float, float);
-
-		void		Mul(const Vector4D&);
-		void		Mul(float);
-		void		Mul(float, float, float, float);
-
-		void		Div(const Vector4D&);
-		void		Div(float);
-		void		Div(float, float, float, float);
+		float       Dot(float, float, float, float) const;          // dot product
+		bool        Equal(const Vector4D& vec, float e = Liar::EPSILON) const; // compare with epsilon¡¢
+		bool        Equal(float, float, float, float, float e = Liar::EPSILON) const; // compare with epsilon
 
 															  // operators
 		Vector4D     operator-() const;                      // unary operator (negate)
@@ -211,10 +154,7 @@ namespace Liar
 		Vector4D&    operator*=(const float scale);          // scale and update this object
 		Vector4D&    operator*=(const Vector4D& rhs);         // multiply each element and update this object
 		Vector4D     operator/(const float scale) const;     // inverse scale
-		Vector4D     operator/(const Vector4D&) const;     // inverse scale
 		Vector4D&    operator/=(const float scale);          // scale and update this object
-		void		 operator=(const Vector4D&);
-
 		bool        operator==(const Vector4D& rhs) const;   // exact compare, no epsilon
 		bool        operator!=(const Vector4D& rhs) const;   // exact compare, no epsilon
 		bool        operator<(const Vector4D& rhs) const;    // comparison for sort
@@ -283,10 +223,6 @@ namespace Liar
 		return Vector2D(x / a, y / a);
 	}
 
-	inline Vector2D Vector2D::operator/(const Vector2D& rhs) const {
-		return Vector2D(x / rhs.x, y / rhs.y);
-	}
-
 	inline Vector2D& Vector2D::operator/=(const float a) {
 		x /= a; y /= a; return *this;
 	}
@@ -297,10 +233,6 @@ namespace Liar
 
 	inline bool Vector2D::operator!=(const Vector2D& rhs) const {
 		return (x != rhs.x) || (y != rhs.y);
-	}
-
-	inline void Vector2D::operator=(const Vector2D& rhs) {
-		x = rhs.x; y = rhs.y;
 	}
 
 	inline bool Vector2D::operator<(const Vector2D& rhs) const {
@@ -328,83 +260,44 @@ namespace Liar
 	}
 
 	inline float Vector2D::Distance(const Vector2D& vec) const {
-		return sqrtf((vec.x - x)*(vec.x - x) + (vec.y - y)*(vec.y - y));
+		return Distance(vec.x, vec.y);
+	}
+
+	inline float Vector2D::Distance(float cx, float cy) const {
+		return sqrtf((cx - x)*(cx - x) + (cy - y)*(cy - y));
 	}
 
 	inline Vector2D& Vector2D::Normalize() {
+		//@@const float EPSILON = 0.000001f;
 		float xxyy = x*x + y*y;
+		//@@if(xxyy < EPSILON)
+		//@@    return *this;
+
+		//float invLength = invSqrt(xxyy);
 		float invLength = 1.0f / sqrtf(xxyy);
 		x *= invLength;
 		y *= invLength;
 		return *this;
 	}
 
-	inline void Vector2D::Negative() {
-		x = -x; y = -y;
-	}
-
-	inline void Vector2D::Add(const Vector2D& rhs) {
-		x += rhs.x; y += rhs.y;
-	}
-
-	inline void Vector2D::Add(float v) {
-		x += v; y += v;
-	}
-
-	inline void Vector2D::Add(float vx, float vy) {
-		x += vx; y += vy;
-	}
-
-	inline void Vector2D::Sub(const Vector2D& rhs) {
-		x -= rhs.x; y -= rhs.y;
-	}
-
-	inline void Vector2D::Sub(float v) {
-		x -= v; y -= v;
-	}
-
-	inline void Vector2D::Sub(float vx, float vy) {
-		x -= vx; y -= vy;
-	}
-
-	inline void Vector2D::Mul(const Vector2D& rhs) {
-		x *= rhs.x; y *= rhs.y;
-	}
-
-	inline void Vector2D::Mul(float v) {
-		x *= v; y *= v;
-	}
-
-	inline void Vector2D::Mul(float vx, float vy) {
-		x *= vx; y *= vy;
-	}
-
-	inline void Vector2D::Div(const Vector2D& rhs) {
-		x /= rhs.x; y /= rhs.y;
-	}
-
-	inline void Vector2D::Div(float v) {
-		x /= v; y /= v;
-	}
-
-	inline void Vector2D::Div(float vx, float vy) {
-		x /= vx; y /= vy;
-	}
-
 	inline float Vector2D::Dot(const Vector2D& rhs) const {
-		return (x*rhs.x + y*rhs.y);
+		return Dot(rhs.x, rhs.y);
+	}
+
+	inline float Vector2D::Dot(float cx, float cy) const {
+		return (x*cx + y * cy);
 	}
 
 	inline bool Vector2D::Equal(const Vector2D& rhs, float epsilon) const {
-		return fabs(x - rhs.x) < epsilon && fabs(y - rhs.y) < epsilon;
+		return Equal(rhs.x, rhs.y);
+	}
+
+	inline bool Vector2D::Equal(float cx, float cy, float epsilon) const {
+		return fabs(x - cx) < epsilon && fabs(y - cy) < epsilon;
 	}
 
 	inline Vector2D operator*(const float a, const Vector2D vec) {
 		return Vector2D(a*vec.x, a*vec.y);
-	}
-
-	inline Vector2D Vector2D::Clone() const {
-		return Vector2D(x, y);
 	}
 
 	inline std::ostream& operator<<(std::ostream& os, const Vector2D& vec) {
@@ -459,10 +352,6 @@ namespace Liar
 		return Vector3D(x / a, y / a, z / a);
 	}
 
-	inline Vector3D Vector3D::operator/(const Vector3D& rhs) const {
-		return Vector3D(x / rhs.x, y / rhs.y, z / rhs.z);
-	}
-
 	inline Vector3D& Vector3D::operator/=(const float a) {
 		x /= a; y /= a; z /= a; return *this;
 	}
@@ -485,10 +374,6 @@ namespace Liar
 		return false;
 	}
 
-	inline void Vector3D::operator=(const Vector3D& rhs) {
-		x = rhs.x; y = rhs.y; z = rhs.z;
-	}
-
 	inline float Vector3D::operator[](int index) const {
 		return (&x)[index];
 	}
@@ -506,7 +391,11 @@ namespace Liar
 	}
 
 	inline float Vector3D::Distance(const Vector3D& vec) const {
-		return sqrtf((vec.x - x)*(vec.x - x) + (vec.y - y)*(vec.y - y) + (vec.z - z)*(vec.z - z));
+		return Distance(vec.x, vec.y, vec.z);
+	}
+
+	inline float Vector3D::Distance(float cx, float cy, float cz) const {
+		return sqrtf((cx - x)*(cx - x) + (cy - y)*(cy - y) + (cz - z)*(cz - z));
 	}
 
 	inline float Vector3D::Angle(const Vector3D& vec) const {
@@ -514,13 +403,17 @@ namespace Liar
 		float l1 = this->Length();
 		float l2 = vec.Length();
 		float d = this->Dot(vec);
-		//float angle = acosf(d / (l1 * l2)) / 3.141592f * 180.0f;
-		float angle = acosf(d / (l1 * l2)) * RAD2DEG;
+		float angle = acosf(d / (l1 * l2)) / 3.141592f * 180.0f;
 		return angle;
 	}
 
 	inline Vector3D& Vector3D::Normalize() {
+		//@@const float EPSILON = 0.000001f;
 		float xxyyzz = x*x + y*y + z*z;
+		//@@if(xxyyzz < EPSILON)
+		//@@    return *this; // do nothing if it is ~zero vector
+
+		//float invLength = invSqrt(xxyyzz);
 		float invLength = 1.0f / sqrtf(xxyyzz);
 		x *= invLength;
 		y *= invLength;
@@ -528,103 +421,28 @@ namespace Liar
 		return *this;
 	}
 
-	inline void Vector3D::Negative() {
-		x = -x; y = -y; z = -z;
-	}
-
-	inline void Vector3D::Add(const Vector3D& rhs) {
-        x += rhs.x; y += rhs.y; z += rhs.z;
-	}
-
-	inline void Vector3D::Add(float v) {
-		x += v; y += v; z += v;
-	}
-
-	inline void Vector3D::Add(float v, const Vector2D& rhs) {
-		x += v; y += rhs.x; z += rhs.y;
-	}
-
-	inline void Vector3D::Add(const Vector2D& rhs, float v) {
-		x += rhs.x; y += rhs.y; z += v;
-	}
-
-	inline void Vector3D::Add(float vx, float vy, float vz) {
-		x += vx; y += vy; z += vz;
-	}
-
-	inline void Vector3D::Sub(const Vector3D& rhs) {
-		x -= rhs.x; y -= rhs.y; z -= rhs.z;
-	}
-
-	inline void Vector3D::Sub(float v) {
-		x -= v; y -= v; z -= v;
-	}
-
-	inline void Vector3D::Sub(float v, const Vector2D& rhs) {
-		x -= v; y -= rhs.x; z -= rhs.y;
-	}
-
-	inline void Vector3D::Sub(const Vector2D& rhs, float v) {
-		x -= rhs.x; y -= rhs.y; z -= v;
-	}
-
-	inline void Vector3D::Sub(float vx, float vy, float vz) {
-		x -= vx; y -= vy; z -= vz;
-	}
-
-	inline void Vector3D::Mul(const Vector3D& rhs) {
-		x *= rhs.x; y *= rhs.y; z *= rhs.z;
-	}
-
-	inline void Vector3D::Mul(float v) {
-		x *= v; y *= v; z *= v;
-	}
-
-	inline void Vector3D::Mul(float vx, float vy, float vz) {
-		x *= vx; y *= vy; z *= vz;
-	}
-
-	inline void Vector3D::Div(const Vector3D& rhs) {
-		x /= rhs.x; y /= rhs.y; z /= rhs.z;
-	}
-
-	inline void Vector3D::Div(float v) {
-		x /= v; y /= v; z /= v;
-	}
-
-	inline void Vector3D::Div(float vx, float vy, float vz) {
-		x /= vx; y /= vy; z /= vz;
-	}
-
 	inline float Vector3D::Dot(const Vector3D& rhs) const {
-		return (x*rhs.x + y*rhs.y + z*rhs.z);
+		return Dot(rhs.x, rhs.y, rhs.z);
+	}
+
+	inline float Vector3D::Dot(float cx, float cy, float cz) const {
+		return (x*cx + y * cy + z * cz);
 	}
 
 	inline Vector3D Vector3D::Cross(const Vector3D& rhs) const {
-		return Vector3D(y*rhs.z - z*rhs.y, z*rhs.x - x*rhs.z, x*rhs.y - y*rhs.x);
+		return Cross(rhs.x, rhs.y, rhs.z);
 	}
 
-	inline void Vector3D::Cross(float vx, float vy, float vz) {
-		float tx = x, ty = y, tz = z;
-		x = ty*vz - tz*vy;
-		y = tz*vx - tx*vz;
-		z = tx*vy - ty*vx;
-	}
-
-	inline void Vector3D::CrossC(const Vector3D& rhs) {
-		Cross(rhs.x, rhs.y, rhs.z);
+	inline Vector3D Vector3D::Cross(float cx, float cy, float cz) const {
+		return Vector3D(y*cz - z * cy, z*cx - x * cz, x*cy - y * cx);
 	}
 
 	inline bool Vector3D::Equal(const Vector3D& rhs, float epsilon) const {
 		return Equal(rhs.x, rhs.y, rhs.z, epsilon);
 	}
 
-	inline bool Vector3D::Equal(float tx, float ty, float tz, float epsilon) const {
-		return fabs(x - tx) < epsilon && fabs(y - ty) < epsilon && fabs(z - tz) < epsilon;
-	}
-
-	inline Vector3D Vector3D::Clone() const {
-		return Vector3D(x, y, z);
+	inline bool Vector3D::Equal(float cx, float cy, float cz, float epsilon) const {
+		return fabs(x - cx) < epsilon && fabs(y - cy) < epsilon && fabs(z - cz) < epsilon;
 	}
 
 	inline Vector3D operator*(const float a, const Vector3D vec) {
@@ -682,10 +500,6 @@ namespace Liar
 		return Vector4D(x / a, y / a, z / a, w / a);
 	}
 
-	inline Vector4D Vector4D::operator/(const Vector4D& rhs) const {
-		return Vector4D(x / rhs.x, y / rhs.y, z / rhs.z, w / rhs.z);
-	}
-
 	inline Vector4D& Vector4D::operator/=(const float a) {
 		x /= a; y /= a; z /= a; w /= a; return *this;
 	}
@@ -710,10 +524,6 @@ namespace Liar
 		return false;
 	}
 
-	inline void Vector4D::operator=(const Vector4D& rhs) {
-		x = rhs.x; y = rhs.y; z = rhs.z; w = rhs.w;
-	}
-
 	inline float Vector4D::operator[](int index) const {
 		return (&x)[index];
 	}
@@ -731,11 +541,21 @@ namespace Liar
 	}
 
 	inline float Vector4D::Distance(const Vector4D& vec) const {
-		return sqrtf((vec.x - x)*(vec.x - x) + (vec.y - y)*(vec.y - y) + (vec.z - z)*(vec.z - z) + (vec.w - w)*(vec.w - w));
+		return Distance(vec.x, vec.y, vec.z, vec.w);
+	}
+
+	inline float Vector4D::Distance(float cx, float cy, float cz, float cw) const {
+		return sqrtf((cx - x)*(cx - x) + (cy - y)*(cy - y) + (cz - z)*(cz - z) + (cw - w)*(cw - w));
 	}
 
 	inline Vector4D& Vector4D::Normalize() {
+		//NOTE: leave w-component untouched
+		//@@const float EPSILON = 0.000001f;
 		float xxyyzz = x*x + y*y + z*z;
+		//@@if(xxyyzz < EPSILON)
+		//@@    return *this; // do nothing if it is zero vector
+
+		//float invLength = invSqrt(xxyyzz);
 		float invLength = 1.0f / sqrtf(xxyyzz);
 		x *= invLength;
 		y *= invLength;
@@ -743,109 +563,21 @@ namespace Liar
 		return *this;
 	}
 
-	inline void Vector4D::Negative() {
-        x = -x; y = -y; z = -z; w = -w;
-	}
-
-	inline void Vector4D::Add(const Vector4D& rhs) {
-        x += rhs.x; y += rhs.y; z += rhs.z; w += rhs.w;
-	}
-
-	inline void Vector4D::Add(float v) {
-		x += v; y += v; z += v; w += v;
-	}
-
-	inline void Vector4D::Add(float v, const Vector3D& rhs) {
-		x += v; y += rhs.x; z += rhs.y; w += rhs.z;
-	}
-
-	inline void Vector4D::Add(const Vector3D& rhs, float v) {
-		x += rhs.x; y += rhs.y; z += rhs.z; w += v;
-	}
-
-	inline void Vector4D::Add(const Vector2D& rhs, float vz, float vw) {
-		x += rhs.x; y += rhs.y; z += vz; w += vw;
-	}
-
-	inline void Vector4D::Add(float vx, const Vector2D& rhs, float vw) {
-		x += vx; y += rhs.x; z += rhs.y; w += vw;
-	}
-
-	inline void Vector4D::Add(float vx, float vy, const Vector2D& rhs) {
-		x += vx; y += vy; z += rhs.x; w += rhs.y;
-	}
-
-	inline void Vector4D::Add(float vx, float vy, float vz, float vw) {
-		x += vx; y += vy; z += vz; w += vw;
-	}
-
-	inline void Vector4D::Sub(const Vector4D& rhs) {
-		x -= rhs.x; y -= rhs.y; z -= rhs.z; w -= rhs.w;
-	}
-
-	inline void Vector4D::Sub(float v) {
-		x -= v; y -= v; z -= v; w -= v;
-	}
-
-	inline void Vector4D::Sub(float v, const Vector3D& rhs) {
-		x -= v; y -= rhs.x; z -= rhs.y; w -= rhs.z;
-	}
-
-	inline void Vector4D::Sub(const Vector3D& rhs, float v) {
-		x -= rhs.x; y -= rhs.y; z -= rhs.z; w -= v;
-	}
-
-	inline void Vector4D::Sub(const Vector2D& rhs, float vz, float vw) {
-		x -= rhs.x; y -= rhs.y; z -= vz; w -= vw;
-	}
-
-	inline void Vector4D::Sub(float vx, const Vector2D& rhs, float vw) {
-		x -= vx; y -= rhs.x; z -= rhs.y; w -= vw;
-	}
-
-	inline void Vector4D::Sub(float vx, float vy, const Vector2D& rhs) {
-		x -= vx; y -= vy; z -= rhs.x; w -= rhs.y;
-	}
-
-	inline void Vector4D::Sub(float vx, float vy, float vz, float vw) {
-		x -= vx; y -= vy; z -= vz; w -= vw;
-	}
-
-	inline void Vector4D::Mul(const Vector4D& rhs) {
-		x *= rhs.x; y *= rhs.y; z *= rhs.z; w *= rhs.w;
-	}
-
-	inline void Vector4D::Mul(float v) {
-		x *= v; y *= v; z *= v; w *= v;
-	}
-
-	inline void Vector4D::Mul(float vx, float vy, float vz, float vw) {
-		x *= vx; y *= vy; z *= vz; w *= vw;
-	}
-
-	inline void Vector4D::Div(const Vector4D& rhs) {
-		x /= rhs.x; y /= rhs.y; z /= rhs.z; w /= rhs.w;
-	}
-
-	inline void Vector4D::Div(float v) {
-		x /= v; y /= v; z /= v; w /= v;
-	}
-
-	inline void Vector4D::Div(float vx, float vy, float vz, float vw) {
-		x /= vx; y /= vy; z /= vz; w /= vw;
-	}
-
 	inline float Vector4D::Dot(const Vector4D& rhs) const {
-		return (x*rhs.x + y*rhs.y + z*rhs.z + w*rhs.w);
+		return Dot(rhs.x, rhs.y, rhs.z, rhs.w);
+	}
+
+	inline float Vector4D::Dot(float cx, float cy, float cz, float cw) const {
+		return (x*cx + y * cy + z * cz + w * cw);
 	}
 
 	inline bool Vector4D::Equal(const Vector4D& rhs, float epsilon) const {
-		return fabs(x - rhs.x) < epsilon && fabs(y - rhs.y) < epsilon &&
-			fabs(z - rhs.z) < epsilon && fabs(w - rhs.w) < epsilon;
+		return Equal(rhs.x, rhs.y, rhs.z, rhs.w, epsilon);
 	}
 
-	inline Vector4D Vector4D::Clone() const {
-		return Vector4D(x, y, z, w);
+	inline bool Vector4D::Equal(float cx, float cy, float cz, float cw, float epsilon) const {
+		return fabs(x - cx) < epsilon && fabs(y - cy) < epsilon &&
+			fabs(z - cz) < epsilon && fabs(w - cw) < epsilon;
 	}
 
 	inline Vector4D operator*(const float a, const Vector4D vec) {
@@ -859,3 +591,4 @@ namespace Liar
 	// END OF VECTOR4 /////////////////////////////////////////////////////////////
 }
 
+#endif

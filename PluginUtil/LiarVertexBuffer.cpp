@@ -1,5 +1,4 @@
 #include "LiarVertexBuffer.h"
-#include <PluginDefine.h>
 
 namespace Liar
 {
@@ -90,7 +89,7 @@ namespace Liar
 		}
 	}
 
-	Liar::Vector3D* LiarVertexRawData::AddData(int type, size_t index)
+	Liar::Vector3D* LiarVertexRawData::AddData(Liar::LiarVertexType type, size_t index)
 	{
 		std::vector<Liar::Vector3D*>* vec = GetData(type);
 		while (vec->size() <= index)
@@ -100,7 +99,7 @@ namespace Liar
 		return vec->at(index);
 	}
 
-	int LiarVertexRawData::GetIndex(int type, float x, float y, float z)
+	int LiarVertexRawData::GetIndex(Liar::LiarVertexType type, float x, float y, float z)
 	{
 		std::vector<Liar::Vector3D*>* vec = GetData(type);
 		size_t size = vec->size();
@@ -113,25 +112,25 @@ namespace Liar
 		return static_cast<int>(size);
 	}
 
-	int LiarVertexRawData::GetIndex(int type, const Liar::Vector3D& v)
+	int LiarVertexRawData::GetIndex(Liar::LiarVertexType type, const Liar::Vector3D& v)
 	{
 		return GetIndex(type, v.x, v.y, v.z);
 	}
 
-	std::vector<Liar::Vector3D*>* LiarVertexRawData::GetData(int type)
+	std::vector<Liar::Vector3D*>* LiarVertexRawData::GetData(Liar::LiarVertexType type)
 	{
 		std::vector<Liar::Vector3D*>* vec = nullptr;
-		if (type == LIAR_COLOR)
+		if (type == Liar::LiarVertexType::LiarVertexType_COLOR)
 		{
 			if (!m_color) m_color = new std::vector<Liar::Vector3D*>();
 			vec = m_color;
 		}
-		else if (type == LIAR_NORMAL)
+		else if (type == Liar::LiarVertexType::LiarVertexType_NORMAL)
 		{
 			if (!m_norm) m_norm = new std::vector<Liar::Vector3D*>();
 			vec = m_norm;
 		}
-		else if (type == LIAR_UV)
+		else if (type == Liar::LiarVertexType::LiarVertexType_TEX)
 		{
 			if (!m_texCoord) m_texCoord = new std::vector<Liar::Vector3D*>();
 			vec = m_texCoord;

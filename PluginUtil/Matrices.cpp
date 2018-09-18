@@ -1,4 +1,27 @@
+///////////////////////////////////////////////////////////////////////////////
+// Matrice.cpp
+// ===========
+// NxN Matrix Math classes
+//
+// The elements of the matrix are stored as column major order.
+// | 0 2 |    | 0 3 6 |    |  0  4  8 12 |
+// | 1 3 |    | 1 4 7 |    |  1  5  9 13 |
+//            | 2 5 8 |    |  2  6 10 14 |
+//                         |  3  7 11 15 |
+//
+// Dependencies: Vector2, Vector3, Vector3
+//
+//  AUTHOR: Song Ho Ahn (song.ahn@gmail.com)
+// CREATED: 2005-06-24
+// UPDATED: 2017-06-27
+//
+// Copyright (C) 2005 Song Ho Ahn
+///////////////////////////////////////////////////////////////////////////////
+
+#include <cmath>
+#include <algorithm>
 #include "Matrices.h"
+
 
 namespace Liar
 {
@@ -7,17 +30,21 @@ namespace Liar
 	///////////////////////////////////////////////////////////////////////////////
 	Matrix2& Matrix2::Transpose()
 	{
-		std::swap(m.s[1], m.s[2]);
+		std::swap(m[1], m[2]);
 		return *this;
 	}
+
+
 
 	///////////////////////////////////////////////////////////////////////////////
 	// return the determinant of 2x2 matrix
 	///////////////////////////////////////////////////////////////////////////////
 	float Matrix2::GetDeterminant() const
 	{
-		return m.s[0] * m.s[3] - m.s[1] * m.s[2];
+		return m[0] * m[3] - m[1] * m[2];
 	}
+
+
 
 	///////////////////////////////////////////////////////////////////////////////
 	// inverse of 2x2 matrix
@@ -31,15 +58,17 @@ namespace Liar
 			return Identity();
 		}
 
-		float tmp = m.s[1];   // copy the first element
+		float tmp = m[0];   // copy the first element
 		float invDeterminant = 1.0f / determinant;
-		m.s[0] = invDeterminant * m.s[3];
-		m.s[1] = -invDeterminant * m.s[1];
-		m.s[2] = -invDeterminant * m.s[2];
-		m.s[3] = invDeterminant * tmp;
+		m[0] = invDeterminant * m[3];
+		m[1] = -invDeterminant * m[1];
+		m[2] = -invDeterminant * m[2];
+		m[3] = invDeterminant * tmp;
 
 		return *this;
 	}
+
+
 
 	///////////////////////////////////////////////////////////////////////////////
 	// retrieve rotation angle in degree from rotation matrix, R
@@ -50,87 +79,14 @@ namespace Liar
 	float Matrix2::GetAngle() const
 	{
 		// angle between -pi ~ +pi (-180 ~ +180)
-		return RAD2DEG * atan2f(m.s[1], m.s[0]);
+		return RAD2DEG * atan2f(m[1], m[0]);
 	}
 
-	void Matrix2::SetRow(int index, const float row[2])
-	{
-		m.s[index] = row[0];  m.s[index + 2] = row[1];
-	}
+	//=============================================================================
 
-	void Matrix2::SetRow(int index, const std::vector<float>& row)
-	{
-		m.s[index] = row[0];  m.s[index + 2] = row[1];
-	}
 
-	void Matrix2::SetRow(int index, const Liar::Vector2D& v)
-	{
-		m.s[index] = v.x;  m.s[index + 2] = v.y;
-	}
 
-	void Matrix2::SetCol(int index, const float col[2])
-	{
-		m.s[index * 2] = col[0];  m.s[index * 2 + 1] = col[1];
-	}
 
-	void Matrix2::SetCol(int index, const std::vector<float>& col)
-	{
-		m.s[index * 2] = col[0];  m.s[index * 2 + 1] = col[1];
-	}
-
-	void Matrix2::SetCol(int index, const Liar::Vector2D& v)
-	{
-		m.s[index * 2] = v.x;  m.s[index * 2 + 1] = v.y;
-	}
-
-	// add rhs
-	void Matrix2::Add(const Liar::Matrix2& rhs)
-	{
-		m.s[0] += rhs[0];
-		m.s[1] += rhs[1];
-		m.s[2] += rhs[2];
-		m.s[3] += rhs[3];
-	}
-
-	// subtract rhs
-	void Matrix2::Sub(const Liar::Matrix2& rhs)
-	{
-		m.s[0] -= rhs[0];
-		m.s[1] -= rhs[1];
-		m.s[2] -= rhs[2];
-		m.s[3] -= rhs[3];
-	}
-
-	// multiplication: M3 = M1 * M2
-	void Matrix2::Mul(const Liar::Matrix2& rhs)
-	{
-		float t0 = m.s[0], t1 = m.s[1], t2 = m.s[2], t3 = m.s[3];
-		m.s[0] = t0 * rhs[0] + t2 * rhs[1];
-		m.s[1] = t1 * rhs[0] + t3 * rhs[1];
-		m.s[2] = t0 * rhs[2] + t2 * rhs[3];
-		m.s[3] = t1 * rhs[2] + t3 * rhs[3];
-	}
-
-	// multiplication: M1' = M1 * M2
-	void Matrix2::Mul(Liar::Vector2D& rhs)
-	{
-		float tx = rhs.x, ty = rhs.y;
-		rhs.x = m.s[0] * tx + m.s[2] * ty;
-		rhs.y = m.s[1] * tx + m.s[3] * ty;
-	}
-
-	// multiplication: M1' = M1 * M2
-	void Matrix2::Mul(const Liar::Vector2D& rhs, Liar::Vector2D& out)
-	{
-		out.x = m.s[0] * rhs.x + m.s[2] * rhs.y;
-		out.y = m.s[1] * rhs.x + m.s[3] * rhs.y;
-	}
-
-	void Matrix2::Mul(float v)
-	{
-		m.s[0] *= v; m.s[1] *= v;
-		m.s[2] *= v; m.s[3] *= v;
-	}
 
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -138,21 +94,26 @@ namespace Liar
 	///////////////////////////////////////////////////////////////////////////////
 	Matrix3& Matrix3::Transpose()
 	{
-		std::swap(m.s[1], m.s[3]);
-		std::swap(m.s[2], m.s[6]);
-		std::swap(m.s[5], m.s[7]);
+		std::swap(m[1], m[3]);
+		std::swap(m[2], m[6]);
+		std::swap(m[5], m[7]);
+
 		return *this;
 	}
+
+
 
 	///////////////////////////////////////////////////////////////////////////////
 	// return determinant of 3x3 matrix
 	///////////////////////////////////////////////////////////////////////////////
 	float Matrix3::GetDeterminant() const
 	{
-		return m.s[0] * (m.s[4] * m.s[8] - m.s[5] * m.s[7]) -
-				m.s[1] * (m.s[3] * m.s[8] - m.s[5] * m.s[6]) +
-				m.s[2] * (m.s[3] * m.s[7] - m.s[4] * m.s[6]);
+		return m[0] * (m[4] * m[8] - m[5] * m[7]) -
+			m[1] * (m[3] * m[8] - m[5] * m[6]) +
+			m[2] * (m[3] * m[7] - m[4] * m[6]);
 	}
+
+
 
 	///////////////////////////////////////////////////////////////////////////////
 	// inverse 3x3 matrix
@@ -165,20 +126,20 @@ namespace Liar
 	Matrix3& Matrix3::Invert()
 	{
 		float determinant, invDeterminant;
-		float tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7, tmp8;
+		float tmp[9];
 
-		tmp0 = m.s[4] * m.s[8] - m.s[5] * m.s[7];
-		tmp1 = m.s[7] * m.s[2] - m.s[8] * m.s[1];
-		tmp2 = m.s[1] * m.s[5] - m.s[2] * m.s[4];
-		tmp3 = m.s[5] * m.s[6] - m.s[3] * m.s[8];
-		tmp4 = m.s[0] * m.s[8] - m.s[2] * m.s[6];
-		tmp5 = m.s[2] * m.s[3] - m.s[0] * m.s[5];
-		tmp6 = m.s[3] * m.s[7] - m.s[4] * m.s[6];
-		tmp7 = m.s[6] * m.s[1] - m.s[7] * m.s[0];
-		tmp8 = m.s[0] * m.s[4] - m.s[1] * m.s[3];
+		tmp[0] = m[4] * m[8] - m[5] * m[7];
+		tmp[1] = m[7] * m[2] - m[8] * m[1];
+		tmp[2] = m[1] * m[5] - m[2] * m[4];
+		tmp[3] = m[5] * m[6] - m[3] * m[8];
+		tmp[4] = m[0] * m[8] - m[2] * m[6];
+		tmp[5] = m[2] * m[3] - m[0] * m[5];
+		tmp[6] = m[3] * m[7] - m[4] * m[6];
+		tmp[7] = m[6] * m[1] - m[7] * m[0];
+		tmp[8] = m[0] * m[4] - m[1] * m[3];
 
 		// check determinant if it is 0
-		determinant = m.s[0] * tmp0 + m.s[1] * tmp3 + m.s[2] * tmp6;
+		determinant = m[0] * tmp[0] + m[1] * tmp[3] + m[2] * tmp[6];
 		if (fabs(determinant) <= EPSILON)
 		{
 			return Identity(); // cannot inverse, make it idenety matrix
@@ -186,15 +147,15 @@ namespace Liar
 
 		// divide by the determinant
 		invDeterminant = 1.0f / determinant;
-		m.s[0] = invDeterminant * tmp0;
-		m.s[1] = invDeterminant * tmp1;
-		m.s[2] = invDeterminant * tmp2;
-		m.s[3] = invDeterminant * tmp3;
-		m.s[4] = invDeterminant * tmp4;
-		m.s[5] = invDeterminant * tmp5;
-		m.s[6] = invDeterminant * tmp6;
-		m.s[7] = invDeterminant * tmp7;
-		m.s[8] = invDeterminant * tmp8;
+		m[0] = invDeterminant * tmp[0];
+		m[1] = invDeterminant * tmp[1];
+		m[2] = invDeterminant * tmp[2];
+		m[3] = invDeterminant * tmp[3];
+		m[4] = invDeterminant * tmp[4];
+		m[5] = invDeterminant * tmp[5];
+		m[6] = invDeterminant * tmp[6];
+		m[7] = invDeterminant * tmp[7];
+		m[8] = invDeterminant * tmp[8];
 
 		return *this;
 	}
@@ -217,20 +178,13 @@ namespace Liar
 	///////////////////////////////////////////////////////////////////////////////
 	Vector3D Matrix3::GetAngle() const
 	{
-		Liar::Vector3D vec;
-		GetAngle(vec);
-		return vec;
-	}
-
-	void Matrix3::GetAngle(Liar::Vector3D& out) const
-	{
 		float pitch, yaw, roll;         // 3 angles
 
 										// find yaw (around y-axis) first
 										// NOTE: asin() returns -90~+90, so correct the angle range -180~+180
 										// using z value of forward vector
-		yaw = RAD2DEG * asinf(m.s[6]);
-		if (m.s[8] < 0)
+		yaw = RAD2DEG * asinf(m[6]);
+		if (m[8] < 0)
 		{
 			if (yaw >= 0) yaw = 180.0f - yaw;
 			else         yaw = -180.0f - yaw;
@@ -238,114 +192,25 @@ namespace Liar
 
 		// find roll (around z-axis) and pitch (around x-axis)
 		// if forward vector is (1,0,0) or (-1,0,0), then m[0]=m[4]=m[9]=m[10]=0
-		if (m.s[0] > -EPSILON && m.s[0] < EPSILON)
+		if (m[0] > -EPSILON && m[0] < EPSILON)
 		{
 			roll = 0;  //@@ assume roll=0
-			pitch = RAD2DEG * atan2f(m.s[1], m.s[4]);
+			pitch = RAD2DEG * atan2f(m[1], m[4]);
 		}
 		else
 		{
-			roll = RAD2DEG * atan2f(-m.s[3], m.s[0]);
-			pitch = RAD2DEG * atan2f(-m.s[7], m.s[8]);
+			roll = RAD2DEG * atan2f(-m[3], m[0]);
+			pitch = RAD2DEG * atan2f(-m[7], m[8]);
 		}
-		out.x = pitch;
-		out.y = yaw;
-		out.z = roll;
-	}
 
-	void Matrix3::Add(const Liar::Matrix3& rhs)
-	{
-		m.s[0] += rhs[0];
-		m.s[1] += rhs[1];
-		m.s[2] += rhs[2];
-		m.s[3] += rhs[1];
-		m.s[4] += rhs[4];
-		m.s[5] += rhs[5];
-		m.s[6] += rhs[6];
-		m.s[7] += rhs[7];
-		m.s[8] += rhs[8];
-	}
-
-	void Matrix3::Sub(const Liar::Matrix3& rhs)
-	{
-		m.s[0] -= rhs[0];
-		m.s[1] -= rhs[1];
-		m.s[2] -= rhs[2];
-		m.s[3] -= rhs[1];
-		m.s[4] -= rhs[4];
-		m.s[5] -= rhs[5];
-		m.s[6] -= rhs[6];
-		m.s[7] -= rhs[7];
-		m.s[8] -= rhs[8];
-	}
-
-	void Matrix3::Mul(const Liar::Matrix3& rhs)
-	{
-		float t0 = m.s[0], t1 = m.s[1], t2 = m.s[2], t3 = m.s[3], t4 = m.s[4], t5 = m.s[5], t6 = m.s[6], t7 = m.s[7], t8 = m.s[8];
-		m.s[0] = t0 * rhs[0] + t3 * rhs[1] + t6 * rhs[2];
-		m.s[1] = t1 * rhs[0] + t4 * rhs[1] + t7 * rhs[2];
-		m.s[2] = t2 * rhs[0] + t5 * rhs[1] + t8 * rhs[2];
-		m.s[3] = t0 * rhs[3] + t3 * rhs[4] + t6 * rhs[5];
-		m.s[4] = t1 * rhs[3] + t4 * rhs[4] + t7 * rhs[5];
-		m.s[5] = t2 * rhs[3] + t5 * rhs[4] + t8 * rhs[5];
-		m.s[6] = t0 * rhs[6] + t3 * rhs[7] + t6 * rhs[8];
-		m.s[7] = t1 * rhs[6] + t4 * rhs[7] + t7 * rhs[8];
-		m.s[8] = t2 * rhs[6] + t5 * rhs[7] + t8 * rhs[8];
-	}
-
-	void Matrix3::Mul(Liar::Vector3D& rhs)
-	{
-		float tx = rhs.x, ty = rhs.y, tz = rhs.z;
-		rhs.x = tx*m.s[0] + ty*m.s[1] + tz*m.s[2];
-		rhs.y = tx*m.s[3] + ty*m.s[4] + tz*m.s[5];
-		rhs.z = tx*m.s[6] + ty*m.s[7] + tz*m.s[8];
-	}
-
-	void Matrix3::Mul(const Liar::Vector3D& rhs, Liar::Vector3D& out)
-	{
-		out.x = rhs.x*m.s[0] + rhs.y*m.s[1] + rhs.z*m.s[2];
-		out.y = rhs.x*m.s[3] + rhs.y*m.s[4] + rhs.z*m.s[5];
-		out.z = rhs.x*m.s[6] + rhs.y*m.s[7] + rhs.z*m.s[8];
-	}
-
-	void Matrix3::Mul(float v)
-	{
-		m.s[0] *= v; m.s[1] *= v; m.s[2] *= v;
-		m.s[3] *= v; m.s[4] *= v; m.s[5] *= v;
-		m.s[6] *= v; m.s[7] *= v; m.s[8] *= v;
+		return Vector3D(pitch, yaw, roll);
 	}
 
 	//=============================================================================
 
-	void Matrix3::SetRow(int index, const float row[3])
-	{
-		m.s[index] = row[0];  m.s[index + 3] = row[1];  m.s[index + 6] = row[2];
-	}
 
-	void Matrix3::SetRow(int index, const std::vector<float>& row)
-	{
-		m.s[index] = row[0];  m.s[index + 3] = row[1];  m.s[index + 6] = row[2];
-	}
 
-	void Matrix3::SetRow(int index, const Liar::Vector3D& v)
-	{
-		m.s[index] = v.x;  m.s[index + 3] = v.y;  m.s[index + 6] = v.z;
-	}
 
-	void Matrix3::SetCol(int index, const float col[3])
-	{
-		m.s[index * 3] = col[0];  m.s[index * 3 + 1] = col[1];  m.s[index * 3 + 2] = col[2];
-	}
-
-	void Matrix3::SetCol(int index, const std::vector<float>& col)
-	{
-		m.s[index * 3] = col[0];  m.s[index * 3 + 1] = col[1];  m.s[index * 3 + 2] = col[2];
-	}
-
-	void Matrix3::SetCol(int index, const Liar::Vector3D& v)
-	{
-		m.s[index * 3] = v.x;  m.s[index * 3 + 1] = v.y;  m.s[index * 3 + 2] = v.z;
-	}
 
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -353,65 +218,16 @@ namespace Liar
 	///////////////////////////////////////////////////////////////////////////////
 	Matrix4& Matrix4::Transpose()
 	{
-		std::swap(m.s[1], m.s[4]);
-		std::swap(m.s[2], m.s[8]);
-		std::swap(m.s[3], m.s[12]);
-		std::swap(m.s[6], m.s[9]);
-		std::swap(m.s[7], m.s[13]);
-		std::swap(m.s[11], m.s[14]);
+		std::swap(m[1], m[4]);
+		std::swap(m[2], m[8]);
+		std::swap(m[3], m[12]);
+		std::swap(m[6], m[9]);
+		std::swap(m[7], m[13]);
+		std::swap(m[11], m[14]);
 
 		return *this;
 	}
 
-	void Matrix4::SetRow(int index, const float row[4])
-	{
-		m.s[index] = row[0];  m.s[index + 4] = row[1];  m.s[index + 8] = row[2];  m.s[index + 12] = row[3];
-	}
-
-	void Matrix4::SetRow(int index, const std::vector<float>& row)
-	{
-		m.s[index] = row[0];  m.s[index + 4] = row[1];  m.s[index + 8] = row[2];  m.s[index + 12] = row[3];
-	}
-
-	void Matrix4::SetRow(int index, const Liar::Vector4D& v)
-	{
-		m.s[index] = v.x;  m.s[index + 4] = v.y;  m.s[index + 8] = v.z;  m.s[index + 12] = v.w;
-	}
-
-	void Matrix4::SetRow(int index, const Liar::Vector3D& v)
-	{
-		m.s[index] = v.x;  m.s[index + 4] = v.y;  m.s[index + 8] = v.z;
-	}
-    
-    void Matrix4::SetRow(int index, float x, float y, float z, float w)
-    {
-        m.s[index] = x;  m.s[index + 4] = y;  m.s[index + 8] = z;  m.s[index + 12] = w;
-    }
-
-	void Matrix4::SetCol(int index, const float col[4])
-	{
-		m.s[index * 4] = col[0];  m.s[index * 4 + 1] = col[1];  m.s[index * 4 + 2] = col[2];  m.s[index * 4 + 3] = col[3];
-	}
-
-	void Matrix4::SetCol(int index, const std::vector<float>& col)
-	{
-		m.s[index * 4] = col[0];  m.s[index * 4 + 1] = col[1];  m.s[index * 4 + 2] = col[2];  m.s[index * 4 + 3] = col[3];
-	}
-
-	void Matrix4::SetCol(int index, const Liar::Vector4D& v)
-	{
-		m.s[index * 4] = v.x;  m.s[index * 4 + 1] = v.y;  m.s[index * 4 + 2] = v.z;  m.s[index * 4 + 3] = v.w;
-	}
-
-	void Matrix4::SetCol(int index, const Liar::Vector3D& v)
-	{
-		m.s[index * 4] = v.x;  m.s[index * 4 + 1] = v.y;  m.s[index * 4 + 2] = v.z;
-	}
-    
-    void Matrix4::SetCol(int index, float x, float y, float z, float w)
-    {
-        m.s[index * 4] = x;  m.s[index * 4 + 1] = y;  m.s[index * 4 + 2] = z;  m.s[index * 4 + 3] = w;
-    }
 
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -421,7 +237,7 @@ namespace Liar
 	{
 		// If the 4th row is [0,0,0,1] then it is affine matrix and
 		// it has no projective transformation.
-		if (m.s[3] == 0 && m.s[7] == 0 && m.s[11] == 0 && m.s[15] == 1)
+		if (m[3] == 0 && m[7] == 0 && m[11] == 0 && m[15] == 1)
 			this->InvertAffine();
 		else
 		{
@@ -467,20 +283,20 @@ namespace Liar
 		// | ----+-- |
 		// |  0  | 1 |
 		float tmp;
-		tmp = m.s[1];  m.s[1] = m.s[4];  m.s[4] = tmp;
-		tmp = m.s[2];  m.s[2] = m.s[8];  m.s[8] = tmp;
-		tmp = m.s[6];  m.s[6] = m.s[9];  m.s[9] = tmp;
+		tmp = m[1];  m[1] = m[4];  m[4] = tmp;
+		tmp = m[2];  m[2] = m[8];  m[8] = tmp;
+		tmp = m[6];  m[6] = m[9];  m[9] = tmp;
 
 		// compute translation part -R^T * T
 		// | 0 | -R^T x |
 		// | --+------- |
 		// | 0 |   0    |
-		float x = m.s[12];
-		float y = m.s[13];
-		float z = m.s[14];
-		m.s[12] = -(m.s[0] * x + m.s[4] * y + m.s[8] * z);
-		m.s[13] = -(m.s[1] * x + m.s[5] * y + m.s[9] * z);
-		m.s[14] = -(m.s[2] * x + m.s[6] * y + m.s[10] * z);
+		float x = m[12];
+		float y = m[13];
+		float z = m[14];
+		m[12] = -(m[0] * x + m[4] * y + m[8] * z);
+		m[13] = -(m[1] * x + m[5] * y + m[9] * z);
+		m[14] = -(m[2] * x + m[6] * y + m[10] * z);
 
 		// last row should be unchanged (0,0,0,1)
 
@@ -508,19 +324,19 @@ namespace Liar
 	Matrix4& Matrix4::InvertAffine()
 	{
 		// R^-1
-		Matrix3 r(m.s[0], m.s[1], m.s[2], m.s[4], m.s[5], m.s[6], m.s[8], m.s[9], m.s[10]);
+		Matrix3 r(m[0], m[1], m[2], m[4], m[5], m[6], m[8], m[9], m[10]);
 		r.Invert();
-		m.s[0] = r[0];  m.s[1] = r[1];  m.s[2] = r[2];
-		m.s[4] = r[3];  m.s[5] = r[4];  m.s[6] = r[5];
-		m.s[8] = r[6];  m.s[9] = r[7];  m.s[10] = r[8];
+		m[0] = r[0];  m[1] = r[1];  m[2] = r[2];
+		m[4] = r[3];  m[5] = r[4];  m[6] = r[5];
+		m[8] = r[6];  m[9] = r[7];  m[10] = r[8];
 
 		// -R^-1 * T
-		float x = m.s[12];
-		float y = m.s[13];
-		float z = m.s[14];
-		m.s[12] = -(r[0] * x + r[3] * y + r[6] * z);
-		m.s[13] = -(r[1] * x + r[4] * y + r[7] * z);
-		m.s[14] = -(r[2] * x + r[5] * y + r[8] * z);
+		float x = m[12];
+		float y = m[13];
+		float z = m[14];
+		m[12] = -(r[0] * x + r[3] * y + r[6] * z);
+		m[13] = -(r[1] * x + r[4] * y + r[7] * z);
+		m[14] = -(r[2] * x + r[5] * y + r[8] * z);
 
 		// last row should be unchanged (0,0,0,1)
 		//m[3] = m[7] = m[11] = 0.0f;
@@ -552,10 +368,10 @@ namespace Liar
 	Matrix4& Matrix4::InvertProjective()
 	{
 		// partition
-		Matrix2 a(m.s[0], m.s[1], m.s[4], m.s[5]);
-		Matrix2 b(m.s[8], m.s[9], m.s[12], m.s[13]);
-		Matrix2 c(m.s[2], m.s[3], m.s[6], m.s[7]);
-		Matrix2 d(m.s[10], m.s[11], m.s[14], m.s[15]);
+		Matrix2 a(m[0], m[1], m[4], m[5]);
+		Matrix2 b(m[8], m[9], m[12], m[13]);
+		Matrix2 c(m[2], m[3], m[6], m[7]);
+		Matrix2 d(m[10], m[11], m[14], m[15]);
 
 		// pre-compute repeated parts
 		a.Invert();             // A^-1
@@ -564,9 +380,9 @@ namespace Liar
 		Matrix2 cab = ca * b;   // C * A^-1 * B
 		Matrix2 dcab = d - cab; // D - C * A^-1 * B
 
-		// check determinant if |D - C * A^-1 * B| = 0
-		//NOTE: this function assumes det(A) is already checked. if |A|=0 then,
-		//      cannot use this function.
+								// check determinant if |D - C * A^-1 * B| = 0
+								//NOTE: this function assumes det(A) is already checked. if |A|=0 then,
+								//      cannot use this function.
 		float determinant = dcab[0] * dcab[3] - dcab[1] * dcab[2];
 		if (fabs(determinant) <= EPSILON)
 		{
@@ -578,21 +394,21 @@ namespace Liar
 		d1.Invert();            //  (D - C * A^-1 * B)^-1
 		Matrix2 d2 = -d1;       // -(D - C * A^-1 * B)^-1
 
-		// compute C'
+								// compute C'
 		Matrix2 c1 = d2 * ca;   // -D' * (C * A^-1)
 
-		// compute B'
+								// compute B'
 		Matrix2 b1 = ab * d2;   // (A^-1 * B) * -D'
 
-		// compute A'
+								// compute A'
 		Matrix2 a1 = a - (ab * c1); // A^-1 - (A^-1 * B) * C'
 
 									// assemble inverse matrix
-		m.s[0] = a1[0];  m.s[4] = a1[2]; /*|*/ m.s[8] = b1[0];  m.s[12] = b1[2];
-		m.s[1] = a1[1];  m.s[5] = a1[3]; /*|*/ m.s[9] = b1[1];  m.s[13] = b1[3];
+		m[0] = a1[0];  m[4] = a1[2]; /*|*/ m[8] = b1[0];  m[12] = b1[2];
+		m[1] = a1[1];  m[5] = a1[3]; /*|*/ m[9] = b1[1];  m[13] = b1[3];
 		/*-----------------------------+-----------------------------*/
-		m.s[2] = c1[0];  m.s[6] = c1[2]; /*|*/ m.s[10] = d1[0];  m.s[14] = d1[2];
-		m.s[3] = c1[1];  m.s[7] = c1[3]; /*|*/ m.s[11] = d1[1];  m.s[15] = d1[3];
+		m[2] = c1[0];  m[6] = c1[2]; /*|*/ m[10] = d1[0];  m[14] = d1[2];
+		m[3] = c1[1];  m[7] = c1[3]; /*|*/ m[11] = d1[1];  m[15] = d1[3];
 
 		return *this;
 	}
@@ -607,56 +423,56 @@ namespace Liar
 	Matrix4& Matrix4::InvertGeneral()
 	{
 		// get cofactors of minor matrices
-		float cofactor0 = GetCofactor(m.s[5], m.s[6], m.s[7], m.s[9], m.s[10], m.s[11], m.s[13], m.s[14], m.s[15]);
-		float cofactor1 = GetCofactor(m.s[4], m.s[6], m.s[7], m.s[8], m.s[10], m.s[11], m.s[12], m.s[14], m.s[15]);
-		float cofactor2 = GetCofactor(m.s[4], m.s[5], m.s[7], m.s[8], m.s[9], m.s[11], m.s[12], m.s[13], m.s[15]);
-		float cofactor3 = GetCofactor(m.s[4], m.s[5], m.s[6], m.s[8], m.s[9], m.s[10], m.s[12], m.s[13], m.s[14]);
+		float cofactor0 = GetCofactor(m[5], m[6], m[7], m[9], m[10], m[11], m[13], m[14], m[15]);
+		float cofactor1 = GetCofactor(m[4], m[6], m[7], m[8], m[10], m[11], m[12], m[14], m[15]);
+		float cofactor2 = GetCofactor(m[4], m[5], m[7], m[8], m[9], m[11], m[12], m[13], m[15]);
+		float cofactor3 = GetCofactor(m[4], m[5], m[6], m[8], m[9], m[10], m[12], m[13], m[14]);
 
 		// get determinant
-		float determinant = m.s[0] * cofactor0 - m.s[1] * cofactor1 + m.s[2] * cofactor2 - m.s[3] * cofactor3;
+		float determinant = m[0] * cofactor0 - m[1] * cofactor1 + m[2] * cofactor2 - m[3] * cofactor3;
 		if (fabs(determinant) <= EPSILON)
 		{
 			return Identity();
 		}
 
 		// get rest of cofactors for adj(M)
-		float cofactor4 = GetCofactor(m.s[1], m.s[2], m.s[3], m.s[9], m.s[10], m.s[11], m.s[13], m.s[14], m.s[15]);
-		float cofactor5 = GetCofactor(m.s[0], m.s[2], m.s[3], m.s[8], m.s[10], m.s[11], m.s[12], m.s[14], m.s[15]);
-		float cofactor6 = GetCofactor(m.s[0], m.s[1], m.s[3], m.s[8], m.s[9], m.s[11], m.s[12], m.s[13], m.s[15]);
-		float cofactor7 = GetCofactor(m.s[0], m.s[1], m.s[2], m.s[8], m.s[9], m.s[10], m.s[12], m.s[13], m.s[14]);
+		float cofactor4 = GetCofactor(m[1], m[2], m[3], m[9], m[10], m[11], m[13], m[14], m[15]);
+		float cofactor5 = GetCofactor(m[0], m[2], m[3], m[8], m[10], m[11], m[12], m[14], m[15]);
+		float cofactor6 = GetCofactor(m[0], m[1], m[3], m[8], m[9], m[11], m[12], m[13], m[15]);
+		float cofactor7 = GetCofactor(m[0], m[1], m[2], m[8], m[9], m[10], m[12], m[13], m[14]);
 
-		float cofactor8 = GetCofactor(m.s[1], m.s[2], m.s[3], m.s[5], m.s[6], m.s[7], m.s[13], m.s[14], m.s[15]);
-		float cofactor9 = GetCofactor(m.s[0], m.s[2], m.s[3], m.s[4], m.s[6], m.s[7], m.s[12], m.s[14], m.s[15]);
-		float cofactor10 = GetCofactor(m.s[0], m.s[1], m.s[3], m.s[4], m.s[5], m.s[7], m.s[12], m.s[13], m.s[15]);
-		float cofactor11 = GetCofactor(m.s[0], m.s[1], m.s[2], m.s[4], m.s[5], m.s[6], m.s[12], m.s[13], m.s[14]);
+		float cofactor8 = GetCofactor(m[1], m[2], m[3], m[5], m[6], m[7], m[13], m[14], m[15]);
+		float cofactor9 = GetCofactor(m[0], m[2], m[3], m[4], m[6], m[7], m[12], m[14], m[15]);
+		float cofactor10 = GetCofactor(m[0], m[1], m[3], m[4], m[5], m[7], m[12], m[13], m[15]);
+		float cofactor11 = GetCofactor(m[0], m[1], m[2], m[4], m[5], m[6], m[12], m[13], m[14]);
 
-		float cofactor12 = GetCofactor(m.s[1], m.s[2], m.s[3], m.s[5], m.s[6], m.s[7], m.s[9], m.s[10], m.s[11]);
-		float cofactor13 = GetCofactor(m.s[0], m.s[2], m.s[3], m.s[4], m.s[6], m.s[7], m.s[8], m.s[10], m.s[11]);
-		float cofactor14 = GetCofactor(m.s[0], m.s[1], m.s[3], m.s[4], m.s[5], m.s[7], m.s[8], m.s[9], m.s[11]);
-		float cofactor15 = GetCofactor(m.s[0], m.s[1], m.s[2], m.s[4], m.s[5], m.s[6], m.s[8], m.s[9], m.s[10]);
+		float cofactor12 = GetCofactor(m[1], m[2], m[3], m[5], m[6], m[7], m[9], m[10], m[11]);
+		float cofactor13 = GetCofactor(m[0], m[2], m[3], m[4], m[6], m[7], m[8], m[10], m[11]);
+		float cofactor14 = GetCofactor(m[0], m[1], m[3], m[4], m[5], m[7], m[8], m[9], m[11]);
+		float cofactor15 = GetCofactor(m[0], m[1], m[2], m[4], m[5], m[6], m[8], m[9], m[10]);
 
 		// build inverse matrix = adj(M) / det(M)
 		// adjugate of M is the transpose of the cofactor matrix of M
 		float invDeterminant = 1.0f / determinant;
-		m.s[0] = invDeterminant * cofactor0;
-		m.s[1] = -invDeterminant * cofactor4;
-		m.s[2] = invDeterminant * cofactor8;
-		m.s[3] = -invDeterminant * cofactor12;
+		m[0] = invDeterminant * cofactor0;
+		m[1] = -invDeterminant * cofactor4;
+		m[2] = invDeterminant * cofactor8;
+		m[3] = -invDeterminant * cofactor12;
 
-		m.s[4] = -invDeterminant * cofactor1;
-		m.s[5] = invDeterminant * cofactor5;
-		m.s[6] = -invDeterminant * cofactor9;
-		m.s[7] = invDeterminant * cofactor13;
+		m[4] = -invDeterminant * cofactor1;
+		m[5] = invDeterminant * cofactor5;
+		m[6] = -invDeterminant * cofactor9;
+		m[7] = invDeterminant * cofactor13;
 
-		m.s[8] = invDeterminant * cofactor2;
-		m.s[9] = -invDeterminant * cofactor6;
-		m.s[10] = invDeterminant * cofactor10;
-		m.s[11] = -invDeterminant * cofactor14;
+		m[8] = invDeterminant * cofactor2;
+		m[9] = -invDeterminant * cofactor6;
+		m[10] = invDeterminant * cofactor10;
+		m[11] = -invDeterminant * cofactor14;
 
-		m.s[12] = -invDeterminant * cofactor3;
-		m.s[13] = invDeterminant * cofactor7;
-		m.s[14] = -invDeterminant * cofactor11;
-		m.s[15] = invDeterminant * cofactor15;
+		m[12] = -invDeterminant * cofactor3;
+		m[13] = invDeterminant * cofactor7;
+		m[14] = -invDeterminant * cofactor11;
+		m[15] = invDeterminant * cofactor15;
 
 		return *this;
 	}
@@ -668,10 +484,10 @@ namespace Liar
 	///////////////////////////////////////////////////////////////////////////////
 	float Matrix4::GetDeterminant() const
 	{
-		return  m.s[0] * GetCofactor(m.s[5], m.s[6], m.s[7], m.s[9], m.s[10], m.s[11], m.s[13], m.s[14], m.s[15]) -
-				m.s[1] * GetCofactor(m.s[4], m.s[6], m.s[7], m.s[8], m.s[10], m.s[11], m.s[12], m.s[14], m.s[15]) +
-				m.s[2] * GetCofactor(m.s[4], m.s[5], m.s[7], m.s[8], m.s[9], m.s[11], m.s[12], m.s[13], m.s[15]) -
-				m.s[3] * GetCofactor(m.s[4], m.s[5], m.s[6], m.s[8], m.s[9], m.s[10], m.s[12], m.s[13], m.s[14]);
+		return m[0] * GetCofactor(m[5], m[6], m[7], m[9], m[10], m[11], m[13], m[14], m[15]) -
+			m[1] * GetCofactor(m[4], m[6], m[7], m[8], m[10], m[11], m[12], m[14], m[15]) +
+			m[2] * GetCofactor(m[4], m[5], m[7], m[8], m[9], m[11], m[12], m[13], m[15]) -
+			m[3] * GetCofactor(m[4], m[5], m[6], m[8], m[9], m[10], m[12], m[13], m[14]);
 	}
 
 
@@ -682,8 +498,8 @@ namespace Liar
 	// NOTE: The caller must know its sign.
 	///////////////////////////////////////////////////////////////////////////////
 	float Matrix4::GetCofactor(float m0, float m1, float m2,
-					float m3, float m4, float m5,
-					float m6, float m7, float m8) const
+		float m3, float m4, float m5,
+		float m6, float m7, float m8) const
 	{
 		return m0 * (m4 * m8 - m5 * m7) -
 			m1 * (m3 * m8 - m5 * m6) +
@@ -702,9 +518,9 @@ namespace Liar
 
 	Matrix4& Matrix4::Translate(float x, float y, float z)
 	{
-		m.s[0] += m.s[3] * x;   m.s[4] += m.s[7] * x;   m.s[8] += m.s[11] * x;   m.s[12] += m.s[15] * x;
-		m.s[1] += m.s[3] * y;   m.s[5] += m.s[7] * y;   m.s[9] += m.s[11] * y;   m.s[13] += m.s[15] * y;
-		m.s[2] += m.s[3] * z;   m.s[6] += m.s[7] * z;   m.s[10] += m.s[11] * z;   m.s[14] += m.s[15] * z;
+		m[0] += m[3] * x;   m[4] += m[7] * x;   m[8] += m[11] * x;   m[12] += m[15] * x;
+		m[1] += m[3] * y;   m[5] += m[7] * y;   m[9] += m[11] * y;   m[13] += m[15] * y;
+		m[2] += m[3] * z;   m[6] += m[7] * z;   m[10] += m[11] * z;   m[14] += m[15] * z;
 
 		return *this;
 	}
@@ -721,9 +537,9 @@ namespace Liar
 
 	Matrix4& Matrix4::Scale(float x, float y, float z)
 	{
-		m.s[0] *= x;   m.s[4] *= x;   m.s[8] *= x;   m.s[12] *= x;
-		m.s[1] *= y;   m.s[5] *= y;   m.s[9] *= y;   m.s[13] *= y;
-		m.s[2] *= z;   m.s[6] *= z;   m.s[10] *= z;   m.s[14] *= z;
+		m[0] *= x;   m[4] *= x;   m[8] *= x;   m[12] *= x;
+		m[1] *= y;   m[5] *= y;   m[9] *= y;   m[13] *= y;
+		m[2] *= z;   m[6] *= z;   m[10] *= z;   m[14] *= z;
 		return *this;
 	}
 
@@ -743,9 +559,9 @@ namespace Liar
 		float c = cosf(angle * DEG2RAD);    // cosine
 		float s = sinf(angle * DEG2RAD);    // sine
 		float c1 = 1.0f - c;                // 1 - c
-		float   tm0 = m.s[0], tm4 = m.s[4], tm8 = m.s[8], tm12 = m.s[12],
-				tm1 = m.s[1], tm5 = m.s[5], tm9 = m.s[9], tm13 = m.s[13],
-				tm2 = m.s[2], tm6 = m.s[6], tm10 = m.s[10], tm14 = m.s[14];
+		float m0 = m[0], m4 = m[4], m8 = m[8], m12 = m[12],
+			m1 = m[1], m5 = m[5], m9 = m[9], m13 = m[13],
+			m2 = m[2], m6 = m[6], m10 = m[10], m14 = m[14];
 
 		// build rotation matrix
 		float r0 = x * x * c1 + c;
@@ -759,27 +575,18 @@ namespace Liar
 		float r10 = z * z * c1 + c;
 
 		// multiply rotation matrix
-		m.s[0] = r0 * tm0 + r4 * tm1 + r8 * tm2;
-		m.s[1] = r1 * tm0 + r5 * tm1 + r9 * tm2;
-		m.s[2] = r2 * tm0 + r6 * tm1 + r10* tm2;
-		m.s[4] = r0 * tm4 + r4 * tm5 + r8 * tm6;
-		m.s[5] = r1 * tm4 + r5 * tm5 + r9 * tm6;
-		m.s[6] = r2 * tm4 + r6 * tm5 + r10* tm6;
-		m.s[8] = r0 * tm8 + r4 * tm9 + r8 * tm10;
-		m.s[9] = r1 * tm8 + r5 * tm9 + r9 * tm10;
-		m.s[10] = r2 * tm8 + r6 * tm9 + r10* tm10;
-		m.s[12] = r0 * tm12 + r4 * tm13 + r8 * tm14;
-		m.s[13] = r1 * tm12 + r5 * tm13 + r9 * tm14;
-		m.s[14] = r2 * tm12 + r6 * tm13 + r10* tm14;
-
-		return *this;
-	}
-
-	Matrix4& Matrix4::Rotate(float angleX, float angleY, float angleZ)
-	{
-		RotateZ(angleZ);
-		RotateY(angleY);
-		RotateX(angleX);
+		m[0] = r0 * m0 + r4 * m1 + r8 * m2;
+		m[1] = r1 * m0 + r5 * m1 + r9 * m2;
+		m[2] = r2 * m0 + r6 * m1 + r10* m2;
+		m[4] = r0 * m4 + r4 * m5 + r8 * m6;
+		m[5] = r1 * m4 + r5 * m5 + r9 * m6;
+		m[6] = r2 * m4 + r6 * m5 + r10* m6;
+		m[8] = r0 * m8 + r4 * m9 + r8 * m10;
+		m[9] = r1 * m8 + r5 * m9 + r9 * m10;
+		m[10] = r2 * m8 + r6 * m9 + r10* m10;
+		m[12] = r0 * m12 + r4 * m13 + r8 * m14;
+		m[13] = r1 * m12 + r5 * m13 + r9 * m14;
+		m[14] = r2 * m12 + r6 * m13 + r10* m14;
 
 		return *this;
 	}
@@ -788,19 +595,19 @@ namespace Liar
 	{
 		float c = cosf(angle * DEG2RAD);
 		float s = sinf(angle * DEG2RAD);
-		float	tm1 = m.s[1], tm2 = m.s[2],
-				tm5 = m.s[5], tm6 = m.s[6],
-				tm9 = m.s[9], tm10 = m.s[10],
-				tm13 = m.s[13], tm14 = m.s[14];
+		float m1 = m[1], m2 = m[2],
+			m5 = m[5], m6 = m[6],
+			m9 = m[9], m10 = m[10],
+			m13 = m[13], m14 = m[14];
 
-		m.s[1] = tm1 * c + tm2 *-s;
-		m.s[2] = tm1 * s + tm2 * c;
-		m.s[5] = tm5 * c + tm6 *-s;
-		m.s[6] = tm5 * s + tm6 * c;
-		m.s[9] = tm9 * c + tm10*-s;
-		m.s[10] = tm9 * s + tm10* c;
-		m.s[13] = tm13* c + tm14*-s;
-		m.s[14] = tm13* s + tm14* c;
+		m[1] = m1 * c + m2 *-s;
+		m[2] = m1 * s + m2 * c;
+		m[5] = m5 * c + m6 *-s;
+		m[6] = m5 * s + m6 * c;
+		m[9] = m9 * c + m10*-s;
+		m[10] = m9 * s + m10* c;
+		m[13] = m13* c + m14*-s;
+		m[14] = m13* s + m14* c;
 
 		return *this;
 	}
@@ -809,19 +616,19 @@ namespace Liar
 	{
 		float c = cosf(angle * DEG2RAD);
 		float s = sinf(angle * DEG2RAD);
-		float	tm0 = m.s[0], tm2 = m.s[2],
-				tm4 = m.s[4], tm6 = m.s[6],
-				tm8 = m.s[8], tm10 = m.s[10],
-				tm12 = m.s[12], tm14 = m.s[14];
+		float m0 = m[0], m2 = m[2],
+			m4 = m[4], m6 = m[6],
+			m8 = m[8], m10 = m[10],
+			m12 = m[12], m14 = m[14];
 
-		m.s[0] = tm0 * c + tm2 * s;
-		m.s[2] = tm0 *-s + tm2 * c;
-		m.s[4] = tm4 * c + tm6 * s;
-		m.s[6] = tm4 *-s + tm6 * c;
-		m.s[8] = tm8 * c + tm10* s;
-		m.s[10] = tm8 *-s + tm10* c;
-		m.s[12] = tm12* c + tm14* s;
-		m.s[14] = tm12*-s + tm14* c;
+		m[0] = m0 * c + m2 * s;
+		m[2] = m0 *-s + m2 * c;
+		m[4] = m4 * c + m6 * s;
+		m[6] = m4 *-s + m6 * c;
+		m[8] = m8 * c + m10* s;
+		m[10] = m8 *-s + m10* c;
+		m[12] = m12* c + m14* s;
+		m[14] = m12*-s + m14* c;
 
 		return *this;
 	}
@@ -830,19 +637,19 @@ namespace Liar
 	{
 		float c = cosf(angle * DEG2RAD);
 		float s = sinf(angle * DEG2RAD);
-		float	tm0 = m.s[0], tm1 = m.s[1],
-				tm4 = m.s[4], tm5 = m.s[5],
-				tm8 = m.s[8], tm9 = m.s[9],
-				tm12 = m.s[12], tm13 = m.s[13];
+		float m0 = m[0], m1 = m[1],
+			m4 = m[4], m5 = m[5],
+			m8 = m[8], m9 = m[9],
+			m12 = m[12], m13 = m[13];
 
-		m.s[0] = tm0 * c + tm1 *-s;
-		m.s[1] = tm0 * s + tm1 * c;
-		m.s[4] = tm4 * c + tm5 *-s;
-		m.s[5] = tm4 * s + tm5 * c;
-		m.s[8] = tm8 * c + tm9 *-s;
-		m.s[9] = tm8 * s + tm9 * c;
-		m.s[12] = tm12* c + tm13*-s;
-		m.s[13] = tm12* s + tm13* c;
+		m[0] = m0 * c + m1 *-s;
+		m[1] = m0 * s + m1 * c;
+		m[4] = m4 * c + m5 *-s;
+		m[5] = m4 * s + m5 * c;
+		m[8] = m8 * c + m9 *-s;
+		m[9] = m8 * s + m9 * c;
+		m[12] = m12* c + m13*-s;
+		m[13] = m12* s + m13* c;
 
 		return *this;
 	}
@@ -856,98 +663,79 @@ namespace Liar
 	// translation values.
 	// NOTE: It is for rotating object to look at the target, NOT for camera
 	///////////////////////////////////////////////////////////////////////////////
-	void Matrix4::LookAt(const Vector3D& pos, const Vector3D& target, Matrix4& out)
-	{
-		LookAt(pos.x, pos.y, pos.z, target.x, target.y, target.z, out);
-	}
-
-	void Matrix4::LookAt(const Vector3D& pos,const Vector3D& target, const Vector3D& upVec, Matrix4& out)
-	{
-        LookAt(pos.x, pos.y, pos.z, target.x, target.y, target.z, upVec.x, upVec.y, upVec.z, out);
-	}
-
-	void Matrix4::LookAt(float x, float y, float z, float tx, float ty, float tz, Matrix4& out)
+	Matrix4& Matrix4::LookAt(const Vector3D& target)
 	{
 		// compute forward vector and normalize
-        
-        float tmpx = x, tmpy = y, tmpz = z;
-        tmpx -= tx; tmpy -= ty; tmpz -= tz;
-        
-        float xxyyzz = tmpx*tmpx + tmpy*tmpy + tmpz*tmpz;
-        float invLength = 1.0f / sqrtf(xxyyzz);
-        tmpx *= invLength;
-        tmpy *= invLength;
-        tmpz *= invLength;
+		Vector3D position = Vector3D(m[12], m[13], m[14]);
+		Vector3D forward = target - position;
+		forward.Normalize();
+		Vector3D up;             // up vector of object
+		Vector3D left;           // left vector of object
 
-        float upx = 0.0f, upy = 0.0f, upz = 0.0;
-
-		// compute temporal up vector
-		// if forward vector is near Y-axis, use up vector (0,0,-1) or (0,0,1)
-		if (fabs(tmpx) < EPSILON && fabs(tmpz) < EPSILON)
+								// compute temporal up vector
+								// if forward vector is near Y-axis, use up vector (0,0,-1) or (0,0,1)
+		if (fabs(forward.x) < EPSILON && fabs(forward.z) < EPSILON)
 		{
 			// forward vector is pointing +Y axis
-			if (tmpy > 0)
-            {
-                upx = 0.0f;
-                upy = 0.0f;
-                upz = -1.0f;
-            }
+			if (forward.y > 0)
+				up.Set(0, 0, -1);
 			// forward vector is pointing -Y axis
 			else
-            {
-                upx = 0.0f;
-                upy = 0.0f;
-                upz = 1.0f;
-            }
+				up.Set(0, 0, 1);
 		}
 		else
 		{
 			// assume up vector is +Y axis
-            upx = 0.0f;
-            upy = 1.0f;
-            upz = 0.0f;
+			up.Set(0, 1, 0);
 		}
-        
-        LookAt(x, y, z, tx, ty, tz, upx, upy, upz, out);
-	}
-
-	void Matrix4::LookAt(float px, float py, float pz,
-                         float tx, float ty, float tz,
-                         float ux, float uy, float uz,
-                         Matrix4& out)
-	{
-		// compute forward vector and normalize
-		Liar::Vector3D* forward = new Liar::Vector3D(px, py, pz);
-		forward->Sub(tx, ty, tz);
-		forward->Normalize();
 
 		// compute left vector
-		Liar::Vector3D* left = new Liar::Vector3D(ux, uy, uz);
-        left->Normalize();
-		left->CrossC(*forward);
-		left->Normalize();
+		left = up.Cross(forward);
+		left.Normalize();
 
-        out.Identity();
-        
-        Liar::Matrix4* trans = new Liar::Matrix4();
-        trans->SetCol(3, px, py, pz);
-        
-		out.SetCol(0, *left);
-		out.SetCol(2, *forward);
-
-		// compute orthonormal up vector
-		forward->CrossC(*left);
-		forward->Normalize();
+		// re-compute up vector
+		up = forward.Cross(left);
+		//up.normalize();
 
 		// NOTE: overwrite rotation and scale info of the current matrix
-		out.SetCol(1, *forward);
+		this->SetColumn(0, left);
+		this->SetColumn(1, up);
+		this->SetColumn(2, forward);
 
-		delete forward;
-		delete left;
-        
-        out *= (*trans);
-        
-        delete trans;
+		return *this;
+	}
+
+	Matrix4& Matrix4::LookAt(const Vector3D& target, const Vector3D& upVec)
+	{
+		// compute forward vector and normalize
+		Vector3D position = Vector3D(m[12], m[13], m[14]);
+		Vector3D forward = target - position;
+		forward.Normalize();
+
+		// compute left vector
+		Vector3D left = upVec.Cross(forward);
+		left.Normalize();
+
+		// compute orthonormal up vector
+		Vector3D up = forward.Cross(left);
+		up.Normalize();
+
+		// NOTE: overwrite rotation and scale info of the current matrix
+		this->SetColumn(0, left);
+		this->SetColumn(1, up);
+		this->SetColumn(2, forward);
+
+		return *this;
+	}
+
+	Matrix4& Matrix4::LookAt(float tx, float ty, float tz)
+	{
+		return LookAt(Vector3D(tx, ty, tz));
+	}
+
+	Matrix4& Matrix4::LookAt(float tx, float ty, float tz, float ux, float uy, float uz)
+	{
+		return LookAt(Vector3D(tx, ty, tz), Vector3D(ux, uy, uz));
 	}
 
 
@@ -957,16 +745,12 @@ namespace Liar
 	///////////////////////////////////////////////////////////////////////////////
 	Matrix3 Matrix4::GetRotationMatrix() const
 	{
-		Matrix3 mat(m.s[0], m.s[1], m.s[2],
-			m.s[4], m.s[5], m.s[6],
-			m.s[8], m.s[9], m.s[10]);
+		Matrix3 mat(m[0], m[1], m[2],
+			m[4], m[5], m[6],
+			m[8], m[9], m[10]);
 		return mat;
 	}
 
-	void Matrix4::GetRotationMatrix(Liar::Matrix3& v) const
-	{
-		v.Set(m.s[0], m.s[1], m.s[2], m.s[4], m.s[5], m.s[6], m.s[8], m.s[9], m.s[10]);
-	}
 
 
 	/*@@
@@ -1002,27 +786,13 @@ namespace Liar
 	///////////////////////////////////////////////////////////////////////////////
 	Vector3D Matrix4::GetAngle() const
 	{
-		float pitch = 0.0f, yaw = 0.0f, roll = 0.0f;         // 3 angles
-		GetAngle(pitch, yaw, roll);
+		float pitch, yaw, roll;         // 3 angles
 
-		return Vector3D(pitch, yaw, roll);
-	}
-
-	void Matrix4::GetAngle(Liar::Vector3D& out) const
-	{
-		float pitch = 0.0f, yaw = 0.0f, roll = 0.0f;         // 3 angles
-		GetAngle(pitch, yaw, roll);
-		out.Set(pitch, yaw, roll);
-	}
-
-	void Matrix4::GetAngle(float& pitch, float& yaw, float& roll) const
-	{
-		// find yaw (around y-axis) first
-		// NOTE: asin() returns -90~+90, so correct the angle range -180~+180
-		// using z value of forward vector
-
-		yaw = RAD2DEG * asinf(m.s[8]);
-		if (m.s[10] < 0)
+										// find yaw (around y-axis) first
+										// NOTE: asin() returns -90~+90, so correct the angle range -180~+180
+										// using z value of forward vector
+		yaw = RAD2DEG * asinf(m[8]);
+		if (m[10] < 0)
 		{
 			if (yaw >= 0) yaw = 180.0f - yaw;
 			else         yaw = -180.0f - yaw;
@@ -1030,16 +800,17 @@ namespace Liar
 
 		// find roll (around z-axis) and pitch (around x-axis)
 		// if forward vector is (1,0,0) or (-1,0,0), then m[0]=m[4]=m[9]=m[10]=0
-		if (m.s[0] > -EPSILON && m.s[0] < EPSILON)
+		if (m[0] > -EPSILON && m[0] < EPSILON)
 		{
 			roll = 0;  //@@ assume roll=0
-			pitch = RAD2DEG * atan2f(m.s[1], m.s[5]);
+			pitch = RAD2DEG * atan2f(m[1], m[5]);
 		}
 		else
 		{
-			roll = RAD2DEG * atan2f(-m.s[4], m.s[0]);
-			pitch = RAD2DEG * atan2f(-m.s[9], m.s[0]);
+			roll = RAD2DEG * atan2f(-m[4], m[0]);
+			pitch = RAD2DEG * atan2f(-m[9], m[10]);
 		}
-	}
 
+		return Vector3D(pitch, yaw, roll);
+	}
 }

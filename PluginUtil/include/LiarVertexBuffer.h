@@ -106,9 +106,9 @@ namespace Liar
         bool HasColor() { return m_color ? true : false; };
         bool HasTexCoord() { return m_texCoord ? true : false; };
 
-		Liar::Vector3D* AddData(int, size_t);
-		int GetIndex(int, float, float, float);
-		int GetIndex(int, const Liar::Vector3D&);
+		Liar::Vector3D* AddData(Liar::LiarVertexType, size_t);
+		int GetIndex(Liar::LiarVertexType, float, float, float);
+		int GetIndex(Liar::LiarVertexType, const Liar::Vector3D&);
 
 		// ======================
 		Liar::LiarAnimSkinDefine* GetAnimSkinDefine(int, bool add = false);
@@ -116,7 +116,7 @@ namespace Liar
 		size_t GetSkinDefineLen() const { return m_skinDefines ? m_skinDefines->size() : 0; };
 
 	private:
-		std::vector<Liar::Vector3D*>* GetData(int);
+		std::vector<Liar::Vector3D*>* GetData(Liar::LiarVertexType);
 		void EraseAll(std::vector<Liar::Vector3D*>*);
 	};
 

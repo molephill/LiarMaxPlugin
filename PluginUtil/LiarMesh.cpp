@@ -156,7 +156,7 @@ namespace Liar
 		}
 		colorOffSize = uvOffSize + normalSize;
 
-		int bufferSize = static_cast<int>(m_vertexFaces->size());
+		size_t bufferSize = m_vertexFaces->size();
 		int totalSize = bufferSize * oneSize;
 
 		glBufferData(GL_ARRAY_BUFFER, totalSize, nullptr, GL_STATIC_DRAW);

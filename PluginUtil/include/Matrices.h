@@ -1,5 +1,3 @@
-#pragma once
-
 ///////////////////////////////////////////////////////////////////////////////
 // Matrice.h
 // =========
@@ -11,85 +9,79 @@
 //            | 2 5 8 |    |  2  6 10 14 |
 //                         |  3  7 11 15 |
 //
-// Dependencies: Vector2D, Vector3D, Vector4D
+// Dependencies: Vector2, Vector3, Vector3
+//
+//  AUTHOR: Song Ho Ahn (song.ahn@gmail.com)
+// CREATED: 2005-06-24
+// UPDATED: 2016-07-07
+//
+// Copyright (C) 2005 Song Ho Ahn
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <Vectors.h>
-#include <PluginDefine.h>
+#ifndef MATH_MATRICES_H
+#define MATH_MATRICES_H
 
 #include <iostream>
 #include <iomanip>
-#include <vector>
+#include "Vectors.h"
 
 namespace Liar
 {
+	///////////////////////////////////////////////////////////////////////////
+	// 2x2 matrix
+	///////////////////////////////////////////////////////////////////////////
 	class Matrix2
 	{
 	public:
-		Matrix2();
+		// constructors
+		Matrix2();  // init with identity
 		Matrix2(const float src[4]);
-		Matrix2(const std::vector<float>&);
 		Matrix2(float m0, float m1, float m2, float m3);
 
-	public:
-		void Set(const float src[4]);
-		void Set(const std::vector<float>&);
-		void Set(float, float, float, float);
+		void        Set(const float src[4]);
+		void        Set(float m0, float m1, float m2, float m3);
+		void        SetRow(int index, const float row[2]);
+		void        SetRow(int index, const Vector2D& v);
+		void        SetColumn(int index, const float col[2]);
+		void        SetColumn(int index, const Vector2D& v);
 
-		void				SetRow(int, const float src[2]);
-		void				SetRow(int, const std::vector<float>&);
-		void				SetRow(int, const Liar::Vector2D&);
+		const float* Get() const;
+		float       GetDeterminant() const;
+		float       GetAngle() const;                       // retrieve angle (degree) from matrix
 
-		void				SetCol(int, const float src[2]);
-		void				SetCol(int, const std::vector<float>&);
-		void				SetCol(int, const Liar::Vector2D&);
-
-		const float*				GetRawData() const { return m.s; };
-
-	public:
-		void				Add(const Liar::Matrix2&);
-		void				Sub(const Liar::Matrix2&);
-		void				Mul(const Liar::Matrix2&);
-		void				Mul(Liar::Vector2D&);
-		void				Mul(const Liar::Vector2D&, Liar::Vector2D&);
-		void				Mul(float v);
-
-	public:
-		float			   GetDeterminant() const;
-		float			   GetAngle() const;                       // retrieve angle (degree) from matrix
-
-		Liar::Matrix2&	   Identity();
-		Liar::Matrix2&	   Transpose();
-		Liar::Matrix2&	   Invert();
+		Matrix2&    Identity();
+		Matrix2&    Transpose();                            // transpose itself and return reference
+		Matrix2&    Invert();
 
 		// operators
-		Liar::Matrix2     operator+(const Liar::Matrix2& rhs) const;    // add rhs
-		Liar::Matrix2     operator-(const Liar::Matrix2& rhs) const;    // subtract rhs
-		Liar::Matrix2&    operator+=(const Liar::Matrix2& rhs);         // add rhs and update this object
-		Liar::Matrix2&    operator-=(const Liar::Matrix2& rhs);         // subtract rhs and update this object
-		Liar::Vector2D    operator*(const Liar::Vector2D& rhs) const;    // multiplication: v' = M * v
-		Liar::Matrix2     operator*(const Liar::Matrix2& rhs) const;    // multiplication: M3 = M1 * M2
-		Liar::Matrix2&    operator*=(const Liar::Matrix2& rhs);         // multiplication: M1' = M1 * M2
-		bool        operator==(const Liar::Matrix2& rhs) const;   // exact compare, no epsilon
-		bool        operator!=(const Liar::Matrix2& rhs) const;   // exact compare, no epsilon
+		Matrix2     operator+(const Matrix2& rhs) const;    // add rhs
+		Matrix2     operator-(const Matrix2& rhs) const;    // subtract rhs
+		Matrix2&    operator+=(const Matrix2& rhs);         // add rhs and update this object
+		Matrix2&    operator-=(const Matrix2& rhs);         // subtract rhs and update this object
+		Vector2D     operator*(const Vector2D& rhs) const;    // multiplication: v' = M * v
+		Matrix2     operator*(const Matrix2& rhs) const;    // multiplication: M3 = M1 * M2
+		Matrix2&    operator*=(const Matrix2& rhs);         // multiplication: M1' = M1 * M2
+		bool        operator==(const Matrix2& rhs) const;   // exact compare, no epsilon
+		bool        operator!=(const Matrix2& rhs) const;   // exact compare, no epsilon
 		float       operator[](int index) const;            // subscript operator v[0], v[1]
 		float&      operator[](int index);                  // subscript operator v[0], v[1]
 
 															// friends functions
-		friend Liar::Matrix2 operator-(const Liar::Matrix2& m);                     // unary operator (-)
-		friend Liar::Matrix2 operator*(float scalar, const Liar::Matrix2& m);       // pre-multiplication
-		friend Liar::Vector2D operator*(const Liar::Vector2D& vec, const Matrix2& m); // pre-multiplication
-		friend std::ostream& operator<<(std::ostream& os, const Liar::Matrix2& m);
+		friend Matrix2 operator-(const Matrix2& m);                     // unary operator (-)
+		friend Matrix2 operator*(float scalar, const Matrix2& m);       // pre-multiplication
+		friend Vector2D operator*(const Vector2D& vec, const Matrix2& m); // pre-multiplication
+		friend std::ostream& operator<<(std::ostream& os, const Matrix2& m);
 
+		// static functions
 
+	protected:
 
 	private:
-		union Matrix2Union
-		{
-			float ss[2][2];
-			float s[4];
-		}m;
+		float m[4];
+
 	};
+
+
 
 	///////////////////////////////////////////////////////////////////////////
 	// 3x3 matrix
@@ -97,73 +89,56 @@ namespace Liar
 	class Matrix3
 	{
 	public:
-		Matrix3();
+		// constructors
+		Matrix3();  // init with identity
 		Matrix3(const float src[9]);
-		Matrix3(const std::vector<float>&);
 		Matrix3(float m0, float m1, float m2,           // 1st column
-				float m3, float m4, float m5,           // 2nd column
-				float m6, float m7, float m8);          // 3rd column
+			float m3, float m4, float m5,           // 2nd column
+			float m6, float m7, float m8);          // 3rd column
 
-	public:
-		void				Set(const float src[9]);
-		void				Set(const std::vector<float>&);
-		void				Set(float m0, float m1, float m2,   // 1st column
-								float m3, float m4, float m5,   // 2nd column
-								float m6, float m7, float m8);  // 3rd column
+		void        Set(const float src[9]);
+		void        Set(float m0, float m1, float m2,   // 1st column
+			float m3, float m4, float m5,   // 2nd column
+			float m6, float m7, float m8);  // 3rd column
+		void        SetRow(int index, const float row[3]);
+		void        SetRow(int index, const Vector3D& v);
+		void        SetColumn(int index, const float col[3]);
+		void        SetColumn(int index, const Vector3D& v);
 
-		void				SetRow(int, const float src[3]);
-		void				SetRow(int, const std::vector<float>&);
-		void				SetRow(int, const Liar::Vector3D&);
+		const float* Get() const;
+		float       GetDeterminant() const;
+		Vector3D     GetAngle() const;                       // return (pitch, yaw, roll)
 
-		void				SetCol(int, const float src[3]);
-		void				SetCol(int, const std::vector<float>&);
-		void				SetCol(int, const Liar::Vector3D&);
-
-		const float*		GetRawData() const { return m.s; };
-
-	public:
-		void				Add(const Liar::Matrix3&);
-		void				Sub(const Liar::Matrix3&);
-		void				Mul(const Liar::Matrix3&);
-		void				Mul(Liar::Vector3D&);
-		void				Mul(const Liar::Vector3D&, Liar::Vector3D&);
-		void				Mul(float v);
-
-	public:
-		float				GetDeterminant() const;
-		Liar::Vector3D		GetAngle() const;
-		void				GetAngle(Liar::Vector3D&) const;
-
-		Liar::Matrix3&	   Identity();
-		Liar::Matrix3&	   Transpose();
-		Liar::Matrix3&	   Invert();
+		Matrix3&    Identity();
+		Matrix3&    Transpose();                            // transpose itself and return reference
+		Matrix3&    Invert();
 
 		// operators
-		Liar::Matrix3     operator+(const Liar::Matrix3& rhs) const;    // add rhs
-		Liar::Matrix3     operator-(const Liar::Matrix3& rhs) const;    // subtract rhs
-		Liar::Matrix3&    operator+=(const Liar::Matrix3& rhs);         // add rhs and update this object
-		Liar::Matrix3&    operator-=(const Liar::Matrix3& rhs);         // subtract rhs and update this object
-		Liar::Vector3D     operator*(const Liar::Vector3D& rhs) const;    // multiplication: v' = M * v
-		Liar::Matrix3     operator*(const Liar::Matrix3& rhs) const;    // multiplication: M3 = M1 * M2
-		Liar::Matrix3&    operator*=(const Liar::Matrix3& rhs);         // multiplication: M1' = M1 * M2
-		bool        operator==(const Liar::Matrix3& rhs) const;   // exact compare, no epsilon
-		bool        operator!=(const Liar::Matrix3& rhs) const;   // exact compare, no epsilon
+		Matrix3     operator+(const Matrix3& rhs) const;    // add rhs
+		Matrix3     operator-(const Matrix3& rhs) const;    // subtract rhs
+		Matrix3&    operator+=(const Matrix3& rhs);         // add rhs and update this object
+		Matrix3&    operator-=(const Matrix3& rhs);         // subtract rhs and update this object
+		Vector3D     operator*(const Vector3D& rhs) const;    // multiplication: v' = M * v
+		Matrix3     operator*(const Matrix3& rhs) const;    // multiplication: M3 = M1 * M2
+		Matrix3&    operator*=(const Matrix3& rhs);         // multiplication: M1' = M1 * M2
+		bool        operator==(const Matrix3& rhs) const;   // exact compare, no epsilon
+		bool        operator!=(const Matrix3& rhs) const;   // exact compare, no epsilon
 		float       operator[](int index) const;            // subscript operator v[0], v[1]
 		float&      operator[](int index);                  // subscript operator v[0], v[1]
 
 															// friends functions
-		friend Liar::Matrix3 operator-(const Liar::Matrix3& m);                     // unary operator (-)
-		friend Liar::Matrix3 operator*(float scalar, const Liar::Matrix3& m);       // pre-multiplication
-		friend Liar::Vector3D operator*(const Liar::Vector3D& vec, const Liar::Matrix3& m); // pre-multiplication
-		friend std::ostream& operator<<(std::ostream& os, const Liar::Matrix3& m);
+		friend Matrix3 operator-(const Matrix3& m);                     // unary operator (-)
+		friend Matrix3 operator*(float scalar, const Matrix3& m);       // pre-multiplication
+		friend Vector3D operator*(const Vector3D& vec, const Matrix3& m); // pre-multiplication
+		friend std::ostream& operator<<(std::ostream& os, const Matrix3& m);
+
+	protected:
 
 	private:
-		union Matrix3Union
-		{
-			float ss[3][3];
-			float s[9];
-		}m;
+		float m[9];
+
 	};
+
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -172,105 +147,86 @@ namespace Liar
 	class Matrix4
 	{
 	public:
+		// constructors
 		Matrix4();  // init with identity
 		Matrix4(const float src[16]);
-		Matrix4(const std::vector<float>&);
 		Matrix4(float m00, float m01, float m02, float m03, // 1st column
-				float m04, float m05, float m06, float m07, // 2nd column
-				float m08, float m09, float m10, float m11, // 3rd column
-				float m12, float m13, float m14, float m15);// 4th column
+			float m04, float m05, float m06, float m07, // 2nd column
+			float m08, float m09, float m10, float m11, // 3rd column
+			float m12, float m13, float m14, float m15);// 4th column
 
-	public:
-		void					Set(const float src[16]);
-		void					Set(const std::vector<float>&);
-		void					Set(float m00, float m01, float m02, float m03, // 1st column
-									float m04, float m05, float m06, float m07, // 2nd column
-									float m08, float m09, float m10, float m11, // 3rd column
-									float m12, float m13, float m14, float m15);// 4th column
+		void        Set(const float src[16]);
+		void        Set(float m00, float m01, float m02, float m03, // 1st column
+			float m04, float m05, float m06, float m07, // 2nd column
+			float m08, float m09, float m10, float m11, // 3rd column
+			float m12, float m13, float m14, float m15);// 4th column
+		void        SetRow(int index, const float row[4]);
+		void        SetRow(int index, const Vector4D& v);
+		void        SetRow(int index, const Vector3D& v);
+		void        SetColumn(int index, const float col[4]);
+		void        SetColumn(int index, const Vector4D& v);
+		void        SetColumn(int index, const Vector3D& v);
 
-		void					SetRow(int, const float row[4]);
-		void					SetRow(int, const std::vector<float>&);
-		void					SetRow(int, const Liar::Vector4D&);
-		void					SetRow(int, const Liar::Vector3D&);
-        void                    SetRow(int, float, float, float, float);
+		const float* Get() const;
+		float       GetDeterminant() const;
+		Matrix3     GetRotationMatrix() const;              // return 3x3 rotation part
+		Vector3D     GetAngle() const;                       // return (pitch, yaw, roll)
 
-		void					SetCol(int, const float row[4]);
-		void					SetCol(int, const std::vector<float>&);
-		void					SetCol(int, const Liar::Vector4D&);
-		void					SetCol(int, const Liar::Vector3D&);
-        void                    SetCol(int, float, float, float, float w = 1.0f);
-
-		const float*			GetRawData() const { return m.s; };
-
-	public:
-		void					GetTranspose(std::vector<float>&);
-		float					GetDeterminant() const;
-		Liar::Matrix3			GetRotationMatrix() const;
-		void					GetRotationMatrix(Liar::Matrix3&) const;
-		Liar::Vector3D			GetAngle() const;
-		void					GetAngle(Liar::Vector3D&) const;
-		void					GetAngle(float&, float&, float&) const;
-
-	public:
-		Liar::Matrix4&    Identity();
-		Liar::Matrix4&    Transpose();                            // transpose itself and return reference
-		Liar::Matrix4&    Invert();                               // check best inverse method before inverse
-		Liar::Matrix4&    InvertEuclidean();                      // inverse of Euclidean transform matrix
-		Liar::Matrix4&    InvertAffine();                         // inverse of affine transform matrix
-		Liar::Matrix4&    InvertProjective();                     // inverse of projective matrix using partitioning
-		Liar::Matrix4&    InvertGeneral();                        // inverse of generic matrix
+		Matrix4&    Identity();
+		Matrix4&    Transpose();                            // transpose itself and return reference
+		Matrix4&    Invert();                               // check best inverse method before inverse
+		Matrix4&    InvertEuclidean();                      // inverse of Euclidean transform matrix
+		Matrix4&    InvertAffine();                         // inverse of affine transform matrix
+		Matrix4&    InvertProjective();                     // inverse of projective matrix using partitioning
+		Matrix4&    InvertGeneral();                        // inverse of generic matrix
 
 															// transform matrix
-		Liar::Matrix4&    Translate(float x, float y, float z);   // translation by (x,y,z)
-		Liar::Matrix4&    Translate(const Liar::Vector3D& v);            //
-		Liar::Matrix4&    Rotate(float angle, const Liar::Vector3D& axis); // rotate angle(degree) along the given axix
-		Liar::Matrix4&    Rotate(float angle, float x, float y, float z);
-		Liar::Matrix4&	  Rotate(float angleX, float angleY, float angleZ);
-		Liar::Matrix4&    RotateX(float angle);                   // rotate on X-axis with degree
-		Liar::Matrix4&    RotateY(float angle);                   // rotate on Y-axis with degree
-		Liar::Matrix4&    RotateZ(float angle);                   // rotate on Z-axis with degree
-		Liar::Matrix4&    Scale(float scale);                     // uniform scale
-		Liar::Matrix4&    Scale(float sx, float sy, float sz);    // scale by (sx, sy, sz) on each axis
-        
-        static void LookAt(float, float, float, float, float, float, Matrix4&);// face object to the target direction
-		static void LookAt(float, float, float, float, float, float, float, float, float, Matrix4&);
-		static void LookAt(const Liar::Vector3D&, const Liar::Vector3D&, Matrix4&);
-        static void LookAt(const Liar::Vector3D&, const Liar::Vector3D&, const Liar::Vector3D& up, Matrix4&);
+		Matrix4&    Translate(float x, float y, float z);   // translation by (x,y,z)
+		Matrix4&    Translate(const Vector3D& v);            //
+		Matrix4&    Rotate(float angle, const Vector3D& axis); // rotate angle(degree) along the given axix
+		Matrix4&    Rotate(float angle, float x, float y, float z);
+		Matrix4&    RotateX(float angle);                   // rotate on X-axis with degree
+		Matrix4&    RotateY(float angle);                   // rotate on Y-axis with degree
+		Matrix4&    RotateZ(float angle);                   // rotate on Z-axis with degree
+		Matrix4&    Scale(float scale);                     // uniform scale
+		Matrix4&    Scale(float sx, float sy, float sz);    // scale by (sx, sy, sz) on each axis
+		Matrix4&    LookAt(float tx, float ty, float tz);   // face object to the target direction
+		Matrix4&    LookAt(float tx, float ty, float tz, float ux, float uy, float uz);
+		Matrix4&    LookAt(const Vector3D& target);
+		Matrix4&    LookAt(const Vector3D& target, const Vector3D& up);
 		//@@Matrix4&    skew(float angle, const Vector3& axis); //
 
 		// operators
-		Liar::Matrix4     operator+(const Liar::Matrix4& rhs) const;    // add rhs
-		Liar::Matrix4     operator-(const Liar::Matrix4& rhs) const;    // subtract rhs
-		Liar::Matrix4&    operator+=(const Liar::Matrix4& rhs);         // add rhs and update this object
-		Liar::Matrix4&    operator-=(const Liar::Matrix4& rhs);         // subtract rhs and update this object
-		Liar::Vector4D     operator*(const Liar::Vector4D& rhs) const;    // multiplication: v' = M * v
-		Liar::Vector3D     operator*(const Liar::Vector3D& rhs) const;    // multiplication: v' = M * v
-		Liar::Matrix4     operator*(const Liar::Matrix4& rhs) const;    // multiplication: M3 = M1 * M2
-		Liar::Matrix4&    operator*=(const Liar::Matrix4& rhs);         // multiplication: M1' = M1 * M2
-		bool        operator==(const Liar::Matrix4& rhs) const;   // exact compare, no epsilon
-		bool        operator!=(const Liar::Matrix4& rhs) const;   // exact compare, no epsilon
+		Matrix4     operator+(const Matrix4& rhs) const;    // add rhs
+		Matrix4     operator-(const Matrix4& rhs) const;    // subtract rhs
+		Matrix4&    operator+=(const Matrix4& rhs);         // add rhs and update this object
+		Matrix4&    operator-=(const Matrix4& rhs);         // subtract rhs and update this object
+		Vector4D     operator*(const Vector4D& rhs) const;    // multiplication: v' = M * v
+		Vector3D     operator*(const Vector3D& rhs) const;    // multiplication: v' = M * v
+		Matrix4     operator*(const Matrix4& rhs) const;    // multiplication: M3 = M1 * M2
+		Matrix4&    operator*=(const Matrix4& rhs);         // multiplication: M1' = M1 * M2
+		bool        operator==(const Matrix4& rhs) const;   // exact compare, no epsilon
+		bool        operator!=(const Matrix4& rhs) const;   // exact compare, no epsilon
 		float       operator[](int index) const;            // subscript operator v[0], v[1]
 		float&      operator[](int index);                  // subscript operator v[0], v[1]
 
 															// friends functions
-		friend Liar::Matrix4 operator-(const Liar::Matrix4& m);                     // unary operator (-)
-		friend Liar::Matrix4 operator*(float scalar, const Matrix4& m);       // pre-multiplication
-		friend Liar::Vector3D operator*(const Liar::Vector3D& vec, const Liar::Matrix4& m); // pre-multiplication
-		friend Liar::Vector4D operator*(const Liar::Vector4D& vec, const Liar::Matrix4& m); // pre-multiplication
-		friend std::ostream& operator<<(std::ostream& os, const Liar::Matrix4& m);
+		friend Matrix4 operator-(const Matrix4& m);                     // unary operator (-)
+		friend Matrix4 operator*(float scalar, const Matrix4& m);       // pre-multiplication
+		friend Vector3D operator*(const Vector3D& vec, const Matrix4& m); // pre-multiplication
+		friend Vector4D operator*(const Vector4D& vec, const Matrix4& m); // pre-multiplication
+		friend std::ostream& operator<<(std::ostream& os, const Matrix4& m);
+
+	protected:
 
 	private:
 		float       GetCofactor(float m0, float m1, float m2,
-					float m3, float m4, float m5,
-					float m6, float m7, float m8) const;
+			float m3, float m4, float m5,
+			float m6, float m7, float m8) const;
 
-	private:
-		union Matrix4Union
-		{
-			float ss[4][4];
-			float s[16];
-		}m;
+		float m[16];
 	};
+
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -282,120 +238,181 @@ namespace Liar
 		Identity();
 	}
 
+
+
 	inline Matrix2::Matrix2(const float src[4])
 	{
 		Set(src);
 	}
 
-	inline Matrix2::Matrix2(const std::vector<float>& src)
-	{
-		Set(src);
-	}
+
 
 	inline Matrix2::Matrix2(float m0, float m1, float m2, float m3)
 	{
 		Set(m0, m1, m2, m3);
 	}
 
+
+
 	inline void Matrix2::Set(const float src[4])
 	{
-		m.s[0] = src[0];  m.s[1] = src[1];  m.s[2] = src[2];  m.s[3] = src[3];
+		m[0] = src[0];  m[1] = src[1];  m[2] = src[2];  m[3] = src[3];
 	}
 
-	inline void Matrix2::Set(const std::vector<float>& src)
+
+
+	inline void Matrix2::Set(float m0, float m1, float m2, float m3)
 	{
-		m.s[0] = src[0];  m.s[1] = src[1];  m.s[2] = src[2];  m.s[3] = src[3];
+		m[0] = m0;  m[1] = m1;  m[2] = m2;  m[3] = m3;
 	}
 
-	inline void Matrix2::Set(float vm0, float vm1, float vm2, float vm3)
+
+
+	inline void Matrix2::SetRow(int index, const float row[2])
 	{
-		m.s[0] = vm0;  m.s[1] = vm1;  m.s[2] = vm2;  m.s[3] = vm3;
+		m[index] = row[0];  m[index + 2] = row[1];
 	}
+
+
+
+	inline void Matrix2::SetRow(int index, const Vector2D& v)
+	{
+		m[index] = v.x;  m[index + 2] = v.y;
+	}
+
+
+
+	inline void Matrix2::SetColumn(int index, const float col[2])
+	{
+		m[index * 2] = col[0];  m[index * 2 + 1] = col[1];
+	}
+
+
+
+	inline void Matrix2::SetColumn(int index, const Vector2D& v)
+	{
+		m[index * 2] = v.x;  m[index * 2 + 1] = v.y;
+	}
+
+
+
+	inline const float* Matrix2::Get() const
+	{
+		return m;
+	}
+
+
 
 	inline Matrix2& Matrix2::Identity()
 	{
-		m.s[0] = m.s[3] = 1.0f;
-		m.s[1] = m.s[2] = 0.0f;
+		m[0] = m[3] = 1.0f;
+		m[1] = m[2] = 0.0f;
 		return *this;
 	}
+
+
 
 	inline Matrix2 Matrix2::operator+(const Matrix2& rhs) const
 	{
-		return Matrix2(m.s[0] + rhs[0], m.s[1] + rhs[1], m.s[2] + rhs[2], m.s[3] + rhs[3]);
+		return Matrix2(m[0] + rhs[0], m[1] + rhs[1], m[2] + rhs[2], m[3] + rhs[3]);
 	}
+
+
 
 	inline Matrix2 Matrix2::operator-(const Matrix2& rhs) const
 	{
-		return Matrix2(m.s[0] - rhs[0], m.s[1] - rhs[1], m.s[2] - rhs[2], m.s[3] - rhs[3]);
+		return Matrix2(m[0] - rhs[0], m[1] - rhs[1], m[2] - rhs[2], m[3] - rhs[3]);
 	}
+
+
 
 	inline Matrix2& Matrix2::operator+=(const Matrix2& rhs)
 	{
-		m.s[0] = m.s[0] + rhs[0]; m.s[1] = m.s[1] + rhs[1]; m.s[2] = m.s[2] + rhs[2]; m.s[3] = m.s[3] + rhs[3];
+		m[0] += rhs[0];  m[1] += rhs[1];  m[2] += rhs[2];  m[3] += rhs[3];
 		return *this;
 	}
+
+
 
 	inline Matrix2& Matrix2::operator-=(const Matrix2& rhs)
 	{
-		m.s[0] = m.s[0] - rhs[0]; m.s[1] = m.s[1] - rhs[1]; m.s[2] -= rhs[2]; m.s[3] -= rhs[3];
+		m[0] -= rhs[0];  m[1] -= rhs[1];  m[2] -= rhs[2];  m[3] -= rhs[3];
 		return *this;
 	}
 
-	inline Vector2D Matrix2::operator*(const Liar::Vector2D& rhs) const
+
+
+	inline Vector2D Matrix2::operator*(const Vector2D& rhs) const
 	{
-		return Liar::Vector2D(m.s[0] * rhs.x + m.s[2] * rhs.y, m.s[1] * rhs.x + m.s[3] * rhs.y);
+		return Vector2D(m[0] * rhs.x + m[2] * rhs.y, m[1] * rhs.x + m[3] * rhs.y);
 	}
 
-	inline Matrix2 Matrix2::operator*(const Liar::Matrix2& rhs) const
+
+
+	inline Matrix2 Matrix2::operator*(const Matrix2& rhs) const
 	{
-		return Liar::Matrix2(m.s[0] * rhs[0] + m.s[2] * rhs[1], m.s[1] * rhs[0] + m.s[3] * rhs[1],
-							 m.s[0] * rhs[2] + m.s[2] * rhs[3], m.s[1] * rhs[2] + m.s[3] * rhs[3]);
+		return Matrix2(m[0] * rhs[0] + m[2] * rhs[1], m[1] * rhs[0] + m[3] * rhs[1],
+			m[0] * rhs[2] + m[2] * rhs[3], m[1] * rhs[2] + m[3] * rhs[3]);
 	}
+
+
 
 	inline Matrix2& Matrix2::operator*=(const Matrix2& rhs)
 	{
-		float t0 = m.s[0], t1 = m.s[1], t2 = m.s[2], t3 = m.s[3];
-		m.s[0] = t0 * rhs[0] + t2 * rhs[1];
-		m.s[1] = t1 * rhs[0] + t3 * rhs[1];
-		m.s[2] = t0 * rhs[2] + t2 * rhs[3];
-		m.s[3] = t1 * rhs[2] + t3 * rhs[3];
+		*this = *this * rhs;
 		return *this;
 	}
 
-	inline float Matrix2::operator[](int index) const
-	{
-		return m.s[index];
-	}
 
-	inline float& Matrix2::operator[](int index)
-	{
-		return m.s[index];
-	}
 
 	inline bool Matrix2::operator==(const Matrix2& rhs) const
 	{
-		return (m.s[0] == rhs[0]) && (m.s[1] == rhs[1]) && (m.s[2] == rhs[2]) && (m.s[3] == rhs[3]);
+		return (m[0] == rhs[0]) && (m[1] == rhs[1]) && (m[2] == rhs[2]) && (m[3] == rhs[3]);
 	}
+
+
 
 	inline bool Matrix2::operator!=(const Matrix2& rhs) const
 	{
-		return (m.s[0] != rhs[0]) || (m.s[1] != rhs[1]) || (m.s[2] != rhs[2]) || (m.s[3] != rhs[3]);
+		return (m[0] != rhs[0]) || (m[1] != rhs[1]) || (m[2] != rhs[2]) || (m[3] != rhs[3]);
 	}
+
+
+
+	inline float Matrix2::operator[](int index) const
+	{
+		return m[index];
+	}
+
+
+
+	inline float& Matrix2::operator[](int index)
+	{
+		return m[index];
+	}
+
+
 
 	inline Matrix2 operator-(const Matrix2& rhs)
 	{
-		return Liar::Matrix2(-rhs[0], -rhs[1], -rhs[2], -rhs[3]);
+		return Matrix2(-rhs[0], -rhs[1], -rhs[2], -rhs[3]);
 	}
+
+
 
 	inline Matrix2 operator*(float s, const Matrix2& rhs)
 	{
 		return Matrix2(s*rhs[0], s*rhs[1], s*rhs[2], s*rhs[3]);
 	}
 
-	inline Liar::Vector2D operator*(const Liar::Vector2D& v, const Matrix2& rhs)
+
+
+	inline Vector2D operator*(const Vector2D& v, const Matrix2& rhs)
 	{
-		return Liar::Vector2D(v.x*rhs[0] + v.y*rhs[1], v.x*rhs[2] + v.y*rhs[3]);
+		return Vector2D(v.x*rhs[0] + v.y*rhs[1], v.x*rhs[2] + v.y*rhs[3]);
 	}
+
+
 
 	inline std::ostream& operator<<(std::ostream& os, const Matrix2& m)
 	{
@@ -419,19 +436,18 @@ namespace Liar
 		Identity();
 	}
 
+
+
 	inline Matrix3::Matrix3(const float src[9])
 	{
 		Set(src);
 	}
 
-	inline Matrix3::Matrix3(const std::vector<float>& src)
-	{
-		Set(src);
-	}
+
 
 	inline Matrix3::Matrix3(float m0, float m1, float m2,
-							float m3, float m4, float m5,
-							float m6, float m7, float m8)
+		float m3, float m4, float m5,
+		float m6, float m7, float m8)
 	{
 		Set(m0, m1, m2, m3, m4, m5, m6, m7, m8);
 	}
@@ -440,131 +456,184 @@ namespace Liar
 
 	inline void Matrix3::Set(const float src[9])
 	{
-		m.s[0] = src[0];  m.s[1] = src[1];  m.s[1] = src[2];
-		m.s[3] = src[3];  m.s[4] = src[4];  m.s[5] = src[5];
-		m.s[6] = src[6];  m.s[7] = src[7];  m.s[8] = src[8];
+		m[0] = src[0];  m[1] = src[1];  m[2] = src[2];
+		m[3] = src[3];  m[4] = src[4];  m[5] = src[5];
+		m[6] = src[6];  m[7] = src[7];  m[8] = src[8];
 	}
 
-	inline void Matrix3::Set(const std::vector<float>& src)
+
+
+	inline void Matrix3::Set(float m0, float m1, float m2,
+		float m3, float m4, float m5,
+		float m6, float m7, float m8)
 	{
-		m.s[0] = src[0];  m.s[1] = src[1];  m.s[1] = src[2];
-		m.s[3] = src[3];  m.s[4] = src[4];  m.s[5] = src[5];
-		m.s[6] = src[6];  m.s[7] = src[7];  m.s[8] = src[8];
+		m[0] = m0;  m[1] = m1;  m[2] = m2;
+		m[3] = m3;  m[4] = m4;  m[5] = m5;
+		m[6] = m6;  m[7] = m7;  m[8] = m8;
 	}
 
-	inline void Matrix3::Set(float mv0, float mv1, float mv2,
-								float mv3, float mv4, float mv5,
-								float mv6, float mv7, float mv8)
+
+
+	inline void Matrix3::SetRow(int index, const float row[3])
 	{
-		m.s[0] = mv0;  m.s[1] = mv1;  m.s[2] = mv2;
-		m.s[3] = mv3;  m.s[4] = mv4;  m.s[5] = mv5;
-		m.s[6] = mv6;  m.s[7] = mv7;  m.s[8] = mv8;
+		m[index] = row[0];  m[index + 3] = row[1];  m[index + 6] = row[2];
 	}
+
+
+
+	inline void Matrix3::SetRow(int index, const Vector3D& v)
+	{
+		m[index] = v.x;  m[index + 3] = v.y;  m[index + 6] = v.z;
+	}
+
+
+
+	inline void Matrix3::SetColumn(int index, const float col[3])
+	{
+		m[index * 3] = col[0];  m[index * 3 + 1] = col[1];  m[index * 3 + 2] = col[2];
+	}
+
+
+
+	inline void Matrix3::SetColumn(int index, const Vector3D& v)
+	{
+		m[index * 3] = v.x;  m[index * 3 + 1] = v.y;  m[index * 3 + 2] = v.z;
+	}
+
+
+
+	inline const float* Matrix3::Get() const
+	{
+		return m;
+	}
+
+
 
 	inline Matrix3& Matrix3::Identity()
 	{
-		m.s[0] = m.s[4] = m.s[8] = 1.0f;
-		m.s[1] = m.s[2] = m.s[3] = m.s[5] = m.s[6] = m.s[7] = 0.0f;
+		m[0] = m[4] = m[8] = 1.0f;
+		m[1] = m[2] = m[3] = m[5] = m[6] = m[7] = 0.0f;
 		return *this;
 	}
+
+
 
 	inline Matrix3 Matrix3::operator+(const Matrix3& rhs) const
 	{
-		return Matrix3( m.s[0] + rhs[0], m.s[1] + rhs[1], m.s[2] + rhs[2],
-						m.s[3] + rhs[1], m.s[4] + rhs[4], m.s[5] + rhs[5],
-						m.s[6] + rhs[6], m.s[7] + rhs[7], m.s[8] + rhs[8]);
+		return Matrix3(m[0] + rhs[0], m[1] + rhs[1], m[2] + rhs[2],
+			m[3] + rhs[3], m[4] + rhs[4], m[5] + rhs[5],
+			m[6] + rhs[6], m[7] + rhs[7], m[8] + rhs[8]);
 	}
+
+
 
 	inline Matrix3 Matrix3::operator-(const Matrix3& rhs) const
 	{
-		return Matrix3( m.s[0] - rhs[0], m.s[1] - rhs[1], m.s[2] - rhs[2],
-						m.s[3] - rhs[1], m.s[4] - rhs[4], m.s[5] - rhs[5],
-						m.s[6] - rhs[6], m.s[7] - rhs[7], m.s[8] - rhs[8]);
+		return Matrix3(m[0] - rhs[0], m[1] - rhs[1], m[2] - rhs[2],
+			m[3] - rhs[3], m[4] - rhs[4], m[5] - rhs[5],
+			m[6] - rhs[6], m[7] - rhs[7], m[8] - rhs[8]);
 	}
+
+
 
 	inline Matrix3& Matrix3::operator+=(const Matrix3& rhs)
 	{
-		m.s[0] += rhs[0]; m.s[1] += rhs[1]; m.s[2] += rhs[2];
-		m.s[3] += rhs[1]; m.s[4] += rhs[4]; m.s[5] += rhs[5];
-		m.s[6] += rhs[6]; m.s[7] += rhs[7]; m.s[8] += rhs[8];
+		m[0] += rhs[0];  m[1] += rhs[1];  m[2] += rhs[2];
+		m[3] += rhs[3];  m[4] += rhs[4];  m[5] += rhs[5];
+		m[6] += rhs[6];  m[7] += rhs[7];  m[8] += rhs[8];
 		return *this;
 	}
+
+
 
 	inline Matrix3& Matrix3::operator-=(const Matrix3& rhs)
 	{
-		m.s[0] -= rhs[0]; m.s[1] -= rhs[1]; m.s[2] -= rhs[2];
-		m.s[3] -= rhs[1]; m.s[4] -= rhs[4]; m.s[5] -= rhs[5];
-		m.s[6] -= rhs[6]; m.s[7] -= rhs[7]; m.s[8] -= rhs[8];
+		m[0] -= rhs[0];  m[1] -= rhs[1];  m[2] -= rhs[2];
+		m[3] -= rhs[3];  m[4] -= rhs[4];  m[5] -= rhs[5];
+		m[6] -= rhs[6];  m[7] -= rhs[7];  m[8] -= rhs[8];
 		return *this;
 	}
+
+
 
 	inline Vector3D Matrix3::operator*(const Vector3D& rhs) const
 	{
-		return Vector3D(m.s[0] * rhs.x + m.s[3] * rhs.y + m.s[6] * rhs.z,
-						m.s[1] * rhs.x + m.s[4] * rhs.y + m.s[7] * rhs.z,
-						m.s[2] * rhs.x + m.s[5] * rhs.y + m.s[8] * rhs.z);
+		return Vector3D(m[0] * rhs.x + m[3] * rhs.y + m[6] * rhs.z,
+			m[1] * rhs.x + m[4] * rhs.y + m[7] * rhs.z,
+			m[2] * rhs.x + m[5] * rhs.y + m[8] * rhs.z);
 	}
+
+
 
 	inline Matrix3 Matrix3::operator*(const Matrix3& rhs) const
 	{
-		return Matrix3( m.s[0] * rhs[0] + m.s[3] * rhs[1] + m.s[6] * rhs[2],	m.s[1] * rhs[0] + m.s[4] * rhs[1] + m.s[7] * rhs[2],	m.s[2] * rhs[0] + m.s[5] * rhs[1] + m.s[8] * rhs[2],
-						m.s[0] * rhs[3] + m.s[3] * rhs[4] + m.s[6] * rhs[5],	m.s[1] * rhs[3] + m.s[4] * rhs[4] + m.s[7] * rhs[5],	m.s[2] * rhs[3] + m.s[5] * rhs[4] + m.s[8] * rhs[5],
-						m.s[0] * rhs[6] + m.s[3] * rhs[7] + m.s[6] * rhs[8],	m.s[1] * rhs[6] + m.s[4] * rhs[7] + m.s[7] * rhs[8],	m.s[2] * rhs[6] + m.s[5] * rhs[7] + m.s[8] * rhs[8]);
+		return Matrix3(m[0] * rhs[0] + m[3] * rhs[1] + m[6] * rhs[2], m[1] * rhs[0] + m[4] * rhs[1] + m[7] * rhs[2], m[2] * rhs[0] + m[5] * rhs[1] + m[8] * rhs[2],
+			m[0] * rhs[3] + m[3] * rhs[4] + m[6] * rhs[5], m[1] * rhs[3] + m[4] * rhs[4] + m[7] * rhs[5], m[2] * rhs[3] + m[5] * rhs[4] + m[8] * rhs[5],
+			m[0] * rhs[6] + m[3] * rhs[7] + m[6] * rhs[8], m[1] * rhs[6] + m[4] * rhs[7] + m[7] * rhs[8], m[2] * rhs[6] + m[5] * rhs[7] + m[8] * rhs[8]);
 	}
+
+
 
 	inline Matrix3& Matrix3::operator*=(const Matrix3& rhs)
 	{
-		float t0 = m.s[0], t1 = m.s[1], t2 = m.s[2], t3 = m.s[3], t4 = m.s[4], t5 = m.s[5], t6 = m.s[6], t7 = m.s[7], t8 = m.s[8];
-		m.s[0] = t0 * rhs[0] + t3 * rhs[1] + t6 * rhs[2];
-		m.s[1] = t1 * rhs[0] + t4 * rhs[1] + t7 * rhs[2];
-		m.s[2] = t2 * rhs[0] + t5 * rhs[1] + t8 * rhs[2];
-		m.s[3] = t0 * rhs[3] + t3 * rhs[4] + t6 * rhs[5];
-		m.s[4] = t1 * rhs[3] + t4 * rhs[4] + t7 * rhs[5];
-		m.s[5] = t2 * rhs[3] + t5 * rhs[4] + t8 * rhs[5];
-		m.s[6] = t0 * rhs[6] + t3 * rhs[7] + t6 * rhs[8];
-		m.s[7] = t1 * rhs[6] + t4 * rhs[7] + t7 * rhs[8];
-		m.s[8] = t2 * rhs[6] + t5 * rhs[7] + t8 * rhs[8];
+		*this = *this * rhs;
 		return *this;
 	}
 
+
+
 	inline bool Matrix3::operator==(const Matrix3& rhs) const
 	{
-		return (m.s[0] == rhs[0]) && (m.s[1] == rhs[1]) && (m.s[2] == rhs[2]) &&
-				(m.s[3] == rhs[3]) && (m.s[4] == rhs[4]) && (m.s[5] == rhs[5]) &&
-				(m.s[6] == rhs[6]) && (m.s[7] == rhs[7]) && (m.s[8] == rhs[8]);
+		return (m[0] == rhs[0]) && (m[1] == rhs[1]) && (m[2] == rhs[2]) &&
+			(m[3] == rhs[3]) && (m[4] == rhs[4]) && (m[5] == rhs[5]) &&
+			(m[6] == rhs[6]) && (m[7] == rhs[7]) && (m[8] == rhs[8]);
 	}
+
+
 
 	inline bool Matrix3::operator!=(const Matrix3& rhs) const
 	{
-		return (m.s[0] != rhs[0]) || (m.s[1] != rhs[1]) || (m.s[2] != rhs[2]) ||
-				(m.s[3] != rhs[3]) || (m.s[4] != rhs[4]) || (m.s[5] != rhs[5]) ||
-				(m.s[6] != rhs[6]) || (m.s[7] != rhs[7]) || (m.s[8] != rhs[8]);
+		return (m[0] != rhs[0]) || (m[1] != rhs[1]) || (m[2] != rhs[2]) ||
+			(m[3] != rhs[3]) || (m[4] != rhs[4]) || (m[5] != rhs[5]) ||
+			(m[6] != rhs[6]) || (m[7] != rhs[7]) || (m[8] != rhs[8]);
 	}
+
+
+
+	inline float Matrix3::operator[](int index) const
+	{
+		return m[index];
+	}
+
+
+
+	inline float& Matrix3::operator[](int index)
+	{
+		return m[index];
+	}
+
+
 
 	inline Matrix3 operator-(const Matrix3& rhs)
 	{
 		return Matrix3(-rhs[0], -rhs[1], -rhs[2], -rhs[3], -rhs[4], -rhs[5], -rhs[6], -rhs[7], -rhs[8]);
 	}
 
+
+
 	inline Matrix3 operator*(float s, const Matrix3& rhs)
 	{
 		return Matrix3(s*rhs[0], s*rhs[1], s*rhs[2], s*rhs[3], s*rhs[4], s*rhs[5], s*rhs[6], s*rhs[7], s*rhs[8]);
 	}
+
+
 
 	inline Vector3D operator*(const Vector3D& v, const Matrix3& m)
 	{
 		return Vector3D(v.x*m[0] + v.y*m[1] + v.z*m[2], v.x*m[3] + v.y*m[4] + v.z*m[5], v.x*m[6] + v.y*m[7] + v.z*m[8]);
 	}
 
-	inline float Matrix3::operator[](int index) const
-	{
-		return m.s[index];
-	}
 
-	inline float& Matrix3::operator[](int index)
-	{
-		return m.s[index];
-	}
 
 	inline std::ostream& operator<<(std::ostream& os, const Matrix3& m)
 	{
@@ -589,207 +658,245 @@ namespace Liar
 		Identity();
 	}
 
+
+
 	inline Matrix4::Matrix4(const float src[16])
 	{
 		Set(src);
 	}
 
-	inline Matrix4::Matrix4(const std::vector<float>& src)
-	{
-		Set(src);
-	}
+
 
 	inline Matrix4::Matrix4(float m00, float m01, float m02, float m03,
-							float m04, float m05, float m06, float m07,
-							float m08, float m09, float m10, float m11,
-							float m12, float m13, float m14, float m15)
+		float m04, float m05, float m06, float m07,
+		float m08, float m09, float m10, float m11,
+		float m12, float m13, float m14, float m15)
 	{
 		Set(m00, m01, m02, m03, m04, m05, m06, m07, m08, m09, m10, m11, m12, m13, m14, m15);
 	}
 
+
+
 	inline void Matrix4::Set(const float src[16])
 	{
-		m.s[0] = src[0];  m.s[1] = src[1];  m.s[2] = src[2];  m.s[3] = src[3];
-		m.s[4] = src[4];  m.s[5] = src[5];  m.s[6] = src[6];  m.s[7] = src[7];
-		m.s[8] = src[8];  m.s[9] = src[9];  m.s[10] = src[10]; m.s[11] = src[11];
-		m.s[12] = src[12]; m.s[13] = src[13]; m.s[14] = src[14]; m.s[15] = src[15];
+		m[0] = src[0];  m[1] = src[1];  m[2] = src[2];  m[3] = src[3];
+		m[4] = src[4];  m[5] = src[5];  m[6] = src[6];  m[7] = src[7];
+		m[8] = src[8];  m[9] = src[9];  m[10] = src[10]; m[11] = src[11];
+		m[12] = src[12]; m[13] = src[13]; m[14] = src[14]; m[15] = src[15];
 	}
 
-	inline void Matrix4::Set(const std::vector<float>& src)
-	{
-		m.s[0] = src[0];  m.s[1] = src[1];  m.s[2] = src[2];  m.s[3] = src[3];
-		m.s[4] = src[4];  m.s[5] = src[5];  m.s[6] = src[6];  m.s[7] = src[7];
-		m.s[8] = src[8];  m.s[9] = src[9];  m.s[10] = src[10]; m.s[11] = src[11];
-		m.s[12] = src[12]; m.s[13] = src[13]; m.s[14] = src[14]; m.s[15] = src[15];
-	}
+
 
 	inline void Matrix4::Set(float m00, float m01, float m02, float m03,
 		float m04, float m05, float m06, float m07,
-		float m08, float m09, float mv10, float mv11,
-		float mv12, float mv13, float mv14, float mv15)
+		float m08, float m09, float m10, float m11,
+		float m12, float m13, float m14, float m15)
 	{
-		m.s[0] = m00;  m.s[1] = m01;  m.s[2] = m02;  m.s[3] = m03;
-		m.s[4] = m04;  m.s[5] = m05;  m.s[6] = m06;  m.s[7] = m07;
-		m.s[8] = m08;  m.s[9] = m09;  m.s[10] = mv10;  m.s[11] = mv11;
-		m.s[12] = mv12;  m.s[13] = mv13;  m.s[14] = mv14;  m.s[15] = mv15;
+		m[0] = m00;  m[1] = m01;  m[2] = m02;  m[3] = m03;
+		m[4] = m04;  m[5] = m05;  m[6] = m06;  m[7] = m07;
+		m[8] = m08;  m[9] = m09;  m[10] = m10;  m[11] = m11;
+		m[12] = m12;  m[13] = m13;  m[14] = m14;  m[15] = m15;
 	}
 
-	inline void Matrix4::GetTranspose(std::vector<float>& out)
+
+
+	inline void Matrix4::SetRow(int index, const float row[4])
 	{
-		out = { m.s[0], m.s[1], m.s[2], m.s[3], m.s[4], m.s[5], m.s[6], m.s[7], m.s[8], m.s[9], m.s[10], m.s[11], m.s[12], m.s[13], m.s[14], m.s[15] };
+		m[index] = row[0];  m[index + 4] = row[1];  m[index + 8] = row[2];  m[index + 12] = row[3];
 	}
+
+
+
+	inline void Matrix4::SetRow(int index, const Vector4D& v)
+	{
+		m[index] = v.x;  m[index + 4] = v.y;  m[index + 8] = v.z;  m[index + 12] = v.w;
+	}
+
+
+
+	inline void Matrix4::SetRow(int index, const Vector3D& v)
+	{
+		m[index] = v.x;  m[index + 4] = v.y;  m[index + 8] = v.z;
+	}
+
+
+
+	inline void Matrix4::SetColumn(int index, const float col[4])
+	{
+		m[index * 4] = col[0];  m[index * 4 + 1] = col[1];  m[index * 4 + 2] = col[2];  m[index * 4 + 3] = col[3];
+	}
+
+
+
+	inline void Matrix4::SetColumn(int index, const Vector4D& v)
+	{
+		m[index * 4] = v.x;  m[index * 4 + 1] = v.y;  m[index * 4 + 2] = v.z;  m[index * 4 + 3] = v.w;
+	}
+
+
+
+	inline void Matrix4::SetColumn(int index, const Vector3D& v)
+	{
+		m[index * 4] = v.x;  m[index * 4 + 1] = v.y;  m[index * 4 + 2] = v.z;
+	}
+
+
+
+	inline const float* Matrix4::Get() const
+	{
+		return m;
+	}
+
 
 	inline Matrix4& Matrix4::Identity()
 	{
-		m.s[0] = m.s[5] = m.s[10] = m.s[15] = 1.0f;
-		m.s[1] = m.s[2] = m.s[3] = m.s[4] = m.s[6] = m.s[7] = m.s[8] = m.s[9] = m.s[11] = m.s[12] = m.s[13] = m.s[14] = 0.0f;
+		m[0] = m[5] = m[10] = m[15] = 1.0f;
+		m[1] = m[2] = m[3] = m[4] = m[6] = m[7] = m[8] = m[9] = m[11] = m[12] = m[13] = m[14] = 0.0f;
 		return *this;
 	}
 
+
+
 	inline Matrix4 Matrix4::operator+(const Matrix4& rhs) const
 	{
-		return Matrix4(	m.s[0] + rhs[0], m.s[1] + rhs[1], m.s[2] + rhs[2], m.s[3] + rhs[3],
-						m.s[4] + rhs[4], m.s[5] + rhs[5], m.s[6] + rhs[6], m.s[7] + rhs[7],
-						m.s[8] + rhs[8], m.s[9] + rhs[9], m.s[10] + rhs[10], m.s[11] + rhs[11],
-						m.s[12] + rhs[12], m.s[13] + rhs[13], m.s[14] + rhs[14], m.s[15] + rhs[15]);
+		return Matrix4(m[0] + rhs[0], m[1] + rhs[1], m[2] + rhs[2], m[3] + rhs[3],
+			m[4] + rhs[4], m[5] + rhs[5], m[6] + rhs[6], m[7] + rhs[7],
+			m[8] + rhs[8], m[9] + rhs[9], m[10] + rhs[10], m[11] + rhs[11],
+			m[12] + rhs[12], m[13] + rhs[13], m[14] + rhs[14], m[15] + rhs[15]);
 	}
 
 
 
 	inline Matrix4 Matrix4::operator-(const Matrix4& rhs) const
 	{
-		return Matrix4(m.s[0] - rhs[0], m.s[1] - rhs[1], m.s[2] - rhs[2], m.s[3] - rhs[3],
-						m.s[4] - rhs[4], m.s[5] - rhs[5], m.s[6] - rhs[6], m.s[7] - rhs[7],
-						m.s[8] - rhs[8], m.s[9] - rhs[9], m.s[10] - rhs[10], m.s[11] - rhs[11],
-						m.s[12] - rhs[12], m.s[13] - rhs[13], m.s[14] - rhs[14], m.s[15] - rhs[15]);
+		return Matrix4(m[0] - rhs[0], m[1] - rhs[1], m[2] - rhs[2], m[3] - rhs[3],
+			m[4] - rhs[4], m[5] - rhs[5], m[6] - rhs[6], m[7] - rhs[7],
+			m[8] - rhs[8], m[9] - rhs[9], m[10] - rhs[10], m[11] - rhs[11],
+			m[12] - rhs[12], m[13] - rhs[13], m[14] - rhs[14], m[15] - rhs[15]);
 	}
 
 
 
 	inline Matrix4& Matrix4::operator+=(const Matrix4& rhs)
 	{
-		m.s[0] += rhs[0]; m.s[1] += rhs[1]; m.s[2] -= rhs[2]; m.s[3] -= rhs[3];
-		m.s[4] += rhs[4]; m.s[5] += rhs[5]; m.s[6] -= rhs[6]; m.s[7] -= rhs[7];
-		m.s[8] += rhs[8]; m.s[9] += rhs[9]; m.s[10] -= rhs[10]; m.s[11] -= rhs[11];
-		m.s[12] += rhs[12]; m.s[13] -= rhs[13]; m.s[14] -= rhs[14]; m.s[15] -= rhs[15];
+		m[0] += rhs[0];   m[1] += rhs[1];   m[2] += rhs[2];   m[3] += rhs[3];
+		m[4] += rhs[4];   m[5] += rhs[5];   m[6] += rhs[6];   m[7] += rhs[7];
+		m[8] += rhs[8];   m[9] += rhs[9];   m[10] += rhs[10];  m[11] += rhs[11];
+		m[12] += rhs[12];  m[13] += rhs[13];  m[14] += rhs[14];  m[15] += rhs[15];
 		return *this;
 	}
+
+
 
 	inline Matrix4& Matrix4::operator-=(const Matrix4& rhs)
 	{
-		m.s[0] -= rhs[0]; m.s[1] -= rhs[1]; m.s[2] -= rhs[2]; m.s[3] -= rhs[3];
-		m.s[4] -= rhs[4]; m.s[5] -= rhs[5]; m.s[6] -= rhs[6]; m.s[7] -= rhs[7];
-		m.s[8] -= rhs[8]; m.s[9] -= rhs[9]; m.s[10] -= rhs[10]; m.s[11] -= rhs[11];
-		m.s[12] -= rhs[12]; m.s[13] -= rhs[13]; m.s[14] -= rhs[14]; m.s[15] -= rhs[15];
+		m[0] -= rhs[0];   m[1] -= rhs[1];   m[2] -= rhs[2];   m[3] -= rhs[3];
+		m[4] -= rhs[4];   m[5] -= rhs[5];   m[6] -= rhs[6];   m[7] -= rhs[7];
+		m[8] -= rhs[8];   m[9] -= rhs[9];   m[10] -= rhs[10];  m[11] -= rhs[11];
+		m[12] -= rhs[12];  m[13] -= rhs[13];  m[14] -= rhs[14];  m[15] -= rhs[15];
 		return *this;
 	}
+
+
 
 	inline Vector4D Matrix4::operator*(const Vector4D& rhs) const
 	{
-		return Vector4D(m.s[0] * rhs.x + m.s[4] * rhs.y + m.s[8] * rhs.z + m.s[12] * rhs.w,
-						m.s[1] * rhs.x + m.s[5] * rhs.y + m.s[9] * rhs.z + m.s[13] * rhs.w,
-						m.s[2] * rhs.x + m.s[6] * rhs.y + m.s[10] * rhs.z + m.s[14] * rhs.w,
-						m.s[3] * rhs.x + m.s[7] * rhs.y + m.s[11] * rhs.z + m.s[15] * rhs.w);
+		return Vector4D(m[0] * rhs.x + m[4] * rhs.y + m[8] * rhs.z + m[12] * rhs.w,
+			m[1] * rhs.x + m[5] * rhs.y + m[9] * rhs.z + m[13] * rhs.w,
+			m[2] * rhs.x + m[6] * rhs.y + m[10] * rhs.z + m[14] * rhs.w,
+			m[3] * rhs.x + m[7] * rhs.y + m[11] * rhs.z + m[15] * rhs.w);
 	}
+
+
 
 	inline Vector3D Matrix4::operator*(const Vector3D& rhs) const
 	{
-		return Vector3D(m.s[0] * rhs.x + m.s[4] * rhs.y + m.s[8] * rhs.z + m.s[12],
-						m.s[1] * rhs.x + m.s[5] * rhs.y + m.s[9] * rhs.z + m.s[13],
-						m.s[2] * rhs.x + m.s[6] * rhs.y + m.s[10] * rhs.z + m.s[14]);
+		return Vector3D(m[0] * rhs.x + m[4] * rhs.y + m[8] * rhs.z + m[12],
+			m[1] * rhs.x + m[5] * rhs.y + m[9] * rhs.z + m[13],
+			m[2] * rhs.x + m[6] * rhs.y + m[10] * rhs.z + m[14]);
 	}
+
+
 
 	inline Matrix4 Matrix4::operator*(const Matrix4& n) const
 	{
-		return Matrix4(m.s[0] * n[0] + m.s[4] * n[1] + m.s[8] * n[2] + m.s[12] * n[3],
-                       m.s[1] * n[0] + m.s[5] * n[1] + m.s[9] * n[2] + m.s[13] * n[3],
-                       m.s[2] * n[0] + m.s[6] * n[1] + m.s[10] * n[2] + m.s[14] * n[3],
-                       m.s[3] * n[0] + m.s[7] * n[1] + m.s[11] * n[2] + m.s[15] * n[3],
-                       m.s[0] * n[4] + m.s[4] * n[5] + m.s[8] * n[6] + m.s[12] * n[7],
-                       m.s[1] * n[4] + m.s[5] * n[5] + m.s[9] * n[6] + m.s[13] * n[7],
-                       m.s[2] * n[4] + m.s[6] * n[5] + m.s[10] * n[6] + m.s[14] * n[7],
-                       m.s[3] * n[4] + m.s[7] * n[5] + m.s[11] * n[6] + m.s[15] * n[7],
-                       m.s[0] * n[8] + m.s[4] * n[9] + m.s[8] * n[10] + m.s[12] * n[11],
-                       m.s[1] * n[8] + m.s[5] * n[9] + m.s[9] * n[10] + m.s[13] * n[11],
-                       m.s[2] * n[8] + m.s[6] * n[9] + m.s[10] * n[10] + m.s[14] * n[11],
-                       m.s[3] * n[8] + m.s[7] * n[9] + m.s[11] * n[10] + m.s[15] * n[11],
-                       m.s[0] * n[12] + m.s[4] * n[13] + m.s[8] * n[14] + m.s[12] * n[15],
-                       m.s[1] * n[12] + m.s[5] * n[13] + m.s[9] * n[14] + m.s[13] * n[15],
-                       m.s[2] * n[12] + m.s[6] * n[13] + m.s[10] * n[14] + m.s[14] * n[15],
-                       m.s[3] * n[12] + m.s[7] * n[13] + m.s[11] * n[14] + m.s[15] * n[15]);
+		return Matrix4(m[0] * n[0] + m[4] * n[1] + m[8] * n[2] + m[12] * n[3], m[1] * n[0] + m[5] * n[1] + m[9] * n[2] + m[13] * n[3], m[2] * n[0] + m[6] * n[1] + m[10] * n[2] + m[14] * n[3], m[3] * n[0] + m[7] * n[1] + m[11] * n[2] + m[15] * n[3],
+			m[0] * n[4] + m[4] * n[5] + m[8] * n[6] + m[12] * n[7], m[1] * n[4] + m[5] * n[5] + m[9] * n[6] + m[13] * n[7], m[2] * n[4] + m[6] * n[5] + m[10] * n[6] + m[14] * n[7], m[3] * n[4] + m[7] * n[5] + m[11] * n[6] + m[15] * n[7],
+			m[0] * n[8] + m[4] * n[9] + m[8] * n[10] + m[12] * n[11], m[1] * n[8] + m[5] * n[9] + m[9] * n[10] + m[13] * n[11], m[2] * n[8] + m[6] * n[9] + m[10] * n[10] + m[14] * n[11], m[3] * n[8] + m[7] * n[9] + m[11] * n[10] + m[15] * n[11],
+			m[0] * n[12] + m[4] * n[13] + m[8] * n[14] + m[12] * n[15], m[1] * n[12] + m[5] * n[13] + m[9] * n[14] + m[13] * n[15], m[2] * n[12] + m[6] * n[13] + m[10] * n[14] + m[14] * n[15], m[3] * n[12] + m[7] * n[13] + m[11] * n[14] + m[15] * n[15]);
 	}
 
-	inline Matrix4& Matrix4::operator*=(const Matrix4& n)
-	{
-		float tmp0 = m.s[0], tmp1 = m.s[1], tmp2 = m.s[2], tmp3 = m.s[3];
-		float tmp4 = m.s[4], tmp5 = m.s[5], tmp6 = m.s[6], tmp7 = m.s[7];
-		float tmp8 = m.s[8], tmp9 = m.s[9], tmp10 = m.s[10], tmp11 = m.s[11];
-		float tmp12 = m.s[12], tmp13 = m.s[13], tmp14 = m.s[14], tmp15 = m.s[15];
 
-		m.s[0] = tmp0 * n[0] + tmp4 * n[1] + tmp8 * n[2] + tmp12 * n[3];
-		m.s[1] = tmp1 * n[0] + tmp5 * n[1] + tmp9 * n[2] + tmp13 * n[3];
-		m.s[2] = tmp2 * n[0] + tmp6 * n[1] + tmp10 * n[2] + tmp14 * n[3];
-		m.s[3] = tmp3 * n[0] + tmp7 * n[1] + tmp11 * n[2] + tmp15 * n[3];
-		m.s[4] = tmp0 * n[4] + tmp4 * n[5] + tmp8 * n[6] + tmp12 * n[7];
-		m.s[5] = tmp1 * n[4] + tmp5 * n[5] + tmp9 * n[6] + tmp13 * n[7];
-		m.s[6] = tmp2 * n[4] + tmp6 * n[5] + tmp10 * n[6] + tmp14 * n[7];
-		m.s[7] = tmp3 * n[4] + tmp7 * n[5] + tmp11 * n[6] + tmp15 * n[7];
-		m.s[8] = tmp0 * n[8] + tmp4 * n[9] + tmp8 * n[10] + tmp12 * n[11];
-		m.s[9] = tmp1 * n[8] + tmp5 * n[9] + tmp9 * n[10] + tmp13 * n[11];
-		m.s[10] = tmp2 * n[8] + tmp6 * n[9] + tmp10 * n[10] + tmp14 * n[11];
-		m.s[11] = tmp3 * n[8] + tmp7 * n[9] + tmp11 * n[10] + tmp15 * n[11];
-		m.s[12] = tmp0 * n[12] + tmp4 * n[13] + tmp8 * n[14] + tmp12 * n[15];
-		m.s[13] = tmp1 * n[12] + tmp5 * n[13] + tmp9 * n[14] + tmp13 * n[15];
-		m.s[14] = tmp2 * n[12] + tmp6 * n[13] + tmp10 * n[14] + tmp14 * n[15];
-		m.s[15] = tmp3 * n[12] + tmp7 * n[13] + tmp11 * n[14] + tmp15 * n[15];
+
+	inline Matrix4& Matrix4::operator*=(const Matrix4& rhs)
+	{
+		*this = *this * rhs;
 		return *this;
 	}
 
+
+
 	inline bool Matrix4::operator==(const Matrix4& n) const
 	{
-		return (m.s[0] == n[0]) && (m.s[1] == n[1]) && (m.s[2] == n[2]) && (m.s[3] == n[3]) &&
-				(m.s[4] == n[4]) && (m.s[5] == n[5]) && (m.s[6] == n[6]) && (m.s[7] == n[7]) &&
-				(m.s[8] == n[8]) && (m.s[9] == n[9]) && (m.s[10] == n[10]) && (m.s[11] == n[11]) &&
-				(m.s[12] == n[12]) && (m.s[13] == n[13]) && (m.s[14] == n[14]) && (m.s[15] == n[15]);
+		return (m[0] == n[0]) && (m[1] == n[1]) && (m[2] == n[2]) && (m[3] == n[3]) &&
+			(m[4] == n[4]) && (m[5] == n[5]) && (m[6] == n[6]) && (m[7] == n[7]) &&
+			(m[8] == n[8]) && (m[9] == n[9]) && (m[10] == n[10]) && (m[11] == n[11]) &&
+			(m[12] == n[12]) && (m[13] == n[13]) && (m[14] == n[14]) && (m[15] == n[15]);
 	}
+
+
 
 	inline bool Matrix4::operator!=(const Matrix4& n) const
 	{
-		return (m.s[0] != n[0]) || (m.s[1] != n[1]) || (m.s[2] != n[2]) || (m.s[3] != n[3]) ||
-				(m.s[4] != n[4]) || (m.s[5] != n[5]) || (m.s[6] != n[6]) || (m.s[7] != n[7]) ||
-				(m.s[8] != n[8]) || (m.s[9] != n[9]) || (m.s[10] != n[10]) || (m.s[11] != n[11]) ||
-				(m.s[12] != n[12]) || (m.s[13] != n[13]) || (m.s[14] != n[14]) || (m.s[15] != n[15]);
+		return (m[0] != n[0]) || (m[1] != n[1]) || (m[2] != n[2]) || (m[3] != n[3]) ||
+			(m[4] != n[4]) || (m[5] != n[5]) || (m[6] != n[6]) || (m[7] != n[7]) ||
+			(m[8] != n[8]) || (m[9] != n[9]) || (m[10] != n[10]) || (m[11] != n[11]) ||
+			(m[12] != n[12]) || (m[13] != n[13]) || (m[14] != n[14]) || (m[15] != n[15]);
 	}
+
+
+
+	inline float Matrix4::operator[](int index) const
+	{
+		return m[index];
+	}
+
+
+
+	inline float& Matrix4::operator[](int index)
+	{
+		return m[index];
+	}
+
+
 
 	inline Matrix4 operator-(const Matrix4& rhs)
 	{
 		return Matrix4(-rhs[0], -rhs[1], -rhs[2], -rhs[3], -rhs[4], -rhs[5], -rhs[6], -rhs[7], -rhs[8], -rhs[9], -rhs[10], -rhs[11], -rhs[12], -rhs[13], -rhs[14], -rhs[15]);
 	}
 
+
+
 	inline Matrix4 operator*(float s, const Matrix4& rhs)
 	{
 		return Matrix4(s*rhs[0], s*rhs[1], s*rhs[2], s*rhs[3], s*rhs[4], s*rhs[5], s*rhs[6], s*rhs[7], s*rhs[8], s*rhs[9], s*rhs[10], s*rhs[11], s*rhs[12], s*rhs[13], s*rhs[14], s*rhs[15]);
 	}
+
+
 
 	inline Vector4D operator*(const Vector4D& v, const Matrix4& m)
 	{
 		return Vector4D(v.x*m[0] + v.y*m[1] + v.z*m[2] + v.w*m[3], v.x*m[4] + v.y*m[5] + v.z*m[6] + v.w*m[7], v.x*m[8] + v.y*m[9] + v.z*m[10] + v.w*m[11], v.x*m[12] + v.y*m[13] + v.z*m[14] + v.w*m[15]);
 	}
 
+
+
 	inline Vector3D operator*(const Vector3D& v, const Matrix4& m)
 	{
 		return Vector3D(v.x*m[0] + v.y*m[1] + v.z*m[2], v.x*m[4] + v.y*m[5] + v.z*m[6], v.x*m[8] + v.y*m[9] + v.z*m[10]);
 	}
 
-	inline float Matrix4::operator[](int index) const
-	{
-		return m.s[index];
-	}
 
-	inline float& Matrix4::operator[](int index)
-	{
-		return m.s[index];
-	}
 
 	inline std::ostream& operator<<(std::ostream& os, const Matrix4& m)
 	{
@@ -801,6 +908,7 @@ namespace Liar
 		os << std::resetiosflags(std::ios_base::fixed | std::ios_base::floatfield);
 		return os;
 	}
-
+	// END OF MATRIX4 INLINE //////////////////////////////////////////////////////
 }
 
+#endif

@@ -168,5 +168,18 @@ namespace Liar
 			}
 		}
 
+		static bool Equal(float x, float y, float z, 
+						float cx, float cy, float cz,
+						float epsilon) 
+		{
+			return fabs(x - cx) < epsilon && fabs(y - cy) < epsilon && fabs(z - cz) < epsilon;
+		}
+
+		static bool Equal(Point3& p, float cx, float cy, float cz,
+			float epsilon)
+		{
+			return Equal(p.x, p.y, p.z, cx, cy, cz, epsilon);
+		}
+
 	};
 }
