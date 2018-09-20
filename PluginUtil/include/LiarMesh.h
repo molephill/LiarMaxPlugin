@@ -6,6 +6,7 @@
 #include <LiarStringUtil.h>
 #include <LiarMaterial.h>
 #include <LiarSkeleton.h>
+#include <LiarSkeletonAnim.h>
 #include "LiarVertexBuffer.h"
 
 #ifndef PLUGINS

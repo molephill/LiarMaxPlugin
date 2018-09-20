@@ -41,7 +41,7 @@ namespace Liar
 		Liar::LiarKeyFrame* GetKeyFrame(Liar::LiarVertexAttr, size_t);
 		int GetBoneId() const { return m_boneId; };
 		size_t GetNumFrames(Liar::LiarVertexAttr) const;
-
+		
 	private:
 		Liar::LiarKeyFrame* GetKeyFrame(std::vector<Liar::LiarKeyFrame*>*, int, bool add);
 		std::vector<Liar::LiarKeyFrame*>* GetKeyFrames(Liar::LiarVertexAttr) const;

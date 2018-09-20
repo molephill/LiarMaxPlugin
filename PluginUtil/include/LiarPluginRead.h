@@ -24,6 +24,12 @@ namespace Liar
 		static Liar::LiarMesh* ReadMesh(const char* path, const char* basePath=nullptr);
         static Liar::LiarMesh* ReadMesh(const std::string& path, const char* basePath = nullptr);
 
+		static Liar::LiarSkeleton* ReadSkeleton(const char*);
+		static Liar::LiarSkeleton* ReadSkeleton(const std::string& path);
+
+		static Liar::LiarSkeletonAnim* ReadAnim(const char*);
+		static Liar::LiarSkeletonAnim* ReadAnim(const std::string& path);
+
 	private:
 
 #ifndef PLUGINS
@@ -47,6 +53,8 @@ namespace Liar
 		static void ReadLiarMaterial(Liar::LiarMesh*, FILE*);
 
 		static Liar::LiarTexture* ReadLiarTexture(FILE*);
+
+		static void ReadLiarKeyFrames(Liar::LiarTrack*, Liar::LiarVertexAttr, FILE*);
 
 		static void ReadString(std::string&, FILE*);
 

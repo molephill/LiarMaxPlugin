@@ -21,15 +21,14 @@ namespace Liar
 	{
 		for (std::vector<Liar::LiarSkin*>::iterator it = m_skins->begin(); it != m_skins->end(); ++it)
 		{
-			if ((*it)->bonId == boneId)
+			if ((*it)->GetBoneId() == boneId)
 			{
 				return *it;
 			}
 		}
 
-		Liar::LiarSkin* skin = new Liar::LiarSkin();
-		skin->bonId = boneId;
-		skin->weight = weight;
+		Liar::LiarSkin* skin = new Liar::LiarSkin(boneId);
+		skin->SetWeight(weight);
 		m_skins->push_back(skin);
 		return skin;
 	}

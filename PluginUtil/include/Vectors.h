@@ -34,6 +34,7 @@ namespace Liar
 
 		// utils functions
 		void        Set(float x, float y);
+		void		Set(const Liar::Vector2D&);
 		float       Length() const;                         //
 		float       Distance(const Vector2D& vec) const;     // distance between two vectors
 		float       Distance(float, float) const;     // distance between two vectors
@@ -82,6 +83,7 @@ namespace Liar
 
 		// utils functions
 		void        Set(float x, float y, float z);
+		void        Set(const Liar::Vector3D&);
 		float       Length() const;                         //
 		float       Distance(const Vector3D& vec) const;     // distance between two vectors
 		float       Distance(float, float, float) const;     // distance between two vectors
@@ -134,6 +136,7 @@ namespace Liar
 
 		// utils functions
 		void        Set(float x, float y, float z, float w);
+		void		Set(const Liar::Vector4D&);
 		float       Length() const;                         //
 		float       Distance(const Vector4D& vec) const;     // distance between two vectors
 		float       Distance(float, float, float, float) const;     // distance between two vectors
@@ -255,6 +258,10 @@ namespace Liar
 		this->x = x; this->y = y;
 	}
 
+	inline void Vector2D::Set(const Liar::Vector2D& rhs) {
+		this->x = rhs.x; this->y = rhs.y;
+	}
+
 	inline float Vector2D::Length() const {
 		return sqrtf(x*x + y*y);
 	}
@@ -289,7 +296,7 @@ namespace Liar
 	}
 
 	inline bool Vector2D::Equal(const Vector2D& rhs, float epsilon) const {
-		return Equal(rhs.x, rhs.y);
+		return Equal(rhs.x, rhs.y, epsilon);
 	}
 
 	inline bool Vector2D::Equal(float cx, float cy, float epsilon) const {
@@ -386,6 +393,10 @@ namespace Liar
 		this->x = x; this->y = y; this->z = z;
 	}
 
+	inline void Vector3D::Set(const Liar::Vector3D& rhs) {
+		this->x = rhs.x; this->y = rhs.y; this->z = rhs.z;
+	}
+
 	inline float Vector3D::Length() const {
 		return sqrtf(x*x + y*y + z*z);
 	}
@@ -444,6 +455,7 @@ namespace Liar
 	inline bool Vector3D::Equal(float cx, float cy, float cz, float epsilon) const {
 		return fabs(x - cx) < epsilon && fabs(y - cy) < epsilon && fabs(z - cz) < epsilon;
 	}
+
 
 	inline Vector3D operator*(const float a, const Vector3D vec) {
 		return Vector3D(a*vec.x, a*vec.y, a*vec.z);
@@ -536,6 +548,10 @@ namespace Liar
 		this->x = x; this->y = y; this->z = z; this->w = w;
 	}
 
+	inline void Vector4D::Set(const Liar::Vector4D& rhs) {
+		this->x = rhs.x; this->y = rhs.y; this->z = rhs.z; this->w = rhs.w;
+	}
+
 	inline float Vector4D::Length() const {
 		return sqrtf(x*x + y*y + z*z + w*w);
 	}
@@ -579,6 +595,7 @@ namespace Liar
 		return fabs(x - cx) < epsilon && fabs(y - cy) < epsilon &&
 			fabs(z - cz) < epsilon && fabs(w - cw) < epsilon;
 	}
+
 
 	inline Vector4D operator*(const float a, const Vector4D vec) {
 		return Vector4D(a*vec.x, a*vec.y, a*vec.z, a*vec.w);

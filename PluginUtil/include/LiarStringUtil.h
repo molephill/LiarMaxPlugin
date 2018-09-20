@@ -1,8 +1,6 @@
 #pragma once
 #include <string>
 
-#include <PluginDefine.h>
-
 #ifdef PLUGINS
 #include <impexp.h>
 #include <iparamb2.h>

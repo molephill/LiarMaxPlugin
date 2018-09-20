@@ -43,6 +43,114 @@ namespace Liar
 	}
 #endif // !PLUGINS
 
+	// ======================= read skelenton =======================
+	Liar::LiarSkeleton* LiarPluginRead::ReadSkeleton(const std::string& path)
+	{
+		return Liar::LiarPluginRead::ReadSkeleton(path.c_str());
+	}
+
+	Liar::LiarSkeleton* LiarPluginRead::ReadSkeleton(const char* path)
+	{
+		FILE* pFile;
+#ifndef __APPLE__
+		fopen_s(&pFile, path, "rb+");
+#else
+		pFile = fopen(path, "rb+");
+#endif
+
+		if (!pFile) return nullptr;
+
+		Liar::LiarSkeleton* skeleton = new Liar::LiarSkeleton();
+
+		size_t boneSize = 0;
+		fread(&boneSize, sizeof(int), 1, pFile);
+
+		size_t p3Size = sizeof(Liar::Vector3D);
+
+		for (size_t i = 0; i < boneSize; ++i)
+		{
+			int id = 0;
+			int parentId = 0;
+			std::string name;
+			fread(&id, sizeof(int), 1, pFile);
+			fread(&parentId, sizeof(int), 1, pFile);
+			Liar::LiarPluginRead::ReadString(name, pFile);
+			Liar::LiarBone* bone = skeleton->GetBone(name, true);
+			bone->SetId(id);
+			bone->SetParentId(parentId);
+			bone->SetName(name);
+
+			Liar::Vector3D* pos = new Liar::Vector3D();
+			Liar::Vector3D* rot = new Liar::Vector3D();
+			Liar::Vector3D* sca = new Liar::Vector3D();
+			fread(pos, p3Size, 1, pFile);
+			fread(rot, p3Size, 1, pFile);
+			fread(sca, p3Size, 1, pFile);
+			bone->SetPositon(pos);
+			bone->SetPositon(rot);
+			bone->SetPositon(sca);
+		}
+
+		fclose(pFile);
+
+		return skeleton;
+	}
+
+	// ======================= read anim =======================
+	Liar::LiarSkeletonAnim* LiarPluginRead::ReadAnim(const std::string& path)
+	{
+		return Liar::LiarPluginRead::ReadAnim(path.c_str());
+	}
+
+	Liar::LiarSkeletonAnim* LiarPluginRead::ReadAnim(const char* path)
+	{
+		FILE* pFile;
+#ifndef __APPLE__
+		fopen_s(&pFile, path, "rb+");
+#else
+		pFile = fopen(path, "rb+");
+#endif
+
+		if (!pFile) return nullptr;
+
+		Liar::LiarSkeletonAnim* anim = new Liar::LiarSkeletonAnim();
+
+		size_t trackLen = 0;
+		fread(&trackLen, sizeof(int), 1, pFile);
+
+		size_t p3Size = sizeof(Liar::Vector3D);
+
+		for (size_t i = 0; i < trackLen; ++i)
+		{
+			int boneId = 0;
+			fread(&boneId, sizeof(int), 1, pFile);
+
+			Liar::LiarTrack* track = anim->GetTrack(boneId, true);
+			ReadLiarKeyFrames(track, Liar::LiarVertexAttr::LiarVertexAttr_TRANSFORM, pFile);
+			ReadLiarKeyFrames(track, Liar::LiarVertexAttr::LiarVertexAttr_ROTATION, pFile);
+			ReadLiarKeyFrames(track, Liar::LiarVertexAttr::LiarVertexAttr_SCALE, pFile);
+		}
+
+		fclose(pFile);
+
+		return anim;
+	}
+
+	void LiarPluginRead::ReadLiarKeyFrames(Liar::LiarTrack* track, Liar::LiarVertexAttr type, FILE* pFile)
+	{
+		size_t num = 0;
+		fread(&num, sizeof(int), 1, pFile);
+
+		size_t p3Size = sizeof(Liar::Vector3D);
+		for (size_t i = 0; i < num; ++i)
+		{
+			int time = 0;
+			fread(&time, sizeof(int), 1, pFile);
+			Liar::LiarKeyFrame* keyFrame = track->GetKeyFrame(type, time, true);
+			fread(keyFrame->GetKey(), p3Size, 1, pFile);
+		}
+	}
+
 	// ======================= read model ===========================
 
 	void LiarPluginRead::ReadNode(const char* path, Liar::LiarNode& node)
@@ -174,6 +282,30 @@ namespace Liar
 		geo->GetRawData()->SetNorm(LiarPluginRead::ReadLiarVecs(pFile));
 		geo->GetRawData()->SetTexCoord(LiarPluginRead::ReadLiarVecs(pFile));
 		geo->GetRawData()->SetColor(LiarPluginRead::ReadLiarVecs(pFile));
+
+		// read skin
+		size_t skinDefineLen = 0;
+		fread(&skinDefineLen, sizeof(int), 1, pFile);
+		for (int i = 0; i < skinDefineLen; ++i)
+		{
+			// read skinDefine
+			int vertIndex = 0;
+			fread(&vertIndex, sizeof(int), 1, pFile);
+
+			Liar::LiarAnimSkinDefine* skinDefine = geo->GetRawData()->GetAnimSkinDefine(vertIndex, true);
+			// read weight
+			size_t skinLen = 0;
+			fread(&skinLen, sizeof(int), 1, pFile);
+			for (int j = 0; j < skinLen; ++j)
+			{
+				// wirte skin
+				int boneId = 0;
+				float weight = 0;
+				fread(&boneId, sizeof(int), 1, pFile);
+				fread(&weight, sizeof(float), 1, pFile);
+				skinDefine->AddSkin(boneId, weight);
+			}
+		}
 	}
 
 	std::vector<Liar::Vector3D*>* LiarPluginRead::ReadLiarVecs(FILE* pFile)

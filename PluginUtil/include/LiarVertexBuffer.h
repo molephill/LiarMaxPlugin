@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Vectors.h"
 #include "LiarSkeleton.h"
 #include <vector>
 
@@ -57,9 +56,7 @@ namespace Liar
 		size_t GetSkinLen() const { return m_skins ? m_skins->size() : 0; };
 		std::vector<Liar::LiarSkin*>* GetSkins() { return m_skins; };
 
-		Liar::LiarSkin* GetSkin(int i) {
-			return m_skins ? m_skins->at(i) : nullptr;
-		}
+		Liar::LiarSkin* GetSkin(int i) { return m_skins ? m_skins->at(i) : nullptr; };
 
 		Liar::LiarSkin* AddSkin(int, float);
 	};

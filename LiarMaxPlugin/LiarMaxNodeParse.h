@@ -26,9 +26,9 @@ namespace Liar
 	private:
 		Liar::LiarNode* m_rootNode;
 		std::vector<Liar::LiarMesh*>* m_allMeshs;
-		std::vector<Liar::LiarBone*>* m_allBones;
 		std::vector<Liar::LiarMaterialNode*>* m_allMats;
 		Liar::LiarSkeletonAnim* m_anim;
+		Liar::LiarSkeleton* m_skeleton;
 
 	public:
 		int ParseRootNode(Liar::LiarPluginCfg*, bool);
@@ -37,10 +37,8 @@ namespace Liar
 		size_t GetMeshSize() const { return m_allMeshs->size(); };
 		Liar::LiarMesh* GetMesh(size_t index) { return m_allMeshs->at(index); };
 
-		size_t GetBoneSize() const { return m_allBones ? m_allBones->size() : 0; };
-		Liar::LiarBone* GetBone(size_t index) { return m_allBones ? m_allBones->at(index) : nullptr; };
-
 		Liar::LiarSkeletonAnim* GetAnim() { return m_anim; };
+		Liar::LiarSkeleton* GetSkeleton() { return m_skeleton; };
 
 	private:
 		void ParseGameNode(Liar::LiarPluginCfg*, IGameNode*, Liar::LiarNode*, int&);
@@ -54,8 +52,6 @@ namespace Liar
 		void ParseBones(Liar::LiarPluginCfg*, IGameNode*);
 		void ParseSkin(Liar::LiarPluginCfg*, IGameMesh*, Liar::LiarMesh*);
 		void ParseAnim(Liar::LiarPluginCfg*);
-
-		Liar::LiarBone* GetLiarBone(std::string&);
 	};
 
 }

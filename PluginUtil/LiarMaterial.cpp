@@ -1,5 +1,4 @@
 #include "LiarMaterial.h"
-#include <LiarStringUtil.h>
 
 #ifndef PLUGINS
 #include "LiarTextureHelper.h"
@@ -20,7 +19,7 @@ namespace Liar
 
 	LiarMaterialNode::~LiarMaterialNode()
 	{
-		for (std::vector<Liar::LiarTexture*>::iterator it = texs->begin() + index; it != texs->end();)
+		for (std::vector<Liar::LiarTexture*>::iterator it = texs->begin(); it != texs->end();)
 		{
 			delete *it;
 			it = texs->erase(it);

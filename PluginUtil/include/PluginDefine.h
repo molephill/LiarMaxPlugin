@@ -2,7 +2,7 @@
 namespace Liar
 {
 	// maxs version
-	//#define PLUGINS 2019
+	#define PLUGINS 2019
 
 	const float DEG2RAD = 3.141593f / 180.0f;
 	const float RAD2DEG = 180.0f / 3.141593f;
@@ -13,7 +13,7 @@ namespace Liar
 		LiarVertexType_POSITION = 0x0,
 		LiarVertexType_NORMAL = 0x1,
 		LiarVertexType_COLOR = 0x2,
-		LiarVertexType_TEX = 0x2
+		LiarVertexType_TEX = 0x3
 	};
 
 	enum LiarVertexAttr

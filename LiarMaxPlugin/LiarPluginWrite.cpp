@@ -124,20 +124,28 @@ namespace Liar
 
 	void LiarPluginWrite::WriteLiarSkelenton(Liar::LiarMaxNodeParse* parse, Liar::LiarPluginCfg* liarPlugin, const std::string& path)
 	{
-		if (!liarPlugin->exportModifier) return;
+		if (!liarPlugin->exportModifier || !parse->GetSkeleton() || parse->GetSkeleton()->GetBoneSize() <= 0) return;
 		
 		char fullName[MAX_PATH];
 		sprintf_s(fullName, "%s\\%s.skeleton", path.c_str(), liarPlugin->skeletonName.c_str());
 		FILE* hFile = fopen(fullName, "wb");
-		size_t boneLen = parse->GetBoneSize();
+		size_t boneLen = parse->GetSkeleton()->GetBoneSize();
 		// write bone size;
 		fwrite(&boneLen, sizeof(int), 1, hFile);
+
+		size_t p3Size = sizeof(Liar::Vector3D);
 		for (size_t i = 0; i < boneLen; ++i)
 		{
-			Liar::LiarBone* bone = parse->GetBone(i);
-			fwrite(&bone->id, sizeof(int), 1, hFile);
-			fwrite(&bone->parentId, sizeof(int), 1, hFile);
-			Liar::LiarPluginWrite::WriteString(bone->name, hFile);
+			// write all bone;
+			Liar::LiarBone* bone = parse->GetSkeleton()->GetBone(i);
+			int id = bone->GetId();
+			int parentId = bone->GetParentId();
+			fwrite(&id, sizeof(int), 1, hFile);
+			fwrite(&parentId, sizeof(int), 1, hFile);
+			Liar::LiarPluginWrite::WriteString(bone->GetName(), hFile);
+			fwrite(bone->GetPosition(), p3Size, 1, hFile);
+			fwrite(bone->GetRotation(), p3Size, 1, hFile);
+			fwrite(bone->GetScale(), p3Size, 1, hFile);
 		}
 		fclose(hFile);
 	}
@@ -146,7 +154,7 @@ namespace Liar
 	{
 		if (!liarPlugin->exportAnim) return;
 		Liar::LiarSkeletonAnim* anim = parse->GetAnim();
-		if (!anim) return;
+		if (!anim || anim->GetTrackLen() <= 0) return;
 
 		char fullName[MAX_PATH];
 		sprintf_s(fullName, "%s\\%s.anim", path.c_str(), liarPlugin->animName.c_str());
@@ -252,8 +260,10 @@ namespace Liar
 			{
 				// wirte skin
 				Liar::LiarSkin* skin = skinDefine->GetSkin(j);
-				fwrite(&(skin->bonId), sizeof(int), 1, hFile);
-				fwrite(&(skin->weight), sizeof(float), 1, hFile);
+				int boneId = skin->GetBoneId();
+				float weight = skin->GetWeight();
+				fwrite(&boneId, sizeof(int), 1, hFile);
+				fwrite(&weight, sizeof(float), 1, hFile);
 			}
 		}
 	}

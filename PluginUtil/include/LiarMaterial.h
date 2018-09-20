@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 
-#include <PluginDefine.h>
 #include <LiarVertexBuffer.h>
 #include <LiarStringUtil.h>
 
