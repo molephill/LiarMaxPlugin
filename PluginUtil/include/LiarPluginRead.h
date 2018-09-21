@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PluginDefine.h"
+#include <AssetsMgr.hpp>
 
 #ifndef PLUGINS
 #include "Model.h"

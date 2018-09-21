@@ -14,23 +14,30 @@
 
 namespace Liar
 {
-	// ====================  纹理内容 ================
-	class LiarTexContext
+	// ====================  纹理 ================
+
+	class LiarTexture
 	{
 	public:
-		LiarTexContext();
-		~LiarTexContext();
+		LiarTexture();
+		~LiarTexture();
 
 	private:
+		int m_textureType;
 		std::string m_path;
 
 	public:
-		std::string& GetPath() { return m_path; };
-
 		void SetPath(const char* v) { m_path = v; };
 		void SetPath(const std::string& v) { m_path = v; };
 
+		std::string& GetPath() { return m_path; };
+
+		void SetType(int v) { m_textureType = v; };
+		int GetType() const { return m_textureType; };
+
 #ifndef PLUGINS
+		void Render(Liar::Shader&, size_t);
+
 	private:
 		unsigned int m_refCount;
 		unsigned int m_textureId;
@@ -43,32 +50,6 @@ namespace Liar
 
 		void AddRef() { ++m_refCount; };
 		unsigned int SubRef() { return --m_refCount; };
-#endif // !PLUGINS
-	};
-	// ====================  纹理内容 ================
-
-	// ====================  纹理 ================
-
-	class LiarTexture
-	{
-	public:
-		LiarTexture(bool init = false);
-		~LiarTexture();
-
-	private:
-		Liar::LiarTexContext* m_texContext;
-		int m_textureType;
-
-	public:
-		Liar::LiarTexContext* GetTexContext() { return m_texContext; };
-		void SetPath(const char*);
-		void SetPath(const std::string&);
-
-		void SetType(int v) { m_textureType = v; };
-		int GetType() const { return m_textureType; };
-
-#ifndef PLUGINS
-		void Render(Liar::Shader&, size_t);
 #endif // ! PLUGINS
 
 	};
@@ -85,6 +66,11 @@ namespace Liar
 		std::vector<Liar::LiarTexture*>* m_allTextures;
 		std::string m_type;
 
+		Liar::Vector3D* m_ambient;
+		Liar::Vector3D* m_diffuse;
+		Liar::Vector3D* m_specular;
+		float m_shineness;
+
 	public:
 		void EraseIndex(int);
 
@@ -95,41 +81,18 @@ namespace Liar
 
 		std::string& GetType() { return m_type; };
 
+		Liar::Vector3D* GetAmbient() { return m_ambient; };
+		Liar::Vector3D* GetDiffuse() { return m_diffuse; };
+		Liar::Vector3D* GetSpecular() { return m_specular; };
+
+		float GetShineness() const { return m_shineness; };
+
 #ifdef PLUGINS
 	public:
 		std::string name;
 #else
 	public:
 		void Render(Liar::Shader&);
-#endif // PLUGINS
-
-	};
-
-	// ==================== 材质内容 =================
-	class LiarMaterialNode
-	{
-	public:
-		LiarMaterialNode();
-		~LiarMaterialNode();
-
-	public:
-		std::string name;
-		std::string type;
-		std::vector<Liar::LiarTexture*>* texs;
-		int index;
-
-#ifdef PLUGINS
-		IGameMaterial* node;
-
-		bool operator==(const Liar::LiarMaterialNode& rhs) const
-		{
-			return rhs.node == node;
-		}
-
-		bool Equal(const Liar::LiarMaterialNode& rhs)
-		{
-			return rhs.node == node;
-		}
 #endif // PLUGINS
 
 	};

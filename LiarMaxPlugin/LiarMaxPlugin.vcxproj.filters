@@ -63,6 +63,9 @@
     <ClCompile Include="..\PluginUtil\LiarSkeletonAnim.cpp">
       <Filter>Source Files\Includes</Filter>
     </ClCompile>
+    <ClCompile Include="..\PluginUtil\AssetsMgr.cpp">
+      <Filter>Source Files\Includes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="LiarMaxPlugin.def">
@@ -125,6 +128,9 @@
       <Filter>Header Files\Includes</Filter>
     </ClInclude>
     <ClInclude Include="..\PluginUtil\include\LiarSkeletonAnim.h">
+      <Filter>Header Files\Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PluginUtil\include\AssetsMgr.hpp">
       <Filter>Header Files\Includes</Filter>
     </ClInclude>
   </ItemGroup>

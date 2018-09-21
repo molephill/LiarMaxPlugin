@@ -118,8 +118,6 @@ namespace Liar
 		size_t trackLen = 0;
 		fread(&trackLen, sizeof(int), 1, pFile);
 
-		size_t p3Size = sizeof(Liar::Vector3D);
-
 		for (size_t i = 0; i < trackLen; ++i)
 		{
 			int boneId = 0;
@@ -348,6 +346,8 @@ namespace Liar
 
 	void LiarPluginRead::ReadLiarMaterial(Liar::LiarMesh* mesh, FILE* pFile)
 	{
+		size_t p3Size = sizeof(Liar::Vector3D);
+
 		size_t matSize = 0;
 		// read matSize
 		fread(&matSize, sizeof(int), 1, pFile);
@@ -358,6 +358,11 @@ namespace Liar
 
 			// write matType
 			ReadString(mat->GetType(), pFile);
+
+			// read diffuse/specular/abmient;
+			fread(mat->GetAmbient(), p3Size, 1, pFile);
+			fread(mat->GetSpecular(), p3Size, 1, pFile);
+			fread(mat->GetDiffuse(), p3Size, 1, pFile);
 
 			int texSize = 0;
 			// read texSize;
@@ -373,20 +378,18 @@ namespace Liar
 
 	Liar::LiarTexture* LiarPluginRead::ReadLiarTexture(FILE* pFile)
 	{
-		Liar::LiarTexture* tex = new Liar::LiarTexture();
-
 		// read name
 		//fread(&(tex->GetName()), sizeof(std::string), 1, pFile);
 		std::string baseName;
 		ReadString(baseName, pFile);
-		baseName = basePath + baseName;
+		std::string path = basePath + baseName;
 
 		// read type
 		int type = 0;
 		fread(&type, sizeof(int), 1, pFile);
-		tex->SetType(type);
 
-		// set name
+		Liar::LiarTexture* tex = AssetsMgr::GetInstance().GetTexture(path);
+		tex->SetType(type);
 		tex->SetPath(baseName);
 
 		return tex;

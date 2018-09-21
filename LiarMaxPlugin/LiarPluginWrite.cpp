@@ -302,12 +302,18 @@ namespace Liar
 		// write matSize
 		fwrite(&matSize, sizeof(int), 1, hFile);
 
+		size_t p3Size = sizeof(Liar::Vector3D);
 		for (size_t i = 0; i < matSize; ++i)
 		{
 			Liar::LiarMaterial* mat = mesh->GetMat(i);
 
 			// write matType
 			WriteString(mat->GetType(), hFile);
+
+			// write diffuse/specular/abmient;
+			fwrite(mat->GetAmbient(), p3Size, 1, hFile);
+			fwrite(mat->GetSpecular(), p3Size, 1, hFile);
+			fwrite(mat->GetDiffuse(), p3Size, 1, hFile);
 
 			// write texSize;
 			size_t texSize = mat->GetTexSize();
@@ -323,7 +329,7 @@ namespace Liar
 	void LiarPluginWrite::WriteLiarTexture(Liar::LiarTexture* tex, FILE* hFile)
 	{
 		// wirte name
-		std::string& texName = tex->GetTexContext()->GetPath();
+		std::string& texName = tex->GetPath();
 		WriteString(texName, hFile);
 
 		// write type

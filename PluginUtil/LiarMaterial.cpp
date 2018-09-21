@@ -8,46 +8,22 @@
 namespace Liar
 {
 
-	// ==================== material node =================
-	LiarMaterialNode::LiarMaterialNode():
-		name(""), type(""), index(0), texs(new std::vector<Liar::LiarTexture*>())
-	{
-#ifdef PLUGINS
-		node = nullptr;
-#endif // PLUGINS
-	}
+	// ====================  纹理 ================
 
-	LiarMaterialNode::~LiarMaterialNode()
+	LiarTexture::LiarTexture(): 
+		m_textureType(0),
+		m_path("")
 	{
-		for (std::vector<Liar::LiarTexture*>::iterator it = texs->begin(); it != texs->end();)
-		{
-			delete *it;
-			it = texs->erase(it);
-		}
-		std::vector<Liar::LiarTexture*>().swap(*texs);
-		delete texs;
-
-#ifdef PLUGINS
-		node = nullptr;
-#endif // PLUGINS
 	}
 
 
-	// ====================  texture_content ================
-	LiarTexContext::LiarTexContext() :m_path("")
-	{
-#ifndef PLUGINS
-		m_textureId = 0;
-#endif // !PLUGINS
-
-	}
-
-	LiarTexContext::~LiarTexContext()
+	LiarTexture::~LiarTexture()
 	{
 	}
 
 #ifndef PLUGINS
-	void LiarTexContext::Upload(const char* fileName)
+
+	void LiarTexture::Upload(const char* fileName)
 	{
 		m_path = fileName;
 		std::string ext = Liar::StringUtil::GetLast(m_path, ".");
@@ -79,51 +55,20 @@ namespace Liar
 		}
 	}
 
-	void LiarTexContext::Upload(const std::string& fileName)
+	void LiarTexture::Upload(const std::string& fileName)
 	{
 		Upload(fileName.data());
 	}
-#endif // !PLUGINS
 
-
-	// ====================  纹理内容 ================
-
-	// ====================  纹理 ================
-
-	LiarTexture::LiarTexture(bool init): m_textureType(0)
-	{
-		if (init) m_texContext = new Liar::LiarTexContext();
-	}
-
-
-	LiarTexture::~LiarTexture()
-	{
-		if(m_texContext) delete m_texContext;
-	}
-
-	void LiarTexture::SetPath(const char* path)
-	{
-#ifndef PLUGINS
-		m_texContext = AssetsMgr::GetInstance().GetTexContext(path);
-#endif // !PLUGINS
-
-	}
-
-	void LiarTexture::SetPath(const std::string& path)
-	{
-		SetPath(path.data());
-	}
-
-#ifndef PLUGINS
 	void LiarTexture::Render(Liar::Shader& shader, size_t texNum)
 	{
-		if (!m_texContext) return;
+		if (m_textureId <= 0) return;
         int index = static_cast<int>(texNum);
 		std::string name = "texture";
 		name = name + std::to_string(index);
 		shader.SetInt(name, index);
 		glActiveTexture(GL_TEXTURE0 + index);
-		glBindTexture(GL_TEXTURE_2D, m_texContext->GetTextureId());
+		glBindTexture(GL_TEXTURE_2D, m_textureId);
 	}
 
 #endif // !PLUGINS
@@ -131,7 +76,10 @@ namespace Liar
 
 	// ====================  纹理 ================
 
-	LiarMaterial::LiarMaterial():m_type("")
+	LiarMaterial::LiarMaterial():
+		m_type(""),
+		m_ambient(new Liar::Vector3D()), m_diffuse(new Liar::Vector3D()), m_specular(new Liar::Vector3D()),
+		m_shineness(0.0f)
 	{
 		m_allTextures = new std::vector<Liar::LiarTexture*>();
 	}

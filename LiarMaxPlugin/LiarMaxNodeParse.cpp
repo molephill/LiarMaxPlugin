@@ -12,7 +12,6 @@ namespace Liar
 		, m_skeleton(nullptr)
 	{
 		m_allMeshs = new std::vector<Liar::LiarMesh*>();
-		m_allMats = new std::vector<Liar::LiarMaterialNode*>();
 	}
 
 
@@ -27,68 +26,8 @@ namespace Liar
 		delete m_allMeshs;
 		m_allMeshs = nullptr;
 
-		for (std::vector<Liar::LiarMaterialNode*>::iterator it = m_allMats->begin(); it < m_allMats->end();)
-		{
-			delete *it;
-			it = m_allMats->erase(it);
-		}
-		std::vector<Liar::LiarMaterialNode*>().swap(*m_allMats);
-		delete m_allMats;
-		m_allMats = nullptr;
-
 		if (m_anim) delete m_anim;
 		if (m_skeleton) delete m_skeleton;
-	}
-
-	void LiarMaxNodeParse::ParseMatNodes(IGameScene* tmpGameScene)
-	{
-		int matCount = tmpGameScene->GetRootMaterialCount();
-		for (int i = 0; i < matCount; ++i)
-		{
-			IGameMaterial* tmpGameMaterial = tmpGameScene->GetRootMaterial(i);
-			if (tmpGameMaterial)
-			{
-				Liar::LiarMaterialNode* liarNode = new Liar::LiarMaterialNode();
-				liarNode->node = tmpGameMaterial;
-				liarNode->index = i;
-				m_allMats->push_back(liarNode);
-
-				Liar::StringUtil::GetWSTR2Char(tmpGameMaterial->GetMaterialName(), liarNode->name);
-				Liar::StringUtil::GetWSTR2Char(tmpGameMaterial->GetMaterialClass(), liarNode->type);
-
-				size_t tmpNumberOfTextureMaps = tmpGameMaterial->GetNumberOfTextureMaps();		//how many texture of the material
-				for (int tmpTextureMapIndex = 0; tmpTextureMapIndex < tmpNumberOfTextureMaps; tmpTextureMapIndex++)
-				{
-					IGameTextureMap* tmpGameTextureMap = tmpGameMaterial->GetIGameTextureMap(tmpTextureMapIndex);
-					if (tmpGameTextureMap != NULL)
-					{
-						std::string texCls;
-						Liar::StringUtil::GetTChar2Char(tmpGameTextureMap->GetTextureClass(), texCls);
-						Liar::StringUtil::StringToUpper(texCls);
-						if (strcmp(texCls.c_str(), "BITMAP") == 0)
-						{
-							//文件路径
-							std::string tmpBitmapPath("");
-							Liar::StringUtil::GetTChar2Char(tmpGameTextureMap->GetBitmapFileName(), tmpBitmapPath);
-
-							if (tmpBitmapPath != "")
-							{
-								Liar::LiarTexture* liarTex = new Liar::LiarTexture(true);
-								liarNode->texs->push_back(liarTex);
-
-								//文件名
-								tmpBitmapPath = Liar::StringUtil::GetLast(tmpBitmapPath);
-								liarTex->GetTexContext()->SetPath(tmpBitmapPath);
-
-								// 获取类型
-								int mapSlot = tmpGameTextureMap->GetStdMapSlot();
-								liarTex->SetType(mapSlot);
-							}
-						}
-					}
-				}
-			}
-		}
 	}
 
 	int LiarMaxNodeParse::ParseRootNode(Liar::LiarPluginCfg* ctr, bool tmpSelected)
@@ -104,8 +43,6 @@ namespace Liar
 			tmpGameScene->ReleaseIGame();
 			return FALSE;
 		}
-
-		ParseMatNodes(tmpGameScene);
 
 		m_rootNode = new Liar::LiarNode();
 		m_rootNode->SetNodeName("root");
@@ -350,10 +287,20 @@ namespace Liar
 
 		delete tmp;
 
+		Point3 maxPoint3;
+
 		for (std::vector<IGameMaterial*>::iterator it = materials.begin(); it != materials.end(); ++it)
 		{
 			IGameMaterial* tmpGameMaterial = *it;
 			Liar::LiarMaterial* liarMaterial = new Liar::LiarMaterial();
+
+			tmpGameMaterial->GetAmbientData()->GetPropertyValue(maxPoint3, 0);
+			Liar::LiarStructUtil::ParsePoint3(liarMaterial->GetAmbient(), maxPoint3);
+			tmpGameMaterial->GetDiffuseData()->GetPropertyValue(maxPoint3, 0);
+			Liar::LiarStructUtil::ParsePoint3(liarMaterial->GetDiffuse(), maxPoint3);
+			tmpGameMaterial->GetSpecularData()->GetPropertyValue(maxPoint3, 0);
+			Liar::LiarStructUtil::ParsePoint3(liarMaterial->GetSpecular(), maxPoint3);
+
 			Liar::StringUtil::GetWSTR2Char(tmpGameMaterial->GetMaterialClass(), liarMaterial->GetType());
 			liarMesh->GetMatrials()->push_back(liarMaterial);
 			Liar::StringUtil::GetWSTR2Char(tmpGameMaterial->GetMaterialName(), liarMaterial->name);
@@ -374,12 +321,12 @@ namespace Liar
 
 						if (tmpBitmapPath != "")
 						{
-							Liar::LiarTexture* liarTex = new Liar::LiarTexture(true);
+							Liar::LiarTexture* liarTex = new Liar::LiarTexture();
 							liarMaterial->GetTextures()->push_back(liarTex);
 
 							//文件名
 							tmpBitmapPath = Liar::StringUtil::GetLast(tmpBitmapPath);
-							liarTex->GetTexContext()->SetPath(tmpBitmapPath);
+							liarTex->SetPath(tmpBitmapPath);
 
 							// 获取类型
 							int mapSlot = tmpGameTextureMap->GetStdMapSlot();

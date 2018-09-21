@@ -48,6 +48,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\PluginUtil\AssetsMgr.cpp" />
     <ClCompile Include="..\PluginUtil\LiarMaterial.cpp" />
     <ClCompile Include="..\PluginUtil\LiarMesh.cpp" />
     <ClCompile Include="..\PluginUtil\LiarPluginCfg.cpp" />
@@ -67,6 +68,7 @@
     <None Include="LiarMaxPlugin.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\PluginUtil\include\AssetsMgr.hpp" />
     <ClInclude Include="..\PluginUtil\include\LiarMaterial.h" />
     <ClInclude Include="..\PluginUtil\include\LiarMesh.h" />
     <ClInclude Include="..\PluginUtil\include\LiarPluginCfg.h" />
