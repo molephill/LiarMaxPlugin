@@ -90,7 +90,7 @@ namespace Liar
 #endif // PLUGINS
 
 	private:
-		std::vector<Liar::LiarTexture*>* m_allTexContexts;
+		std::vector<Liar::LiarTexture*>* m_allTextures;
 		std::vector<Liar::LiarMesh*>* m_allMeshes;
     };
 
