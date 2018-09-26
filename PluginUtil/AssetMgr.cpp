@@ -10,7 +10,10 @@
 
 namespace Liar
 {
-	AssetsMgr::AssetsMgr() :m_allTextures(nullptr), m_allMeshes(nullptr)
+	AssetsMgr::AssetsMgr() :
+		m_allTextures(new std::vector<Liar::LiarTexture*>()), 
+		m_allMeshes(new std::vector<Liar::LiarMesh*>()), 
+		m_allShaders(new std::vector<Liar::LiarBaseShader*>())
 	{
 	}
 
@@ -20,7 +23,6 @@ namespace Liar
 
 	Liar::LiarMesh* AssetsMgr::GetMesh(const char* fileName, const char* base)
 	{
-		if (!m_allMeshes) m_allMeshes = new std::vector<Liar::LiarMesh*>();
 		size_t len = m_allMeshes->size();
 		Liar::LiarMesh* ret = nullptr;
 		for (size_t i = 0; i < len; i++)
@@ -56,7 +58,6 @@ namespace Liar
 
 	Liar::LiarTexture* AssetsMgr::GetTexture(const char* fileName)
 	{
-		if (!m_allTextures) m_allTextures = new std::vector<Liar::LiarTexture*>();
 		size_t len = m_allTextures->size();
 		Liar::LiarTexture* ret = nullptr;
 		for (size_t i = 0; i < len; ++i)
@@ -88,6 +89,33 @@ namespace Liar
 	Liar::LiarTexture* AssetsMgr::GetTexture(const std::string& fileName)
 	{
 		return GetTexture(fileName.data());
+	}
+
+	Liar::LiarBaseShader* AssetsMgr::GetBaseShader(const char* fileName)
+	{
+		Liar::LiarBaseShader* ret = nullptr;
+		for (std::vector<Liar::LiarBaseShader*>::iterator it = m_allShaders->begin(); it < m_allShaders->end(); ++it)
+		{
+			if (std::strcmp(fileName, (*it)->GetPath().data()) == 0)
+			{
+				ret = *it;
+				break;
+			}
+		}
+
+		if (!ret)
+		{
+			ret = new Liar::LiarBaseShader();
+			ret->IncRefCount();
+			ret->SetPath(fileName);
+			m_allShaders->push_back(ret);
+		}
+		return ret;
+	}
+
+	Liar::LiarBaseShader* AssetsMgr::GetBaseShader(const std::string& fileName)
+	{
+		return GetBaseShader(fileName.c_str());
 	}
 
 	std::string AssetsMgr::GetPath(const char* base)

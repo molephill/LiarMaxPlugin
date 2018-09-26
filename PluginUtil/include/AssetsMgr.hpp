@@ -21,6 +21,7 @@
 #include <LiarMesh.h>
 #include <LiarMaterial.h>
 #include <LiarPluginRead.h>
+#include <LiarShader.h>
 
 namespace Liar
 {
@@ -82,6 +83,9 @@ namespace Liar
 
 		Liar::LiarTexture* GetTexture(const char*);
 		Liar::LiarTexture* GetTexture(const std::string&);
+
+		Liar::LiarBaseShader* GetBaseShader(const char*);
+		Liar::LiarBaseShader* GetBaseShader(const std::string&);
         
         static std::string GetPath(const char*);
 
@@ -92,6 +96,7 @@ namespace Liar
 	private:
 		std::vector<Liar::LiarTexture*>* m_allTextures;
 		std::vector<Liar::LiarMesh*>* m_allMeshes;
+		std::vector<Liar::LiarBaseShader*>* m_allShaders;
     };
 
 	

@@ -60,7 +60,7 @@ namespace Liar
 		Upload(fileName.data());
 	}
 
-	void LiarTexture::Render(Liar::Shader& shader, size_t texNum)
+	void LiarTexture::Render(Liar::LiarShaderProgram& shader, size_t texNum)
 	{
 		if (m_textureId <= 0) return;
         int index = static_cast<int>(texNum);
@@ -102,7 +102,7 @@ namespace Liar
 	}
 
 #ifndef PLUGINS
-	void LiarMaterial::Render(Liar::Shader& shader)
+	void LiarMaterial::Render(Liar::LiarShaderProgram& shader)
 	{
 		for (size_t i = 0; i < m_allTextures->size(); ++i)
 		{

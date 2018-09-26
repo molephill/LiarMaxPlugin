@@ -284,7 +284,7 @@ namespace Liar
 		// read skin
 		size_t skinDefineLen = 0;
 		fread(&skinDefineLen, sizeof(int), 1, pFile);
-		for (int i = 0; i < skinDefineLen; ++i)
+		for (size_t i = 0; i < skinDefineLen; ++i)
 		{
 			// read skinDefine
 			int vertIndex = 0;
@@ -294,7 +294,7 @@ namespace Liar
 			// read weight
 			size_t skinLen = 0;
 			fread(&skinLen, sizeof(int), 1, pFile);
-			for (int j = 0; j < skinLen; ++j)
+			for (size_t j = 0; j < skinLen; ++j)
 			{
 				// wirte skin
 				int boneId = 0;

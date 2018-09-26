@@ -10,7 +10,6 @@
 #include "LiarVertexBuffer.h"
 
 #ifndef PLUGINS
-#include "Shader.hpp"
 #include "Camera3D.h"
 #endif // !PLUGINS
 
@@ -121,7 +120,7 @@ namespace Liar
 #else
 	public:
 		void Upload();
-		void Render(Liar::Shader&);
+		void Render(Liar::LiarShaderProgram&);
 
 	private:
 		unsigned int m_refCount;

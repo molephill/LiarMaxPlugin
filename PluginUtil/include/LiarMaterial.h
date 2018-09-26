@@ -7,7 +7,7 @@
 #include <LiarStringUtil.h>
 
 #ifndef PLUGINS
-#include "Shader.hpp"
+#include <LiarShader.h>
 #else
 #include <IGame.h>
 #endif // !PLUGINS
@@ -36,7 +36,7 @@ namespace Liar
 		int GetType() const { return m_textureType; };
 
 #ifndef PLUGINS
-		void Render(Liar::Shader&, size_t);
+		void Render(Liar::LiarShaderProgram&, size_t);
 
 	private:
 		unsigned int m_refCount;
@@ -92,7 +92,7 @@ namespace Liar
 		std::string name;
 #else
 	public:
-		void Render(Liar::Shader&);
+		void Render(Liar::LiarShaderProgram&);
 #endif // PLUGINS
 
 	};

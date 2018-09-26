@@ -265,7 +265,7 @@ namespace Liar
 	}
 
 
-	void LiarMesh::Render(Liar::Shader& shader)
+	void LiarMesh::Render(Liar::LiarShaderProgram& shader)
 	{
 		for (size_t i = 0; i < m_materials->size(); ++i)
 		{
