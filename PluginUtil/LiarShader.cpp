@@ -3,7 +3,9 @@
 
 namespace Liar
 {
-	LiarBaseShader::LiarBaseShader() :m_path(""), m_refCount(0), m_shaderCode("")
+	LiarBaseShader::LiarBaseShader() :
+		Liar::ILiarRef(),
+		m_path(""), m_shaderCode("")
 	{
 
 	}
@@ -44,7 +46,9 @@ namespace Liar
 		SetPath(path.c_str());
 	}
 
-	LiarShaderProgram::LiarShaderProgram()
+	LiarShaderProgram::LiarShaderProgram():
+		Liar::ILiarRef(),
+		m_ID(0),m_name("")
 	{
 
 	}
@@ -54,19 +58,22 @@ namespace Liar
 
 	}
 
-	void LiarShaderProgram::LinkProgrom(const std::string& vertexFile, const std::string& fragmentFile)
+	void LiarShaderProgram::LinkProgram(const std::string& vertexFile, const std::string& fragmentFile)
 	{
-		LinkProgrom(vertexFile.c_str(), fragmentFile.c_str());
+		LinkProgram(vertexFile.c_str(), fragmentFile.c_str());
 	}
 
-	void LiarShaderProgram::LinkProgrom(const char* vertexFile, const char* fragmentFile)
+	void LiarShaderProgram::LinkProgram(const char* vertexFile, const char* fragmentFile)
 	{
+#ifndef PLUGINS
 		Liar::LiarBaseShader* vertex = AssetsMgr::GetInstance().GetBaseShader(vertexFile);
 		Liar::LiarBaseShader* fragment = AssetsMgr::GetInstance().GetBaseShader(fragmentFile);
-		LinkProgrom(*vertex, *fragment);
+		LinkProgram(*vertex, *fragment);
+#endif // !PLUGINS
 	}
 
-	void LiarShaderProgram::LinkProgrom(const Liar::LiarBaseShader& vertexShader, const Liar::LiarBaseShader& fragmentShader)
+#ifndef PLUGINS
+	void LiarShaderProgram::LinkProgram(const Liar::LiarBaseShader& vertexShader, const Liar::LiarBaseShader& fragmentShader)
 	{
 		const char* vShaderCode = vertexShader.GetShaderCode();
 		const char * fShaderCode = fragmentShader.GetShaderCode();
@@ -96,6 +103,7 @@ namespace Liar
 		glDeleteShader(vertex);
 		glDeleteShader(fragment);
 	}
+#endif // PLUGINS
 
 	// ¼ì²â±¨´í
 	void LiarShaderProgram::CheckCompileErrors(unsigned int shader, LiarShaderType type)
@@ -124,6 +132,7 @@ namespace Liar
 #endif
 	}
 
+#ifndef PLUGINS
 	void LiarShaderProgram::Use()
 	{
 		glUseProgram(m_ID);
@@ -195,4 +204,6 @@ namespace Liar
 	{
 		glUniformMatrix4fv(glGetUniformLocation(m_ID, name.c_str()), 1, GL_FALSE, m.Get());
 	}
+#endif // !PLUGINS
+
 }

@@ -1,12 +1,17 @@
-﻿  AssetsMgr.cpp
+﻿  AssetMgr.cpp
   LiarMaterial.cpp
   LiarMesh.cpp
   LiarPluginCfg.cpp
   LiarPluginRead.cpp
+  LiarShader.cpp
   LiarSkeleton.cpp
   LiarSkeletonAnim.cpp
   LiarVertexBuffer.cpp
   Matrices.cpp
+e:\c++\liarmaxplugin\pluginutil\liarshader.cpp(66): warning C4100: “fragmentFile”: 未引用的形参
+e:\c++\liarmaxplugin\pluginutil\liarshader.cpp(66): warning C4100: “vertexFile”: 未引用的形参
+e:\c++\liarmaxplugin\pluginutil\liarshader.cpp(109): warning C4100: “type”: 未引用的形参
+e:\c++\liarmaxplugin\pluginutil\liarshader.cpp(109): warning C4100: “shader”: 未引用的形参
   Quaternion.cpp
   LiarMaxDialogMgr.cpp
   LiarMaxNodeParse.cpp

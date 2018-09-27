@@ -11,6 +11,7 @@
 
 #ifndef PLUGINS
 #include "Camera3D.h"
+#include <ILiarRef.h>
 #endif // !PLUGINS
 
 
@@ -91,7 +92,11 @@ namespace Liar
 #endif
 	};
 
+#ifdef PLUGINS
 	class LiarMesh
+#else
+	class LiarMesh:public ILiarRef
+#endif // PLUGINS
 	{
 	public:
 		LiarMesh();
@@ -121,13 +126,6 @@ namespace Liar
 	public:
 		void Upload();
 		void Render(Liar::LiarShaderProgram&);
-
-	private:
-		unsigned int m_refCount;
-
-	public:
-		void AddRef() { ++m_refCount; };
-		unsigned int SubRef() { return --m_refCount; };
 #endif // !PLUGINS
 
 	};

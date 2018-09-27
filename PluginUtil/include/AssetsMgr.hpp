@@ -86,6 +86,13 @@ namespace Liar
 
 		Liar::LiarBaseShader* GetBaseShader(const char*);
 		Liar::LiarBaseShader* GetBaseShader(const std::string&);
+
+		Liar::LiarShaderProgram* GetShaderProgrom(const char*, const char*, const char*);
+		Liar::LiarShaderProgram* GetShaderProgrom(const std::string&, const std::string&, const std::string&);
+
+		void ReleaseShaderProgram(Liar::LiarShaderProgram*);
+		void ReleaseShaderProgram(const char*);
+		void ReleaseShaderProgram(const std::string&);
         
         static std::string GetPath(const char*);
 
@@ -97,6 +104,7 @@ namespace Liar
 		std::vector<Liar::LiarTexture*>* m_allTextures;
 		std::vector<Liar::LiarMesh*>* m_allMeshes;
 		std::vector<Liar::LiarBaseShader*>* m_allShaders;
+		std::vector<Liar::LiarShaderProgram*>* m_allPrograms;
     };
 
 	

@@ -8,6 +8,8 @@
 #include <Matrices.h>
 #include <Vectors.h>
 
+#include <ILiarRef.h>
+
 namespace Liar
 {
 	enum LiarShaderType
@@ -17,7 +19,7 @@ namespace Liar
 		SHADER_TYPE_PROGROM = 2,
 	};
 
-	class LiarBaseShader
+	class LiarBaseShader:public ILiarRef
 	{
 	public:
 		LiarBaseShader();
@@ -25,7 +27,6 @@ namespace Liar
 
 	private:
 		std::string m_path;
-		int m_refCount;
 		std::string m_shaderCode;
 
 	public:
@@ -34,12 +35,9 @@ namespace Liar
 		void SetPath(const std::string&);
 
 		const char* GetShaderCode() const { return m_shaderCode.c_str(); };
-
-		int IncRefCount() { return ++m_refCount; };
-		int DesRefCount() { return --m_refCount; };
 	};
 
-	class LiarShaderProgram
+	class LiarShaderProgram:public ILiarRef
 	{
 	public:
 		LiarShaderProgram();
@@ -47,14 +45,22 @@ namespace Liar
 
 	private:
 		unsigned int m_ID;
+		std::string m_name;
 
 	public:
-		void LinkProgrom(const char*, const char*);
-		void LinkProgrom(const std::string&, const std::string&);
-		void LinkProgrom(const Liar::LiarBaseShader&, const Liar::LiarBaseShader&);
+		void LinkProgram(const char*, const char*);
+		void LinkProgram(const std::string&, const std::string&);
+#ifndef PLUGINS
+		void LinkProgram(const Liar::LiarBaseShader&, const Liar::LiarBaseShader&);
+#endif // PLUGINS
 
-		void Use();
+		void SetName(std::string& name) { m_name = name; };
+		void SetName(const char* name) { m_name = name; };
+		std::string GetName() { return m_name; };
 		unsigned int GetID() { return m_ID; };
+
+#ifndef PLUGINS
+		void Use();
 		// ------------------------------------------------------------------------
 		void SetBool(const std::string&, bool value) const;
 		// ------------------------------------------------------------------------
@@ -76,6 +82,7 @@ namespace Liar
 		void SetMat3(const std::string&, const Liar::Matrix3&) const;
 		// ------------------------------------------------------------------------
 		void SetMat4(const std::string&, const Liar::Matrix4&) const;
+#endif // !PLUGINS
 
 	private:
 		void CheckCompileErrors(unsigned int, LiarShaderType);

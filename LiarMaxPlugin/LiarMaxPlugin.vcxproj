@@ -48,11 +48,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\PluginUtil\AssetsMgr.cpp" />
+    <ClCompile Include="..\PluginUtil\AssetMgr.cpp" />
     <ClCompile Include="..\PluginUtil\LiarMaterial.cpp" />
     <ClCompile Include="..\PluginUtil\LiarMesh.cpp" />
     <ClCompile Include="..\PluginUtil\LiarPluginCfg.cpp" />
     <ClCompile Include="..\PluginUtil\LiarPluginRead.cpp" />
+    <ClCompile Include="..\PluginUtil\LiarShader.cpp" />
     <ClCompile Include="..\PluginUtil\LiarSkeleton.cpp" />
     <ClCompile Include="..\PluginUtil\LiarSkeletonAnim.cpp" />
     <ClCompile Include="..\PluginUtil\LiarVertexBuffer.cpp" />
@@ -69,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\PluginUtil\include\AssetsMgr.hpp" />
+    <ClInclude Include="..\PluginUtil\include\ILiarRef.h" />
     <ClInclude Include="..\PluginUtil\include\LiarMaterial.h" />
     <ClInclude Include="..\PluginUtil\include\LiarMesh.h" />
     <ClInclude Include="..\PluginUtil\include\LiarPluginCfg.h" />

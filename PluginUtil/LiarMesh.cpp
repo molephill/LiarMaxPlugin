@@ -225,16 +225,20 @@ namespace Liar
 
 	// =============================== Geometory ===============================
 
+#ifdef PLUGINS
 	LiarMesh::LiarMesh() :
 		m_geometry(new Liar::LiarGeometry())
 		, m_materials(new std::vector<Liar::LiarMaterial*>())
 	{
-#ifndef PLUGINS
-		m_refCount = 0;
-#endif // !PLUGINS
-
 	}
-
+#else
+	LiarMesh::LiarMesh() :
+		Liar::ILiarRef(),
+		m_geometry(new Liar::LiarGeometry())
+		, m_materials(new std::vector<Liar::LiarMaterial*>())
+	{
+	}
+#endif // PLUGINS
 
 	LiarMesh::~LiarMesh()
 	{

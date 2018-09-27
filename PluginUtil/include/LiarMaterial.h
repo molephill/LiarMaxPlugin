@@ -8,6 +8,7 @@
 
 #ifndef PLUGINS
 #include <LiarShader.h>
+#include <ILiarRef.h>
 #else
 #include <IGame.h>
 #endif // !PLUGINS
@@ -16,7 +17,11 @@ namespace Liar
 {
 	// ====================  Œ∆¿Ì ================
 
+#ifndef PLUGINS
+	class LiarTexture :public ILiarRef
+#else
 	class LiarTexture
+#endif // !PLUGINS
 	{
 	public:
 		LiarTexture();
@@ -39,7 +44,6 @@ namespace Liar
 		void Render(Liar::LiarShaderProgram&, size_t);
 
 	private:
-		unsigned int m_refCount;
 		unsigned int m_textureId;
 
 	public:
@@ -47,9 +51,6 @@ namespace Liar
 		void Upload(const std::string&);
 
 		unsigned int GetTextureId() const { return m_textureId; };
-
-		void AddRef() { ++m_refCount; };
-		unsigned int SubRef() { return --m_refCount; };
 #endif // ! PLUGINS
 
 	};

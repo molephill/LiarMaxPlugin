@@ -13,7 +13,8 @@ namespace Liar
 	AssetsMgr::AssetsMgr() :
 		m_allTextures(new std::vector<Liar::LiarTexture*>()), 
 		m_allMeshes(new std::vector<Liar::LiarMesh*>()), 
-		m_allShaders(new std::vector<Liar::LiarBaseShader*>())
+		m_allShaders(new std::vector<Liar::LiarBaseShader*>()),
+		m_allPrograms(new std::vector<Liar::LiarShaderProgram*>())
 	{
 	}
 
@@ -46,7 +47,7 @@ namespace Liar
 		}
 
 #ifndef PLUGINS
-		ret->AddRef();
+		ret->IncRefCount();
 #endif // !PLUGINS		
 		return ret;
 	}
@@ -80,7 +81,7 @@ namespace Liar
 		}
 
 #ifndef PLUGINS
-		ret->AddRef();
+		ret->DesRefCount();
 #endif // PLUGINS
 
 		return ret;
@@ -106,16 +107,99 @@ namespace Liar
 		if (!ret)
 		{
 			ret = new Liar::LiarBaseShader();
-			ret->IncRefCount();
 			ret->SetPath(fileName);
 			m_allShaders->push_back(ret);
 		}
+
+		ret->IncRefCount();
+
 		return ret;
 	}
 
 	Liar::LiarBaseShader* AssetsMgr::GetBaseShader(const std::string& fileName)
 	{
 		return GetBaseShader(fileName.c_str());
+	}
+
+	Liar::LiarShaderProgram* AssetsMgr::GetShaderProgrom(const char* name, const char* vertexFile, const char* fragmentFile)
+	{
+		Liar::LiarShaderProgram* ret = nullptr;
+		for (std::vector<Liar::LiarShaderProgram*>::iterator it = m_allPrograms->begin(); it < m_allPrograms->end(); ++it)
+		{
+			if (std::strcmp(name, (*it)->GetName().data()) == 0)
+			{
+				ret = *it;
+				break;
+			}
+		}
+
+		if (!ret)
+		{
+			ret = new Liar::LiarShaderProgram();
+			ret->LinkProgram(vertexFile, fragmentFile);
+			ret->SetName(name);
+			m_allPrograms->push_back(ret);
+		}
+
+		ret->IncRefCount();
+
+		return ret;
+	}
+
+	Liar::LiarShaderProgram* AssetsMgr::GetShaderProgrom(const std::string& name, const std::string& vertexFile, const std::string& fragmentFile)
+	{
+		return GetShaderProgrom(name.c_str(), vertexFile.c_str(), fragmentFile.c_str());
+	}
+
+	void AssetsMgr::ReleaseShaderProgram(Liar::LiarShaderProgram* program)
+	{
+		for (std::vector<Liar::LiarShaderProgram*>::iterator it = m_allPrograms->begin(); it < m_allPrograms->end();)
+		{
+			if (program == *it)
+			{
+				if ((*it)->DesRefCount() <= 0)
+				{
+					delete *it;
+					it = m_allPrograms->erase(it);
+				}
+				else
+				{
+					++it;
+				}
+			}
+			else
+			{
+				++it;
+			}
+		}
+	}
+
+	void AssetsMgr::ReleaseShaderProgram(const char* name)
+	{
+		for (std::vector<Liar::LiarShaderProgram*>::iterator it = m_allPrograms->begin(); it < m_allPrograms->end();)
+		{
+			if (std::strcmp(name, (*it)->GetName().data()) == 0)
+			{
+				if ((*it)->DesRefCount() <= 0)
+				{
+					delete *it;
+					it = m_allPrograms->erase(it);
+				}
+				else
+				{
+					++it;
+				}
+			}
+			else
+			{
+				++it;
+			}
+		}
+	}
+
+	void AssetsMgr::ReleaseShaderProgram(const std::string& name)
+	{
+		ReleaseShaderProgram(name.c_str());
 	}
 
 	std::string AssetsMgr::GetPath(const char* base)

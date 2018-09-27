@@ -10,11 +10,18 @@ namespace Liar
 
 	// ====================  Œ∆¿Ì ================
 
-	LiarTexture::LiarTexture(): 
-		m_textureType(0),
-		m_path("")
+#ifndef PLUGINS
+	LiarTexture::LiarTexture():
+		m_textureType(0),m_path(""),
+		Liar::ILiarRef()
 	{
 	}
+#else
+	LiarTexture::LiarTexture() :
+		m_textureType(0), m_path("")
+	{
+	}
+#endif // !PLUGINS
 
 
 	LiarTexture::~LiarTexture()
