@@ -243,6 +243,9 @@ namespace Liar
 	LiarMesh::~LiarMesh()
 	{
 		delete m_geometry;
+
+		EraseMaterial(0);
+		std::vector<LiarMaterial*>().swap(*m_materials);
 		delete m_materials;
 	}
 

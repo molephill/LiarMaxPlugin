@@ -69,11 +69,23 @@ namespace Liar
 
 	void LiarTexture::Render(Liar::LiarShaderProgram& shader, size_t texNum)
 	{
-		if (m_textureId <= 0) return;
-        int index = static_cast<int>(texNum);
-		std::string name = "texture";
+		if (m_textureId <= 0 || m_textureType > Liar::LiarTextureType::LiarTextureType_SPECULAR) return;
+		int index = static_cast<int>(texNum);
+		switch (m_textureType)
+		{
+		case LiarTextureType::LiarTextureType_NONE:
+		case  Liar::LiarTextureType::LiarTextureType_DIFFUSE:
+			shader.SetInt("material.diffuse", index);
+			break;
+		case Liar::LiarTextureType::LiarTextureType_SPECULAR:
+			shader.SetInt("material.specular", index);
+			break;
+		default:
+			break;
+		}
+		/*std::string name = "texture";
 		name = name + std::to_string(index);
-		shader.SetInt(name, index);
+		shader.SetInt(name, index);*/
 		glActiveTexture(GL_TEXTURE0 + index);
 		glBindTexture(GL_TEXTURE_2D, m_textureId);
 	}
