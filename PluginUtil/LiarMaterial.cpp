@@ -98,7 +98,7 @@ namespace Liar
 	LiarMaterial::LiarMaterial():
 		m_type(""),
 		m_ambient(new Liar::Vector3D()), m_diffuse(new Liar::Vector3D()), m_specular(new Liar::Vector3D()),
-		m_shineness(0.0f)
+		m_shineness(32.0f)
 	{
 		m_allTextures = new std::vector<Liar::LiarTexture*>();
 	}
@@ -123,6 +123,7 @@ namespace Liar
 #ifndef PLUGINS
 	void LiarMaterial::Render(Liar::LiarShaderProgram& shader)
 	{
+		shader.SetFloat("material.shininess", m_shineness);
 		for (size_t i = 0; i < m_allTextures->size(); ++i)
 		{
 			Liar::LiarTexture* texture = m_allTextures->at(i);
