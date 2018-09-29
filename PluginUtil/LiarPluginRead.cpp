@@ -115,6 +115,11 @@ namespace Liar
 
 		Liar::LiarSkeletonAnim* anim = new Liar::LiarSkeletonAnim();
 
+		int ticksPerFrame = 0;
+		fread(&ticksPerFrame, sizeof(int), 1, pFile);
+		anim->SetTickPerFrame(ticksPerFrame);
+
+		// read tick size;
 		size_t trackLen = 0;
 		fread(&trackLen, sizeof(int), 1, pFile);
 
@@ -139,13 +144,21 @@ namespace Liar
 		size_t num = 0;
 		fread(&num, sizeof(int), 1, pFile);
 
-		size_t p3Size = sizeof(Liar::Vector3D);
+		float x = 0.0f, y = 0.0f, z = 0.0f, w = 0.0f;
+		size_t size = sizeof(float);
 		for (size_t i = 0; i < num; ++i)
 		{
 			int time = 0;
 			fread(&time, sizeof(int), 1, pFile);
 			Liar::LiarKeyFrame* keyFrame = track->GetKeyFrame(type, time, true);
-			fread(keyFrame->GetKey(), p3Size, 1, pFile);
+			fread(&x, size, 1, pFile);
+			fread(&y, size, 1, pFile);
+			fread(&z, size, 1, pFile);
+			if (type == Liar::LiarVertexAttr::LiarVertexAttr_ROTATION)
+			{
+				fread(&w, size, 1, pFile);
+			}
+			keyFrame->Set(x, y, z, w);
 		}
 	}
 
@@ -346,8 +359,6 @@ namespace Liar
 
 	void LiarPluginRead::ReadLiarMaterial(Liar::LiarMesh* mesh, FILE* pFile)
 	{
-		size_t p3Size = sizeof(Liar::Vector3D);
-
 		size_t matSize = 0;
 		// read matSize
 		fread(&matSize, sizeof(int), 1, pFile);
@@ -358,11 +369,6 @@ namespace Liar
 
 			// write matType
 			ReadString(mat->GetType(), pFile);
-
-			// read diffuse/specular/abmient;
-			fread(mat->GetAmbient(), p3Size, 1, pFile);
-			fread(mat->GetSpecular(), p3Size, 1, pFile);
-			fread(mat->GetDiffuse(), p3Size, 1, pFile);
 
 			int texSize = 0;
 			// read texSize;

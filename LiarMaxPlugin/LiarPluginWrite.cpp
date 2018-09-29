@@ -160,6 +160,10 @@ namespace Liar
 		sprintf_s(fullName, "%s\\%s.anim", path.c_str(), liarPlugin->animName.c_str());
 		FILE* hFile = fopen(fullName, "wb");
 
+		// write ticks per frame
+		int ticksPerFrame = anim->GetTickPerFrame();
+		fwrite(&ticksPerFrame, sizeof(int), 1, hFile);
+
 		// write track len
 		size_t trackLen = anim->GetTrackLen();
 		fwrite(&trackLen, sizeof(int), 1, hFile);
@@ -187,7 +191,8 @@ namespace Liar
 		size_t num = track->GetNumFrames(type);
 		fwrite(&num, sizeof(int), 1, hFile);
 
-		size_t p3Size = sizeof(Liar::Vector3D);
+		float tmp = 0.0f;
+		size_t size = sizeof(float);
 		for (size_t i = 0; i < num; ++i)
 		{
 			Liar::LiarKeyFrame* keyFrame = track->GetKeyFrame(type, i);
@@ -195,7 +200,19 @@ namespace Liar
 			// write keyFrame
 			int time = keyFrame->GetTime();
 			fwrite(&time, sizeof(int), 1, hFile);
-			fwrite(keyFrame->GetKey(), p3Size, 1, hFile);
+			tmp = keyFrame->GetX();
+			fwrite(&tmp, size, 1, hFile);
+			tmp = keyFrame->GetY();
+			fwrite(&tmp, size, 1, hFile);
+			tmp = keyFrame->GetZ();
+			fwrite(&tmp, size, 1, hFile);
+
+			if (type == Liar::LiarVertexAttr::LiarVertexAttr_ROTATION)
+			{
+				Liar::LiarQuatKeyFrame* tmpFrame = static_cast<Liar::LiarQuatKeyFrame*>(keyFrame);
+				tmp = tmpFrame->GetW();
+				fwrite(&tmp, size, 1, hFile);
+			}
 		}
 	}
 
@@ -302,18 +319,12 @@ namespace Liar
 		// write matSize
 		fwrite(&matSize, sizeof(int), 1, hFile);
 
-		size_t p3Size = sizeof(Liar::Vector3D);
 		for (size_t i = 0; i < matSize; ++i)
 		{
 			Liar::LiarMaterial* mat = mesh->GetMat(i);
 
 			// write matType
 			WriteString(mat->GetType(), hFile);
-
-			// write diffuse/specular/abmient;
-			fwrite(mat->GetAmbient(), p3Size, 1, hFile);
-			fwrite(mat->GetSpecular(), p3Size, 1, hFile);
-			fwrite(mat->GetDiffuse(), p3Size, 1, hFile);
 
 			// write texSize;
 			size_t texSize = mat->GetTexSize();

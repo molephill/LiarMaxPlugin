@@ -5,6 +5,11 @@
 
 #include <PluginDefine.h>
 
+#ifdef PLUGINS
+#include <triobj.h>
+#endif // PLUGINS
+
+
 namespace Liar
 {
 	// ================= bone frame ==================== //
@@ -12,15 +17,45 @@ namespace Liar
 	{
 	public:
 		LiarKeyFrame(int time = 0);
-		~LiarKeyFrame();
+		virtual ~LiarKeyFrame();
 
-	private:
+	protected:
 		int m_time;
-		Liar::Vector3D* m_key;
+		float m_x;
+		float m_y;
+		float m_z;
 
 	public:
 		int GetTime() const { return m_time; };
-		Liar::Vector3D* GetKey() { return m_key; };
+		
+		float GetX() const { return m_x; };
+		float GetY() const { return m_y; };
+		float GetZ() const { return m_z; };
+
+		void Set(const Liar::Vector3D& rhs);
+		virtual void Set(float x, float y, float z, float w = 0);
+		virtual void Set(const Liar::Vector4D& rhs);
+
+#ifdef PLUGINS
+		void Set(const Quat& quat) { Set(quat.x, quat.y, quat.z, quat.w); };
+		void Set(const Point3& quat) { Set(quat.x, quat.y, quat.z); };
+#endif // PLUGINS
+	};
+
+	class LiarQuatKeyFrame :public LiarKeyFrame
+	{
+	public:
+		LiarQuatKeyFrame(int time = 0);
+		~LiarQuatKeyFrame();
+
+	protected:
+		float m_w;
+
+	public:
+		virtual void Set(const Liar::Vector4D& rhs) { Set(rhs.x, rhs.y, rhs.z, rhs.w); };
+		virtual void Set(float x, float y, float z, float w = 0) { m_x = x; m_y = y; m_z = z; m_w = w; };
+
+		float GetW() const { return m_w; };
 	};
 
 	// ================== track ======================= //
@@ -33,7 +68,7 @@ namespace Liar
 	private:
 		int m_boneId;
 		std::vector<Liar::LiarKeyFrame*>* m_positionFrames;
-		std::vector<Liar::LiarKeyFrame*>* m_rotationFrames;
+		std::vector<Liar::LiarQuatKeyFrame*>* m_rotationFrames;
 		std::vector<Liar::LiarKeyFrame*>* m_scaleFrames;
 
 	public:
@@ -58,11 +93,15 @@ namespace Liar
 
 	private:
 		std::vector<Liar::LiarTrack*>* m_tracks;
+		int m_tickPerFrame;
 
 	public:
 		Liar::LiarTrack* GetTrack(int, bool add = false);
 		Liar::LiarTrack* GetTrackByIndex(size_t index) { return m_tracks->at(index); };
 		size_t GetTrackLen() const { return m_tracks->size(); };
+
+		void SetTickPerFrame(int v) { m_tickPerFrame = v; };
+		int GetTickPerFrame() const { return m_tickPerFrame; };
 	};
 }
 

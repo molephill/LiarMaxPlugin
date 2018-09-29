@@ -131,10 +131,10 @@ namespace Liar
 
 			GMatrix gm = varGameNode->GetLocalTM(0);
 			Point3 pos = gm.Translation();
-			Point3 rota = gm.Rotation().Vector();
+			Quat rota = gm.Rotation();
 			Point3 scale = gm.Scaling();
 			Liar::LiarStructUtil::ParsePoint3(liarBone->GetPosition(), pos, revertYZ);
-			Liar::LiarStructUtil::ParsePoint3(liarBone->GetRotation(), rota, revertYZ);
+			Liar::LiarStructUtil::ParsePoint4(liarBone->GetRotation(), rota);
 			Liar::LiarStructUtil::ParsePoint3(liarBone->GetScale(), scale, revertYZ);
 		}
 
@@ -287,19 +287,10 @@ namespace Liar
 
 		delete tmp;
 
-		Point3 maxPoint3;
-
 		for (std::vector<IGameMaterial*>::iterator it = materials.begin(); it != materials.end(); ++it)
 		{
 			IGameMaterial* tmpGameMaterial = *it;
 			Liar::LiarMaterial* liarMaterial = new Liar::LiarMaterial();
-
-			tmpGameMaterial->GetAmbientData()->GetPropertyValue(maxPoint3, 0);
-			Liar::LiarStructUtil::ParsePoint3(liarMaterial->GetAmbient(), maxPoint3);
-			tmpGameMaterial->GetDiffuseData()->GetPropertyValue(maxPoint3, 0);
-			Liar::LiarStructUtil::ParsePoint3(liarMaterial->GetDiffuse(), maxPoint3);
-			tmpGameMaterial->GetSpecularData()->GetPropertyValue(maxPoint3, 0);
-			Liar::LiarStructUtil::ParsePoint3(liarMaterial->GetSpecular(), maxPoint3);
 
 			Liar::StringUtil::GetWSTR2Char(tmpGameMaterial->GetMaterialClass(), liarMaterial->GetType());
 			liarMesh->GetMatrials()->push_back(liarMaterial);
@@ -417,10 +408,10 @@ namespace Liar
 		int tmpFrameCount = (tmpTimeValueEnd - tmpTimeValueBegin) / tmpTimeValueTicks;
 
 		m_anim = new Liar::LiarSkeletonAnim;
+		m_anim->SetTickPerFrame(tmpTimeValueTicks);
 
 		std::string boneName;
 
-		bool revertYZ = false;
 		for (int j = 0; j < m_skeleton->GetBoneSize(); ++j)
 		{
 			IGameNode* node = m_skeleton->GetBone(j)->node;
@@ -436,25 +427,25 @@ namespace Liar
 					int nowMS = i*tmpTimeValueTicks;
 					GMatrix gm = node->GetLocalTM(nowMS + tmpTimeValueBegin);
 					Point3 pos = gm.Translation();
-					Point3 rota = gm.Rotation().Vector();
+					Quat rota = gm.Rotation();
 					Point3 scale = gm.Scaling();
 
 					if (!Liar::LiarStructUtil::Equal(pos, 0.0f, 0.0f, 0.0f, Liar::EPSILON))
 					{
 						Liar::LiarKeyFrame* keyFrame = track->GetKeyFrame(Liar::LiarVertexAttr::LiarVertexAttr_TRANSFORM, nowMS, true);
-						Liar::LiarStructUtil::ParsePoint3(keyFrame->GetKey(), pos, revertYZ);
+						keyFrame->Set(pos);
 					}
 
-					if (!Liar::LiarStructUtil::Equal(rota, 0.0f, 0.0f, 0.0f, Liar::EPSILON))
+					if (!Liar::LiarStructUtil::Equal(rota, 0.0f, 0.0f, 0.0f, 0.0f, Liar::EPSILON))
 					{
 						Liar::LiarKeyFrame* keyFrame = track->GetKeyFrame(Liar::LiarVertexAttr::LiarVertexAttr_ROTATION, nowMS, true);
-						Liar::LiarStructUtil::ParsePoint3(keyFrame->GetKey(), rota, revertYZ);
+						keyFrame->Set(rota);
 					}
 
 					if (!Liar::LiarStructUtil::Equal(scale, 1.0f, 1.0f, 1.0f, Liar::EPSILON))
 					{
 						Liar::LiarKeyFrame* keyFrame = track->GetKeyFrame(Liar::LiarVertexAttr::LiarVertexAttr_SCALE, nowMS, true);
-						Liar::LiarStructUtil::ParsePoint3(keyFrame->GetKey(), scale, revertYZ);
+						keyFrame->Set(scale);
 					}
 
 				}

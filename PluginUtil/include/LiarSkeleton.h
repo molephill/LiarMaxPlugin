@@ -46,7 +46,7 @@ namespace Liar
 
 	private:
 		Liar::Vector3D* m_position;
-		Liar::Vector3D* m_rotation;
+		Liar::Vector4D* m_rotation;
 		Liar::Vector3D* m_scale;
 
 		int m_id;
@@ -65,11 +65,11 @@ namespace Liar
 		void SetName(const std::string& name) { m_name = name; };
 
 		Liar::Vector3D* GetPosition() { return m_position; };
-		Liar::Vector3D* GetRotation() { return m_rotation; };
+		Liar::Vector4D* GetRotation() { return m_rotation; };
 		Liar::Vector3D* GetScale() { return m_scale; };
 
 		void SetPositon(Liar::Vector3D* v) { m_position = v; };
-		void SetRotation(Liar::Vector3D* v) { m_rotation = v; };
+		void SetRotation(Liar::Vector4D* v) { m_rotation = v; };
 		void SetScale(Liar::Vector3D* v) { m_scale = v; };
 
 	public:

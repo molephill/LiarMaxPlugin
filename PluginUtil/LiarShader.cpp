@@ -103,12 +103,10 @@ namespace Liar
 		glDeleteShader(vertex);
 		glDeleteShader(fragment);
 	}
-#endif // PLUGINS
 
 	// ¼ì²â±¨´í
 	void LiarShaderProgram::CheckCompileErrors(unsigned int shader, LiarShaderType type)
 	{
-#ifdef DEBUG
 		int success;
 		char infoLog[DEFAULT_BUFF_SIZE];
 		if (type != LiarShaderType::SHADER_TYPE_PROGROM)
@@ -129,10 +127,8 @@ namespace Liar
 				std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
 			}
 		}
-#endif
 	}
 
-#ifndef PLUGINS
 	void LiarShaderProgram::Use()
 	{
 		glUseProgram(m_ID);

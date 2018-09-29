@@ -17,7 +17,7 @@ namespace Liar
 	// =============================== bone =========================
 	LiarBone::LiarBone() :
 		m_id(-1), m_parentId(-1),m_name("")
-		, m_position(new Liar::Vector3D()), m_rotation(new Liar::Vector3D()), m_scale(new Liar::Vector3D())
+		, m_position(new Liar::Vector3D()), m_rotation(new Liar::Vector4D()), m_scale(new Liar::Vector3D())
 	{
 
 	}

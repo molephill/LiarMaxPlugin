@@ -67,9 +67,6 @@ namespace Liar
 		std::vector<Liar::LiarTexture*>* m_allTextures;
 		std::string m_type;
 
-		Liar::Vector3D* m_ambient;
-		Liar::Vector3D* m_diffuse;
-		Liar::Vector3D* m_specular;
 		float m_shineness;
 
 	public:
@@ -81,10 +78,6 @@ namespace Liar
 		size_t GetTexSize() { return m_allTextures ? m_allTextures->size() : 0; };
 
 		std::string& GetType() { return m_type; };
-
-		Liar::Vector3D* GetAmbient() { return m_ambient; };
-		Liar::Vector3D* GetDiffuse() { return m_diffuse; };
-		Liar::Vector3D* GetSpecular() { return m_specular; };
 
 		float GetShineness() const { return m_shineness; };
 

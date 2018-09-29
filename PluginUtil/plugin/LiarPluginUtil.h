@@ -168,6 +168,19 @@ namespace Liar
 			}
 		}
 
+		static void ParsePoint4(Liar::Vector4D& p4, const Quat& quat)
+		{
+			p4.x = quat.x;
+			p4.y = quat.y;
+			p4.z = quat.z;
+			p4.w = quat.w;
+		}
+
+		static void ParsePoint4(Liar::Vector4D* p4, const Quat& quat)
+		{
+			ParsePoint4(*p4, quat);
+		}
+
 		static bool Equal(float x, float y, float z, 
 						float cx, float cy, float cz,
 						float epsilon) 
@@ -175,10 +188,23 @@ namespace Liar
 			return fabs(x - cx) < epsilon && fabs(y - cy) < epsilon && fabs(z - cz) < epsilon;
 		}
 
+		static bool Equal(float x, float y, float z, float w,
+							float cx, float cy, float cz, float cw,
+							float epsilon)
+		{
+			return fabs(x - cx) < epsilon && fabs(y - cy) < epsilon && fabs(z - cz) < epsilon && fabs(w - cw) < epsilon;
+		}
+
 		static bool Equal(Point3& p, float cx, float cy, float cz,
 			float epsilon)
 		{
 			return Equal(p.x, p.y, p.z, cx, cy, cz, epsilon);
+		}
+
+		static bool Equal(Quat& p, float cx, float cy, float cz, float cw,
+			float epsilon)
+		{
+			return Equal(p.x, p.y, p.z, p.w, cx, cy, cz, cw, epsilon);
 		}
 
 	};

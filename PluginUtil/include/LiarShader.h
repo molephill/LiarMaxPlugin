@@ -82,10 +82,10 @@ namespace Liar
 		void SetMat3(const std::string&, const Liar::Matrix3&) const;
 		// ------------------------------------------------------------------------
 		void SetMat4(const std::string&, const Liar::Matrix4&) const;
-#endif // !PLUGINS
 
 	private:
 		void CheckCompileErrors(unsigned int, LiarShaderType);
+#endif // !PLUGINS
 	};
 }
 

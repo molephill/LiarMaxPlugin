@@ -97,7 +97,6 @@ namespace Liar
 
 	LiarMaterial::LiarMaterial():
 		m_type(""),
-		m_ambient(new Liar::Vector3D()), m_diffuse(new Liar::Vector3D()), m_specular(new Liar::Vector3D()),
 		m_shineness(32.0f)
 	{
 		m_allTextures = new std::vector<Liar::LiarTexture*>();
