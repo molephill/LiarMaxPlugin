@@ -30,8 +30,16 @@ namespace Liar
 	}
 
 
-	LiarSkeleton::LiarSkeleton():
+#if PLUGINS
+	LiarSkeleton::LiarSkeleton() :
 		m_bones(new std::vector<Liar::LiarBone*>())
+#else
+	LiarSkeleton::LiarSkeleton() :
+		Liar::ILiarRef(),
+		m_bones(new std::vector<Liar::LiarBone*>()),
+		m_path("")
+#endif // PLUGINS
+
 	{
 	}
 

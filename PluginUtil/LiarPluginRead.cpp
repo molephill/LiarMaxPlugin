@@ -66,6 +66,7 @@ namespace Liar
 		fread(&boneSize, sizeof(int), 1, pFile);
 
 		size_t p3Size = sizeof(Liar::Vector3D);
+		size_t p4Size = sizeof(Liar::Vector4D);
 
 		for (size_t i = 0; i < boneSize; ++i)
 		{
@@ -81,14 +82,14 @@ namespace Liar
 			bone->SetName(name);
 
 			Liar::Vector3D* pos = new Liar::Vector3D();
-			Liar::Vector3D* rot = new Liar::Vector3D();
+			Liar::Vector4D* rot = new Liar::Vector4D();
 			Liar::Vector3D* sca = new Liar::Vector3D();
 			fread(pos, p3Size, 1, pFile);
-			fread(rot, p3Size, 1, pFile);
+			fread(rot, p4Size, 1, pFile);
 			fread(sca, p3Size, 1, pFile);
 			bone->SetPositon(pos);
-			bone->SetPositon(rot);
-			bone->SetPositon(sca);
+			bone->SetRotation(rot);
+			bone->SetScale(sca);
 		}
 
 		fclose(pFile);

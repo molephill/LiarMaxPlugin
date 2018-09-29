@@ -6,6 +6,8 @@
 #ifdef PLUGINS
 #include <IGame.h>
 #include <IGameObject.h>
+#else
+#include <ILiarRef.h>
 #endif // PLUGINS
 
 
@@ -93,13 +95,20 @@ namespace Liar
 		}
 	};
 
+#ifdef PLUGINS
 	class LiarSkeleton
+#else
+	class LiarSkeleton:public ILiarRef
+#endif // PLUGINS
 	{
 	public:
 		LiarSkeleton();
 		~LiarSkeleton();
 
 	private:
+#ifndef PLUGINS
+		std::string m_path;
+#endif // PLUGINS
 		std::vector<Liar::LiarBone*>* m_bones;
 
 	public:
@@ -107,6 +116,12 @@ namespace Liar
 		Liar::LiarBone* GetBone(size_t index) { return m_bones->at(index); };
 
 		size_t GetBoneSize() const { return m_bones->size(); };
+
+#ifndef PLUGINS
+		std::string GetPath() const { return m_path; };
+		void SetPath(const char* path) { m_path = path; };
+#endif // !PLUGINS
+
 	};
 }
 

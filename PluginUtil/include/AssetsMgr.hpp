@@ -22,6 +22,7 @@
 #include <LiarMaterial.h>
 #include <LiarPluginRead.h>
 #include <LiarShader.h>
+#include <LiarSkeleton.h>
 
 namespace Liar
 {
@@ -90,6 +91,9 @@ namespace Liar
 		Liar::LiarShaderProgram* GetShaderProgrom(const char*, const char*, const char*);
 		Liar::LiarShaderProgram* GetShaderProgrom(const std::string&, const std::string&, const std::string&);
 
+		Liar::LiarSkeleton* GetSkeleton(const char*);
+		Liar::LiarSkeleton* GetSkeleton(const std::string&);
+
 		void ReleaseShaderProgram(Liar::LiarShaderProgram*);
 		void ReleaseShaderProgram(const char*);
 		void ReleaseShaderProgram(const std::string&);
@@ -105,6 +109,7 @@ namespace Liar
 		std::vector<Liar::LiarMesh*>* m_allMeshes;
 		std::vector<Liar::LiarBaseShader*>* m_allShaders;
 		std::vector<Liar::LiarShaderProgram*>* m_allPrograms;
+		std::vector<Liar::LiarSkeleton*>* m_allSkeletons;
     };
 
 	

@@ -14,7 +14,8 @@ namespace Liar
 		m_allTextures(new std::vector<Liar::LiarTexture*>()), 
 		m_allMeshes(new std::vector<Liar::LiarMesh*>()), 
 		m_allShaders(new std::vector<Liar::LiarBaseShader*>()),
-		m_allPrograms(new std::vector<Liar::LiarShaderProgram*>())
+		m_allPrograms(new std::vector<Liar::LiarShaderProgram*>()),
+		m_allSkeletons(new std::vector<Liar::LiarSkeleton*>())
 	{
 	}
 
@@ -200,6 +201,36 @@ namespace Liar
 	void AssetsMgr::ReleaseShaderProgram(const std::string& name)
 	{
 		ReleaseShaderProgram(name.c_str());
+	}
+
+	Liar::LiarSkeleton* AssetsMgr::GetSkeleton(const char* path)
+	{
+		if (!path) return nullptr;
+		Liar::LiarSkeleton* ret = nullptr;
+#ifndef PLUGINS
+		for (std::vector<Liar::LiarSkeleton*>::iterator it = m_allSkeletons->begin(); it < m_allSkeletons->end();)
+		{
+			if (std::strcmp(path, (*it)->GetPath().data()) == 0)
+			{
+				ret = *it;
+				break;
+			}
+		}
+
+		if (!ret)
+		{
+			ret = Liar::LiarPluginRead::ReadSkeleton(path);
+			ret->SetPath(path);
+			m_allSkeletons->push_back(ret);
+		}
+		ret->IncRefCount();
+#endif // !PLUGINS
+		return ret;
+	}
+
+	Liar::LiarSkeleton* AssetsMgr::GetSkeleton(const std::string& path)
+	{
+		return GetSkeleton(path.c_str());
 	}
 
 	std::string AssetsMgr::GetPath(const char* base)

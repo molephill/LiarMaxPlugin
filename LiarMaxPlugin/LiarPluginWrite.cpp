@@ -134,6 +134,7 @@ namespace Liar
 		fwrite(&boneLen, sizeof(int), 1, hFile);
 
 		size_t p3Size = sizeof(Liar::Vector3D);
+		size_t p4Size = sizeof(Liar::Vector4D);
 		for (size_t i = 0; i < boneLen; ++i)
 		{
 			// write all bone;
@@ -144,7 +145,7 @@ namespace Liar
 			fwrite(&parentId, sizeof(int), 1, hFile);
 			Liar::LiarPluginWrite::WriteString(bone->GetName(), hFile);
 			fwrite(bone->GetPosition(), p3Size, 1, hFile);
-			fwrite(bone->GetRotation(), p3Size, 1, hFile);
+			fwrite(bone->GetRotation(), p4Size, 1, hFile);
 			fwrite(bone->GetScale(), p3Size, 1, hFile);
 		}
 		fclose(hFile);
