@@ -203,6 +203,9 @@ namespace Liar
 			glEnableVertexAttribArray(curId);
 		}
 
+		// skin anim info
+		bool skin = m_rawData->HasSkin();
+
 		ReleaseData();
 	}
 

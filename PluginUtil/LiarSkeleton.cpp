@@ -2,18 +2,6 @@
 
 namespace Liar
 {
-	// ================================ skin =======================
-	LiarSkin::LiarSkin(int boneId) :
-		m_boneId(boneId), m_weight(0.0f)
-	{
-
-	}
-
-	LiarSkin::~LiarSkin()
-	{
-
-	}
-
 	// =============================== bone =========================
 	LiarBone::LiarBone() :
 		m_id(-1), m_parentId(-1),m_name("")

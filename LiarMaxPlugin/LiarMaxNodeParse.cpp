@@ -365,8 +365,7 @@ namespace Liar
 						if (liarBone)
 						{
 							Liar::LiarAnimSkinDefine* skinDefine = liarMesh->GetGeo()->GetRawData()->GetAnimSkinDefine(i, true);
-							Liar::LiarSkin* liarSkin = skinDefine->AddSkin(liarBone->GetId(), 1.0f);
-							liarSkin->node = bNode;
+							skinDefine->AddBoneInfo(liarBone->GetId(), 1.0f);
 						}
 					}
 					else //blended
@@ -383,8 +382,7 @@ namespace Liar
 								if (liarBone)
 								{
 									float weight = tmpGameSkin->GetWeight(i, j);
-									Liar::LiarSkin* liarSkin = skinDefine->AddSkin(liarBone->GetId(), weight);
-									liarSkin->node = bNode;
+									skinDefine->AddBoneInfo(liarBone->GetId(), weight);
 								}
 							}
 						}

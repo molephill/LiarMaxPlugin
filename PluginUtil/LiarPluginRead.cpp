@@ -297,25 +297,27 @@ namespace Liar
 
 		// read skin
 		size_t skinDefineLen = 0;
-		fread(&skinDefineLen, sizeof(int), 1, pFile);
+		size_t intSize = sizeof(int);
+		size_t floatSize = sizeof(float);
+		fread(&skinDefineLen, intSize, 1, pFile);
 		for (size_t i = 0; i < skinDefineLen; ++i)
 		{
 			// read skinDefine
-			int vertIndex = 0;
-			fread(&vertIndex, sizeof(int), 1, pFile);
+			int posIndex = 0;
+			fread(&posIndex, intSize, 1, pFile);
 
-			Liar::LiarAnimSkinDefine* skinDefine = geo->GetRawData()->GetAnimSkinDefine(vertIndex, true);
+			Liar::LiarAnimSkinDefine* skinDefine = geo->GetRawData()->GetAnimSkinDefine(posIndex, true);
 			// read weight
 			size_t skinLen = 0;
-			fread(&skinLen, sizeof(int), 1, pFile);
+			fread(&skinLen, intSize, 1, pFile);
 			for (size_t j = 0; j < skinLen; ++j)
 			{
 				// wirte skin
 				int boneId = 0;
 				float weight = 0;
-				fread(&boneId, sizeof(int), 1, pFile);
-				fread(&weight, sizeof(float), 1, pFile);
-				skinDefine->AddSkin(boneId, weight);
+				fread(&boneId, intSize, 1, pFile);
+				fread(&weight, floatSize, 1, pFile);
+				skinDefine->AddBoneInfo(boneId, weight);
 			}
 		}
 	}

@@ -264,24 +264,27 @@ namespace Liar
 
 		// write skin
 		size_t skinDefineLen = raw->GetSkinDefineLen();
-		fwrite(&skinDefineLen, sizeof(int), 1, hFile);
+		size_t intSize = sizeof(int);
+		size_t floatSize = sizeof(float);
+		fwrite(&skinDefineLen, intSize, 1, hFile);
 		for (int i = 0; i < skinDefineLen; ++i)
 		{
 			Liar::LiarAnimSkinDefine* skinDefine = raw->GetAnimSkinDefine(i);
 			// write skinDefine
-			int vertIndex = skinDefine->GetVertIndex();
-			fwrite(&vertIndex, sizeof(int), 1, hFile);
-			// write weight
-			size_t skinLen = skinDefine->GetSkinLen();
-			fwrite(&skinLen, sizeof(int), 1, hFile);
-			for (int j = 0; j < skinLen; ++j)
+			int vertIndex = skinDefine->GetPositionIndex();
+			fwrite(&vertIndex, intSize, 1, hFile);
+
+			// write bone size
+			size_t boneInfoSize = skinDefine->GetBoneInfoSize();
+			fwrite(&boneInfoSize, intSize, 1, hFile);
+
+			// write bone info
+			for (size_t j = 0; j < boneInfoSize; ++j)
 			{
-				// wirte skin
-				Liar::LiarSkin* skin = skinDefine->GetSkin(j);
-				int boneId = skin->GetBoneId();
-				float weight = skin->GetWeight();
-				fwrite(&boneId, sizeof(int), 1, hFile);
-				fwrite(&weight, sizeof(float), 1, hFile);
+				int boneId = skinDefine->GetBoneId(j);
+				float boneWeight = skinDefine->GetBoneWeight(j);
+				fwrite(&boneId, intSize, 1, hFile);
+				fwrite(&boneWeight, floatSize, 1, hFile);
 			}
 		}
 	}

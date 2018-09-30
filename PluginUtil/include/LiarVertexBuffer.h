@@ -42,23 +42,23 @@ namespace Liar
 	class LiarAnimSkinDefine
 	{
 	public:
-		LiarAnimSkinDefine();
+		LiarAnimSkinDefine(int posIndex = 0);
 		~LiarAnimSkinDefine();
 
 	private:
-		int m_vertIndex;
-		std::vector<Liar::LiarSkin*>* m_skins;
+		int m_positionIndex;
+		std::vector<int>* m_boneIds;
+		std::vector<float>* m_weights;
 
 	public:
-		void SetVertIndex(int v) { m_vertIndex = v; };
-		int GetVertIndex() const { return m_vertIndex; };
+		void SetPositionIndex(int v) { m_positionIndex = v; };
+		int GetPositionIndex() const { return m_positionIndex; };
 
-		size_t GetSkinLen() const { return m_skins ? m_skins->size() : 0; };
-		std::vector<Liar::LiarSkin*>* GetSkins() { return m_skins; };
+		size_t GetBoneInfoSize() { return m_boneIds->size(); };
+		int GetBoneId(size_t i) const { return m_boneIds->at(i); };
+		float GetBoneWeight(size_t i) const { return m_weights->at(i); };
 
-		Liar::LiarSkin* GetSkin(int i) { return m_skins ? m_skins->at(i) : nullptr; };
-
-		Liar::LiarSkin* AddSkin(int, float);
+		void AddBoneInfo(int, float);
 	};
 
 	// =================================== raw_data ===================================
@@ -102,6 +102,7 @@ namespace Liar
         bool HasNorm() { return m_norm ? true : false; };
         bool HasColor() { return m_color ? true : false; };
         bool HasTexCoord() { return m_texCoord ? true : false; };
+		bool HasSkin() { return m_skinDefines ? true : false; };
 
 		Liar::Vector3D* AddData(Liar::LiarVertexType, size_t);
 		int GetIndex(Liar::LiarVertexType, float, float, float);

@@ -13,32 +13,6 @@
 
 namespace Liar
 {
-	class LiarSkin
-	{
-	public:
-		LiarSkin(int boneId = -1);
-		~LiarSkin();
-
-	private:
-		int m_boneId;
-		float m_weight;
-
-	public:
-		int GetBoneId() const { return m_boneId; };
-		void SetBoneId(int v) { m_boneId = v; };
-
-		float GetWeight() const { return m_weight; };
-		void SetWeight(float v) { m_weight = v; };
-
-#ifdef PLUGINS
-		INode* node;
-		bool operator==(const Liar::LiarSkin& rhs) const
-		{
-			return rhs.node == node;
-		}
-#endif // PLUGINS
-
-	};
 
 	class LiarBone
 	{

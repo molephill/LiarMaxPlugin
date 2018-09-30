@@ -3,34 +3,44 @@
 namespace Liar
 {
 	// =================================== anim_skin_define ===================================
-	LiarAnimSkinDefine::LiarAnimSkinDefine() :m_vertIndex(0), m_skins(new std::vector<Liar::LiarSkin*>())
+	LiarAnimSkinDefine::LiarAnimSkinDefine(int posIndex) :
+		m_positionIndex(posIndex),
+		m_boneIds(new std::vector<int>()),
+		m_weights(new std::vector<float>())
 	{
 	}
 
 	LiarAnimSkinDefine::~LiarAnimSkinDefine()
 	{
-		for (std::vector<LiarSkin*>::iterator it = m_skins->begin(); it != m_skins->end();)
-		{
-			delete (*it);
-			it = m_skins->erase(it);
-		}
-		delete m_skins;
+		std::vector<int>().swap(*m_boneIds);
+		delete m_boneIds;
+		m_boneIds = nullptr;
+
+		std::vector<float>().swap(*m_weights);
+		delete m_weights;
+		m_weights = nullptr;
 	}
 
-	Liar::LiarSkin* LiarAnimSkinDefine::AddSkin(int boneId, float weight)
+	void LiarAnimSkinDefine::AddBoneInfo(int boneId, float weight)
 	{
-		for (std::vector<Liar::LiarSkin*>::iterator it = m_skins->begin(); it != m_skins->end(); ++it)
+		if (weight > 0)
 		{
-			if ((*it)->GetBoneId() == boneId)
+			bool find = false;
+			for (size_t i = 0; i < m_boneIds->size(); ++i)
 			{
-				return *it;
+				if (m_boneIds->at(i) == boneId)
+				{
+					find = true;
+					break;
+				}
+			}
+
+			if (!find)
+			{
+				m_boneIds->push_back(boneId);
+				m_weights->push_back(weight);
 			}
 		}
-
-		Liar::LiarSkin* skin = new Liar::LiarSkin(boneId);
-		skin->SetWeight(weight);
-		m_skins->push_back(skin);
-		return skin;
 	}
 
 	// ================ vertex raw data ==============================
@@ -69,7 +79,7 @@ namespace Liar
 		if (!m_skinDefines) m_skinDefines = new std::vector<Liar::LiarAnimSkinDefine*>();
 		for (std::vector<Liar::LiarAnimSkinDefine*>::iterator it = m_skinDefines->begin(); it != m_skinDefines->end(); ++it)
 		{
-			if ((*it)->GetVertIndex() == verIndex)
+			if ((*it)->GetPositionIndex() == verIndex)
 			{
 				return *it;
 			}
@@ -78,7 +88,7 @@ namespace Liar
 		if (add)
 		{
 			Liar::LiarAnimSkinDefine* skinDefine = new Liar::LiarAnimSkinDefine();
-			skinDefine->SetVertIndex(verIndex);
+			skinDefine->SetPositionIndex(verIndex);
 			m_skinDefines->push_back(skinDefine);
 			return skinDefine;
 		}
