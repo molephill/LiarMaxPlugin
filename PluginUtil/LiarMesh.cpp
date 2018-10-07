@@ -37,6 +37,48 @@ namespace Liar
 	// =============================== Nodes ===============================
 
 	// =============================== Geometory ===============================
+    
+    LiarBaseGeometry::LiarBaseGeometry():
+        m_vertexArrayID(0),m_elementbuffer(0),m_vertexbuffer(0),
+        m_indices(new std::vector<unsigned int>()),m_indiceSize(0)
+    {
+        
+    }
+
+    LiarBaseGeometry::~LiarBaseGeometry()
+    {
+        if(m_vertexArrayID > 0) glDeleteBuffers(1, &m_vertexArrayID);
+        if(m_vertexArrayID > 0) glDeleteBuffers(1, &m_vertexbuffer);
+        if(m_elementbuffer > 0) glDeleteBuffers(1, &m_elementbuffer);
+    }
+    
+#ifndef PLUGINS
+    void LiarBaseGeometry::Upload()
+    {
+        glGenVertexArrays(1, &m_vertexArrayID);
+        glGenBuffers(1, &m_vertexArrayID);
+        glGenBuffers(1, &m_elementbuffer);
+
+        glBindVertexArray(m_vertexArrayID);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayID);
+        
+        ReleaseSourceData();
+    }
+    
+    void LiarBaseGeometry::Render()
+    {
+        // draw mesh
+        glBindVertexArray(m_vertexArrayID);
+        glDrawElements(GL_TRIANGLES, m_indiceSize, GL_UNSIGNED_INT, 0);
+    }
+    
+    void LiarBaseGeometry::ReleaseSourceData()
+    {
+        m_indiceSize = m_indices->size();
+        std::vector<unsigned int>().swap(*m_indices);
+        delete m_indices;
+    }
+#endif // !PLUGINS
 
 	LiarGeometry::LiarGeometry():
 		m_rawData(new Liar::LiarVertexRawData())
@@ -49,7 +91,7 @@ namespace Liar
 
 	LiarGeometry::~LiarGeometry()
 	{
-		
+        
 	}
 
 	Liar::LiarVertexDefine* LiarGeometry::FindVertexDefine(const Liar::LiarVertexDefine& rhs)
@@ -157,7 +199,7 @@ namespace Liar
 		colorOffSize = uvOffSize + normalSize;
 
 		size_t bufferSize = m_vertexFaces->size();
-		int totalSize = bufferSize * oneSize;
+		size_t totalSize = bufferSize * oneSize;
 
 		glBufferData(GL_ARRAY_BUFFER, totalSize, nullptr, GL_STATIC_DRAW);
 		for (size_t i = 0; i < bufferSize; ++i)

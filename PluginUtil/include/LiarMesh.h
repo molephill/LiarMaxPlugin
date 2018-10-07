@@ -42,6 +42,29 @@ namespace Liar
 
 		int GetNumChildren() const { return m_children ? static_cast<int>(m_children->size()) : 0; };
 	};
+    
+    class LiarBaseGeometry
+    {
+    public:
+        LiarBaseGeometry();
+        ~LiarBaseGeometry();
+        
+    protected:
+        unsigned int m_vertexArrayID;
+        unsigned int m_vertexbuffer;
+        unsigned int m_elementbuffer;
+        std::vector<unsigned int>* m_indices;
+        size_t m_indiceSize;
+        
+#ifndef PLUGINS
+    public:
+        virtual void Upload();
+        virtual void Render();
+        
+    protected:
+        virtual void ReleaseSourceData();
+#endif // PLUGINS
+    };
 
 	class LiarGeometry
 	{

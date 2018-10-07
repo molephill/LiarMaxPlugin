@@ -543,6 +543,10 @@ namespace Liar
 		return *this;
 	}
 
+    Matrix4& Matrix4::Scale(const Liar::Vector3D& rhs)
+    {
+        return Scale(rhs.x, rhs.y, rhs.z);
+    }
 
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -654,7 +658,13 @@ namespace Liar
 		return *this;
 	}
 
-
+    Matrix4& Matrix4::Rotate(const Liar::Vector3D& axis)
+    {
+        this->RotateZ(axis.z);
+        this->RotateY(axis.y);
+        this->RotateX(axis.x);
+        return *this;
+    }
 
 	///////////////////////////////////////////////////////////////////////////////
 	// rotate matrix to face along the target direction

@@ -188,8 +188,10 @@ namespace Liar
 		Matrix4&    RotateX(float angle);                   // rotate on X-axis with degree
 		Matrix4&    RotateY(float angle);                   // rotate on Y-axis with degree
 		Matrix4&    RotateZ(float angle);                   // rotate on Z-axis with degree
+        Matrix4&    Rotate(const Vector3D&);                // rotato on X-axis and Y-axis and Z-axis with degree
 		Matrix4&    Scale(float scale);                     // uniform scale
 		Matrix4&    Scale(float sx, float sy, float sz);    // scale by (sx, sy, sz) on each axis
+        Matrix4&    Scale(const Liar::Vector3D&);    // scale by (sx, sy, sz) on each axis
 		Matrix4&    LookAt(float tx, float ty, float tz);   // face object to the target direction
 		Matrix4&    LookAt(float tx, float ty, float tz, float ux, float uy, float uz);
 		Matrix4&    LookAt(const Vector3D& target);
