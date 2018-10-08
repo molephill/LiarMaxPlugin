@@ -48,7 +48,7 @@ namespace Liar
     LiarBaseGeometry::~LiarBaseGeometry()
     {
         if(m_vertexArrayID > 0) glDeleteBuffers(1, &m_vertexArrayID);
-        if(m_vertexArrayID > 0) glDeleteBuffers(1, &m_vertexbuffer);
+        if(m_vertexbuffer > 0) glDeleteBuffers(1, &m_vertexbuffer);
         if(m_elementbuffer > 0) glDeleteBuffers(1, &m_elementbuffer);
     }
     
@@ -56,14 +56,21 @@ namespace Liar
     void LiarBaseGeometry::Upload()
     {
         glGenVertexArrays(1, &m_vertexArrayID);
-        glGenBuffers(1, &m_vertexArrayID);
+        glGenBuffers(1, &m_vertexbuffer);
         glGenBuffers(1, &m_elementbuffer);
 
         glBindVertexArray(m_vertexArrayID);
-        glBindBuffer(GL_ARRAY_BUFFER, m_vertexArrayID);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vertexbuffer);
+
+		UploadSub();
         
         ReleaseSourceData();
     }
+
+	void LiarBaseGeometry::UploadSub()
+	{
+
+	}
     
     void LiarBaseGeometry::Render()
     {
@@ -81,12 +88,11 @@ namespace Liar
 #endif // !PLUGINS
 
 	LiarGeometry::LiarGeometry():
-		m_rawData(new Liar::LiarVertexRawData())
-		, m_vertexFaces(new std::vector<Liar::LiarVertexDefine*>())
-		, m_indicesSize(0)
+		Liar::LiarBaseGeometry(),
+		m_rawData(new Liar::LiarVertexRawData()),
+		m_vertexFaces(new std::vector<Liar::LiarVertexDefine*>()),
+		m_vertexOpen(0)
 	{
-		m_indices = new std::vector<unsigned int>();
-		m_vertexOpen = 0;
 	}
 
 	LiarGeometry::~LiarGeometry()
@@ -142,17 +148,8 @@ namespace Liar
 	}
 
 #ifndef PLUGINS
-	void LiarGeometry::Upload()
+	void LiarGeometry::UploadSub()
 	{
-		// create buffers/arrays
-		glGenVertexArrays(1, &VAO);
-		glGenBuffers(1, &VBO);
-		glGenBuffers(1, &EBO);
-
-		glBindVertexArray(VAO);
-
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
 		int positionSize = Liar::LiarVertexBuffer::GetPositionSize();
 		int normalSize = Liar::LiarVertexBuffer::GetNormalSize();
 		int colorSize = Liar::LiarVertexBuffer::GetColorSize();
@@ -213,7 +210,7 @@ namespace Liar
 		}
 
 		int indiceSize1 = GetIndicesSize() * sizeof(unsigned int);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_elementbuffer);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indiceSize1, m_indices->data(), GL_STATIC_DRAW);
 
 		unsigned int curId = 0;
@@ -247,23 +244,12 @@ namespace Liar
 
 		// skin anim info
 		bool skin = m_rawData->HasSkin();
-
-		ReleaseData();
 	}
 
-	void LiarGeometry::ReleaseData()
+	void LiarGeometry::ReleaseSourceData()
 	{
-		m_indicesSize = GetIndicesSize();
-		std::vector<unsigned int>().swap(*m_indices);
-		delete m_indices;
+		Liar::LiarBaseGeometry::ReleaseSourceData();
 		delete m_rawData;
-	}
-
-	void LiarGeometry::Render()
-	{
-		// draw mesh
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, m_indicesSize, GL_UNSIGNED_INT, 0);
 	}
 
 #endif // !PLUGINS

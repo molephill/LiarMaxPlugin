@@ -63,25 +63,21 @@ namespace Liar
         
     protected:
         virtual void ReleaseSourceData();
+		virtual void UploadSub();
 #endif // PLUGINS
     };
 
-	class LiarGeometry
+	class LiarGeometry:public LiarBaseGeometry
 	{
 	public:
 		LiarGeometry();
 		~LiarGeometry();
 
 	private:
-		std::vector<unsigned int>* m_indices;
 		int m_vertexOpen;
 
 		Liar::LiarVertexRawData* m_rawData;
 		std::vector<Liar::LiarVertexDefine*>* m_vertexFaces;
-
-		int m_indicesSize;
-
-		void ReleaseData();
 
 	public:
 		std::vector<unsigned int>* GetIndices() { return m_indices; };
@@ -104,14 +100,9 @@ namespace Liar
 		friend std::ostream& operator<<(std::ostream& os, const Liar::LiarGeometry& m);
         
 #ifndef PLUGINS
-    public:
-        void Upload();
-        void Render();
-        
-    private:
-        unsigned int VAO;
-        unsigned int VBO;
-        unsigned int EBO;
+    protected:
+		virtual void ReleaseSourceData();
+		virtual void UploadSub();
 #endif
 	};
 
