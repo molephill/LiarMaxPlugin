@@ -4,7 +4,7 @@
 #include <AssetsMgr.hpp>
 
 #ifndef PLUGINS
-#include "Model.h"
+#include "LiarModel.h"
 #else
 #include <LiarMesh.h>
 #endif // !PLUGINS

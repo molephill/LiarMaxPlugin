@@ -4,7 +4,7 @@
 namespace Liar
 {
 	LiarBaseShader::LiarBaseShader() :
-		Liar::ILiarRef(),
+		Liar::LiarReference(),
 		m_path(""), m_shaderCode("")
 	{
 
@@ -47,7 +47,7 @@ namespace Liar
 	}
 
 	LiarShaderProgram::LiarShaderProgram():
-		Liar::ILiarRef(),
+		Liar::LiarReference(),
 		m_ID(0),m_name("")
 	{
 

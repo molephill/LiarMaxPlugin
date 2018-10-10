@@ -5,10 +5,10 @@
 
 #include <LiarVertexBuffer.h>
 #include <LiarStringUtil.h>
+#include <LiarRefrence.h>
 
 #ifndef PLUGINS
 #include <LiarShader.h>
-#include <ILiarRef.h>
 #else
 #include <IGame.h>
 #endif // !PLUGINS
@@ -17,11 +17,7 @@ namespace Liar
 {
 	// ====================  Œ∆¿Ì ================
 
-#ifndef PLUGINS
-	class LiarTexture :public ILiarRef
-#else
-	class LiarTexture
-#endif // !PLUGINS
+	class LiarTexture :public LiarReference
 	{
 	public:
 		LiarTexture();

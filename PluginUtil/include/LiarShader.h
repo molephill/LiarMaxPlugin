@@ -8,7 +8,7 @@
 #include <Matrices.h>
 #include <Vectors.h>
 
-#include <ILiarRef.h>
+#include <LiarRefrence.h>
 
 namespace Liar
 {
@@ -19,7 +19,7 @@ namespace Liar
 		SHADER_TYPE_PROGROM = 2,
 	};
 
-	class LiarBaseShader:public ILiarRef
+	class LiarBaseShader:public LiarReference
 	{
 	public:
 		LiarBaseShader();
@@ -37,7 +37,7 @@ namespace Liar
 		const char* GetShaderCode() const { return m_shaderCode.c_str(); };
 	};
 
-	class LiarShaderProgram:public ILiarRef
+	class LiarShaderProgram:public LiarReference
 	{
 	public:
 		LiarShaderProgram();

@@ -3,11 +3,11 @@
 #include <Vectors.h>
 #include <vector>
 
+#include <LiarRefrence.h>
+
 #ifdef PLUGINS
 #include <IGame.h>
 #include <IGameObject.h>
-#else
-#include <ILiarRef.h>
 #endif // PLUGINS
 
 
@@ -69,11 +69,7 @@ namespace Liar
 		}
 	};
 
-#ifdef PLUGINS
-	class LiarSkeleton
-#else
-	class LiarSkeleton:public ILiarRef
-#endif // PLUGINS
+	class LiarSkeleton :public LiarReference
 	{
 	public:
 		LiarSkeleton();

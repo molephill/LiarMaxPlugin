@@ -85,18 +85,20 @@ namespace Liar
 		Liar::LiarTexture* GetTexture(const char*);
 		Liar::LiarTexture* GetTexture(const std::string&);
 
+#ifndef PLUGINS
 		Liar::LiarBaseShader* GetBaseShader(const char*);
 		Liar::LiarBaseShader* GetBaseShader(const std::string&);
 
 		Liar::LiarShaderProgram* GetShaderProgrom(const char*, const char*, const char*);
 		Liar::LiarShaderProgram* GetShaderProgrom(const std::string&, const std::string&, const std::string&);
 
-		Liar::LiarSkeleton* GetSkeleton(const char*);
-		Liar::LiarSkeleton* GetSkeleton(const std::string&);
-
 		void ReleaseShaderProgram(Liar::LiarShaderProgram*);
 		void ReleaseShaderProgram(const char*);
 		void ReleaseShaderProgram(const std::string&);
+#endif // !PLUGINS
+
+		Liar::LiarSkeleton* GetSkeleton(const char*);
+		Liar::LiarSkeleton* GetSkeleton(const std::string&);
         
         static std::string GetPath(const char*);
 

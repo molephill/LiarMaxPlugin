@@ -93,6 +93,7 @@ namespace Liar
 		return GetTexture(fileName.data());
 	}
 
+#ifndef PLUGINS
 	Liar::LiarBaseShader* AssetsMgr::GetBaseShader(const char* fileName)
 	{
 		Liar::LiarBaseShader* ret = nullptr;
@@ -202,6 +203,8 @@ namespace Liar
 	{
 		ReleaseShaderProgram(name.c_str());
 	}
+
+#endif // !PLUGINS
 
 	Liar::LiarSkeleton* AssetsMgr::GetSkeleton(const char* path)
 	{
