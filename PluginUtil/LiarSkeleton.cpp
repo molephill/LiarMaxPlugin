@@ -17,17 +17,9 @@ namespace Liar
 		delete m_scale;
 	}
 
-
-#if PLUGINS
 	LiarSkeleton::LiarSkeleton() :
 		Liar::LiarReference(),
 		m_bones(new std::vector<Liar::LiarBone*>())
-#else
-	LiarSkeleton::LiarSkeleton() :
-		Liar::LiarReference(),
-		m_bones(new std::vector<Liar::LiarBone*>()),
-		m_path("")
-#endif // PLUGINS
 	{
 	}
 

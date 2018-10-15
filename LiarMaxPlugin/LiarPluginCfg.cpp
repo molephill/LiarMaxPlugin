@@ -8,7 +8,7 @@ namespace Liar
 		,revertUV(true)
 		, exportAnim(true), exportModifier(true)
 
-		, vertexNormal(true), textureCoord(true)
+		, vertexNormal(true), textureCoord(true), vertexColor(false)
 
 		, skeleton(true)
 		, skin(true)
@@ -19,10 +19,8 @@ namespace Liar
 
 		, skeletonName("")
 		, animName("")
+		, coordSystemType(IGameConversionManager::CoordSystem::IGAME_OGL)
 	{
-#ifdef PLUGINS
-		coordSystemType = IGameConversionManager::CoordSystem::IGAME_OGL;
-#endif // PLUGINS
 
 	}
 

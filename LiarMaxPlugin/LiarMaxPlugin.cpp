@@ -182,7 +182,7 @@ int	LiarMaxPlugin::DoExport(const TCHAR* name, ExpInterface* /*ei*/, Interface* 
 	#pragma message(TODO("Implement the actual file Export here and"))
 
 	m_options = (options & SCENE_EXPORT_SELECTED) ? true : false;
-	Liar::StringUtil::GetTChar2Char(name, m_name);
+	Liar::LiarStructUtil::GetTChar2Char(name, m_name);
 
 	if(!suppressPrompts)
 		DialogBoxParam(hInstance, 

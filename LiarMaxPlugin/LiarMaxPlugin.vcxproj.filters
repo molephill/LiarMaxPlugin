@@ -27,18 +27,6 @@
     <ClCompile Include="DllEntry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\PluginUtil\LiarMaterial.cpp">
-      <Filter>Source Files\Includes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\PluginUtil\LiarMesh.cpp">
-      <Filter>Source Files\Includes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\PluginUtil\LiarPluginCfg.cpp">
-      <Filter>Source Files\Includes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\PluginUtil\LiarVertexBuffer.cpp">
-      <Filter>Source Files\Includes</Filter>
-    </ClCompile>
     <ClCompile Include="..\PluginUtil\Matrices.cpp">
       <Filter>Source Files\Includes</Filter>
     </ClCompile>
@@ -63,11 +51,11 @@
     <ClCompile Include="..\PluginUtil\LiarSkeletonAnim.cpp">
       <Filter>Source Files\Includes</Filter>
     </ClCompile>
-    <ClCompile Include="..\PluginUtil\AssetMgr.cpp">
+    <ClCompile Include="..\PluginUtil\LiarVertexBuffer.cpp">
       <Filter>Source Files\Includes</Filter>
     </ClCompile>
-    <ClCompile Include="..\PluginUtil\LiarShader.cpp">
-      <Filter>Source Files\Includes</Filter>
+    <ClCompile Include="LiarPluginCfg.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -81,15 +69,6 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\PluginUtil\include\LiarMaterial.h">
-      <Filter>Header Files\Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\PluginUtil\include\LiarMesh.h">
-      <Filter>Header Files\Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\PluginUtil\include\LiarPluginCfg.h">
-      <Filter>Header Files\Includes</Filter>
     </ClInclude>
     <ClInclude Include="..\PluginUtil\plugin\LiarPluginUtil.h">
       <Filter>Header Files\Includes</Filter>
@@ -133,11 +112,11 @@
     <ClInclude Include="..\PluginUtil\include\LiarSkeletonAnim.h">
       <Filter>Header Files\Includes</Filter>
     </ClInclude>
-    <ClInclude Include="..\PluginUtil\include\AssetsMgr.hpp">
+    <ClInclude Include="..\PluginUtil\include\LiarRefrence.h">
       <Filter>Header Files\Includes</Filter>
     </ClInclude>
-    <ClInclude Include="..\PluginUtil\include\ILiarRef.h">
-      <Filter>Header Files\Includes</Filter>
+    <ClInclude Include="LiarPluginCfg.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

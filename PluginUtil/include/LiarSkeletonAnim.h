@@ -3,13 +3,6 @@
 #include <Vectors.h>
 #include <vector>
 
-#include <PluginDefine.h>
-
-#ifdef PLUGINS
-#include <triobj.h>
-#endif // PLUGINS
-
-
 namespace Liar
 {
 	// ================= bone frame ==================== //
@@ -35,11 +28,6 @@ namespace Liar
 		void Set(const Liar::Vector3D& rhs);
 		virtual void Set(float x, float y, float z, float w = 0);
 		virtual void Set(const Liar::Vector4D& rhs);
-
-#ifdef PLUGINS
-		void Set(const Quat& quat) { Set(quat.x, quat.y, quat.z, quat.w); };
-		void Set(const Point3& quat) { Set(quat.x, quat.y, quat.z); };
-#endif // PLUGINS
 	};
 
 	class LiarQuatKeyFrame :public LiarKeyFrame

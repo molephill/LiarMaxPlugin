@@ -48,12 +48,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\PluginUtil\AssetMgr.cpp" />
-    <ClCompile Include="..\PluginUtil\LiarMaterial.cpp" />
-    <ClCompile Include="..\PluginUtil\LiarMesh.cpp" />
-    <ClCompile Include="..\PluginUtil\LiarPluginCfg.cpp" />
     <ClCompile Include="..\PluginUtil\LiarPluginRead.cpp" />
-    <ClCompile Include="..\PluginUtil\LiarShader.cpp" />
     <ClCompile Include="..\PluginUtil\LiarSkeleton.cpp" />
     <ClCompile Include="..\PluginUtil\LiarSkeletonAnim.cpp" />
     <ClCompile Include="..\PluginUtil\LiarVertexBuffer.cpp" />
@@ -63,18 +58,15 @@
     <ClCompile Include="LiarMaxNodeParse.cpp" />
     <ClCompile Include="LiarMaxPlugin.cpp" />
     <ClCompile Include="DllEntry.cpp" />
+    <ClCompile Include="LiarPluginCfg.cpp" />
     <ClCompile Include="LiarPluginWrite.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="LiarMaxPlugin.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\PluginUtil\include\AssetsMgr.hpp" />
-    <ClInclude Include="..\PluginUtil\include\ILiarRef.h" />
-    <ClInclude Include="..\PluginUtil\include\LiarMaterial.h" />
-    <ClInclude Include="..\PluginUtil\include\LiarMesh.h" />
-    <ClInclude Include="..\PluginUtil\include\LiarPluginCfg.h" />
     <ClInclude Include="..\PluginUtil\include\LiarPluginRead.h" />
+    <ClInclude Include="..\PluginUtil\include\LiarRefrence.h" />
     <ClInclude Include="..\PluginUtil\include\LiarSkeleton.h" />
     <ClInclude Include="..\PluginUtil\include\LiarSkeletonAnim.h" />
     <ClInclude Include="..\PluginUtil\include\LiarStringUtil.h" />
@@ -88,6 +80,7 @@
     <ClInclude Include="LiarMaxDialogMgr.h" />
     <ClInclude Include="LiarMaxNodeParse.h" />
     <ClInclude Include="LiarMaxPlugin.h" />
+    <ClInclude Include="LiarPluginCfg.h" />
     <ClInclude Include="LiarPluginWrite.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>

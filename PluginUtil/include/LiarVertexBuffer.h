@@ -1,23 +1,47 @@
 #pragma once
 
 #include "LiarSkeleton.h"
-#include <vector>
+#include <LiarVertexBuffer.h>
 
-#ifndef PLUGINS
-#include <glad/glad.h>
-#endif // !PLUGINS
+#include <vector>
 
 
 namespace Liar
 {
-	// =================================== vertex_define ===================================
-	class LiarVertexDefine
+	class LiarNode
 	{
 	public:
-		LiarVertexDefine() :positionIndex(0), normalIndex(0), texCoordIndex(0), colorIndex(0) {};
-		LiarVertexDefine(unsigned int posIndex, unsigned int normIndex, unsigned int texIndex, unsigned int corIndex) :
+		LiarNode();
+		~LiarNode();
+
+	private:
+		std::string m_nodeName;
+		std::vector<Liar::LiarNode*>* m_children;
+
+	public:
+		unsigned int meshIndex;
+
+	public:
+		LiarNode* AddChild();
+
+		void SetNodeName(const char* nodeName) { m_nodeName = nodeName; };
+		void SetNodeName(const std::string& nodeName) { m_nodeName = nodeName; };
+
+		std::string& GetNodeName() { return m_nodeName; };
+
+		std::vector<Liar::LiarNode*>* GetChildren() const { return m_children; };
+
+		int GetNumChildren() const { return m_children ? static_cast<int>(m_children->size()) : 0; };
+	};
+
+	// =================================== vertex_define ===================================
+	class LiarFaceDefine
+	{
+	public:
+		LiarFaceDefine() :positionIndex(0), normalIndex(0), texCoordIndex(0), colorIndex(0) {};
+		LiarFaceDefine(unsigned int posIndex, unsigned int normIndex, unsigned int texIndex, unsigned int corIndex) :
 			positionIndex(posIndex), normalIndex(normIndex), texCoordIndex(texIndex), colorIndex(corIndex) {}
-		~LiarVertexDefine() {};
+		~LiarFaceDefine() {};
 		
 	public:
 		unsigned int positionIndex;
@@ -25,8 +49,16 @@ namespace Liar
 		unsigned int texCoordIndex;
 		unsigned int colorIndex;
 
+		void Set(unsigned int posIndex, unsigned int normIndex, unsigned int texIndex, unsigned int corIndex) 
+		{
+			positionIndex = posIndex;
+			normalIndex = normIndex;
+			texCoordIndex = texIndex;
+			colorIndex = corIndex;
+		};
+
 	public:
-		bool operator==(const LiarVertexDefine& rhs) const
+		bool operator==(const LiarFaceDefine& rhs) const
 		{
 			return rhs.positionIndex == positionIndex && rhs.normalIndex == normalIndex && rhs.texCoordIndex == texCoordIndex && rhs.colorIndex == colorIndex;
 		}
@@ -61,12 +93,53 @@ namespace Liar
 		void AddBoneInfo(int, float);
 	};
 
-	// =================================== raw_data ===================================
-	class LiarVertexRawData
+	class LiarTextureDefine
 	{
 	public:
-		LiarVertexRawData();
-		~LiarVertexRawData();
+		LiarTextureDefine(int type):m_type(type){};
+		~LiarTextureDefine() {};
+
+	private:
+		std::string m_path;
+		int m_type;
+
+	public:
+		std::string GetPath() { return m_path; };
+		int GetType() const { return m_type; };
+		void SetPath(const std::string& path) { m_path = path; };
+	};
+
+	class LiarMaterialDefine
+	{
+	public:
+		LiarMaterialDefine():m_texs(new std::vector<Liar::LiarTextureDefine*>()){};
+		~LiarMaterialDefine() 
+		{
+			for (std::vector<Liar::LiarTextureDefine*>::iterator it = m_texs->begin(); it != m_texs->end(); ++it)
+			{
+				delete (*it);
+			}
+		};
+
+	private:
+		std::vector<Liar::LiarTextureDefine*>* m_texs;
+
+	public:
+		std::vector<Liar::LiarTextureDefine*>* GetTextures() { return m_texs; };
+		size_t GetTexSize() const { return m_texs->size(); };
+		Liar::LiarTextureDefine* GetTexture(size_t i) { return m_texs->at(i); };
+	};
+
+	// =================================== raw_data ===================================
+	class LiarMeshRawData
+	{
+	public:
+		LiarMeshRawData();
+		~LiarMeshRawData();
+
+	public:
+		std::string meshName;
+		std::string saveName;
 
 	private:
 		std::vector<Vector3D*>* m_pos;					// pos
@@ -75,6 +148,10 @@ namespace Liar
 		std::vector<Vector3D*>* m_texCoord;				// tex
 
 		std::vector<Liar::LiarAnimSkinDefine*>* m_skinDefines;
+		std::vector<Liar::LiarFaceDefine*>* m_faces;
+		std::vector<Liar::LiarMaterialDefine*>* m_materials;
+
+		std::vector<int>* m_indices;
 
 	public:
 		std::vector<Vector3D*>* GetPos() { return m_pos; };
@@ -98,6 +175,12 @@ namespace Liar
 		Liar::Vector3D* AddNorm(size_t);
 		Liar::Vector3D* AddColor(size_t);
 		Liar::Vector3D* AddTex(size_t);
+		void AddMaterial(Liar::LiarMaterialDefine* v)
+		{
+			if (!v) return;
+			if (!m_materials) m_materials = new std::vector<Liar::LiarMaterialDefine*>();
+			m_materials->push_back(v);
+		}
         
         bool HasNorm() { return m_norm ? true : false; };
         bool HasColor() { return m_color ? true : false; };
@@ -108,10 +191,25 @@ namespace Liar
 		int GetIndex(Liar::LiarVertexType, float, float, float);
 		int GetIndex(Liar::LiarVertexType, const Liar::Vector3D&);
 
+		std::vector<Liar::LiarFaceDefine*>* GetFaces() { return m_faces; };
+
+		std::vector<Liar::LiarMaterialDefine*>* GetMatrials() { return m_materials; };
+		size_t GetMatrialSize() const { return m_materials ? m_materials->size() : 0; };
+
+		std::vector<int>* GetIndices() { return m_indices; };
+
+		size_t GetFaceSize() const { return m_faces->size(); };
+
 		// ======================
 		Liar::LiarAnimSkinDefine* GetAnimSkinDefine(int, bool add = false);
 		std::vector<Liar::LiarAnimSkinDefine*>* GetSkinDefines() { return m_skinDefines; };
 		size_t GetSkinDefineLen() const { return m_skinDefines ? m_skinDefines->size() : 0; };
+
+		Liar::LiarFaceDefine* FindFaceDefine(const Liar::LiarFaceDefine&);
+		Liar::LiarFaceDefine* FindFaceDefine(unsigned int, unsigned int, unsigned int, unsigned int cor = 0);
+
+		int FindFaceDefineIndex(const Liar::LiarFaceDefine&) const;
+		int FindFaceDefineIndex(unsigned int, unsigned int, unsigned int, unsigned int cor = 0) const;
 
 	private:
 		std::vector<Liar::Vector3D*>* GetData(Liar::LiarVertexType);
@@ -139,7 +237,6 @@ namespace Liar
 			return os;
 		}
 
-#ifndef PLUGINS
 	public:
 		static int GetPositionSize() { return sizeof(Liar::Vector3D); };
 		static int GetNormalSize() { return sizeof(Liar::Vector3D); };
@@ -163,10 +260,6 @@ namespace Liar
 			return Liar::LiarVertexBuffer::GetPositionSize() + Liar::LiarVertexBuffer::GetNormalSize()
 				+ Liar::LiarVertexBuffer::GetColorSize() + Liar::LiarVertexBuffer::GetUVSize();
 		}
-
-	public:
-		void Upload(size_t);
-#endif // !PLUGINS
 
 	};
 }

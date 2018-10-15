@@ -1,20 +1,14 @@
-﻿  AssetMgr.cpp
-  LiarMaterial.cpp
-  LiarMesh.cpp
-  LiarPluginCfg.cpp
-  LiarPluginRead.cpp
-  LiarShader.cpp
+﻿  LiarPluginRead.cpp
   LiarSkeleton.cpp
   LiarSkeletonAnim.cpp
   LiarVertexBuffer.cpp
-e:\c++\liarmaxplugin\pluginutil\liarshader.cpp(66): warning C4100: “fragmentFile”: 未引用的形参
-e:\c++\liarmaxplugin\pluginutil\liarshader.cpp(66): warning C4100: “vertexFile”: 未引用的形参
   Matrices.cpp
   Quaternion.cpp
   LiarMaxDialogMgr.cpp
   LiarMaxNodeParse.cpp
   LiarMaxPlugin.cpp
   DllEntry.cpp
+  LiarPluginCfg.cpp
   LiarPluginWrite.cpp
   e:\c++\liarmaxplugin\liarmaxplugin\liarmaxplugin.cpp(116): TODO: Returns the number of file name extensions supported by the plug-in.
   e:\c++\liarmaxplugin\liarmaxplugin\liarmaxplugin.cpp(122): TODO: Return the 'i-th' file name extension (i.e. "3DS").
@@ -27,7 +21,6 @@ e:\c++\liarmaxplugin\pluginutil\liarshader.cpp(66): warning C4100: “vertexFile
   e:\c++\liarmaxplugin\liarmaxplugin\liarmaxplugin.cpp(182): TODO: Implement the actual file Export here and
   e:\c++\liarmaxplugin\liarmaxplugin\dllentry.cpp(79): TODO: Perform initialization here.
   e:\c++\liarmaxplugin\liarmaxplugin\dllentry.cpp(88): TODO: Perform un-initialization here.
-e:\c++\liarmaxplugin\liarmaxplugin\liarpluginwrite.cpp(244): warning C4100: “liarPlugin”: 未引用的形参
     正在创建库 E:\c++\LiarMaxPlugin\LiarMaxPlugin\\obj\x64\Debug\\LiarMaxPlugin.lib 和对象 E:\c++\LiarMaxPlugin\LiarMaxPlugin\\obj\x64\Debug\\LiarMaxPlugin.exp
   LiarMaxPlugin.vcxproj -> D:\InitTools\3DMax2019\3ds Max 2019\Plugins\LiarMaxPlugin.dle
   LiarMaxPlugin.vcxproj -> D:\InitTools\3DMax2019\3ds Max 2019\Plugins\LiarMaxPlugin.dle.pdb (Full PDB)

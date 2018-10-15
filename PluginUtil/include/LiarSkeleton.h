@@ -5,12 +5,6 @@
 
 #include <LiarRefrence.h>
 
-#ifdef PLUGINS
-#include <IGame.h>
-#include <IGameObject.h>
-#endif // PLUGINS
-
-
 namespace Liar
 {
 
@@ -49,10 +43,6 @@ namespace Liar
 		void SetScale(Liar::Vector3D* v) { m_scale = v; };
 
 	public:
-
-#ifdef PLUGINS
-		IGameNode* node;
-#endif // PLUGINS
 		bool operator==(const Liar::LiarBone& rhs) const
 		{
 			return rhs.m_name == m_name;
@@ -76,9 +66,6 @@ namespace Liar
 		~LiarSkeleton();
 
 	private:
-#ifndef PLUGINS
-		std::string m_path;
-#endif // PLUGINS
 		std::vector<Liar::LiarBone*>* m_bones;
 
 	public:
@@ -86,11 +73,6 @@ namespace Liar
 		Liar::LiarBone* GetBone(size_t index) { return m_bones->at(index); };
 
 		size_t GetBoneSize() const { return m_bones->size(); };
-
-#ifndef PLUGINS
-		std::string GetPath() const { return m_path; };
-		void SetPath(const char* path) { m_path = path; };
-#endif // !PLUGINS
 
 	};
 }

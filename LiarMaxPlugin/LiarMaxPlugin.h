@@ -25,8 +25,8 @@
 
 #include <impexp.h>
 
+#include <LiarPluginUtil.h>
 #include "LiarMaxNodeParse.h"
-#include <LiarPluginCfg.h>
 #include "LiarMaxDialogMgr.h"
 
 

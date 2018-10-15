@@ -2,7 +2,7 @@
 namespace Liar
 {
 	// maxs version
-	#define PLUGINS 2019
+	//#define PLUGINS 2019
 
 	const float PI = 3.141593f;
 	const float DEG2RAD = PI / 180.0f;

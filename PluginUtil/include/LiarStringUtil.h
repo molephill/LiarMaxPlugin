@@ -1,12 +1,6 @@
 #pragma once
 #include <string>
 
-#ifdef PLUGINS
-#include <impexp.h>
-#include <iparamb2.h>
-#include <iparamm2.h>
-#endif
-
 #ifdef __APPLE__
 #include <cctype>
 #include <algorithm>
@@ -14,7 +8,7 @@
 #include <cctype>
 #include <algorithm>
 #include <windows.h>
-#endif // PLUGINS
+#endif //
 
 namespace Liar
 {
@@ -56,41 +50,6 @@ namespace Liar
 				last = name.substr(pos + 1);
 			}
 		}
-
-#ifdef PLUGINS
-		static void GetWSTR2Char(const WStr& name, std::string& out)
-		{
-			char tmpName[_MAX_PATH];
-			size_t len = name.length() + 1;
-			size_t converted = 0;
-			wcstombs_s(&converted, tmpName, len, name.data(), _TRUNCATE);
-			out = tmpName;
-		}
-
-
-		static void GetTChar2Char(const TCHAR* name, std::string& out)
-		{
-			/*size_t len = wcslen(name) + 1;
-			size_t converted = 0;
-			char tmpName[_MAX_PATH];
-			wcstombs_s(&converted, tmpName, len, name, _TRUNCATE);
-			out = tmpName;*/
-
-			int nLen = WideCharToMultiByte(CP_ACP, 0, name, -1, NULL, 0, NULL, NULL);
-
-			if (nLen <= 0) return;
-
-			char* pszDst = new char[nLen];
-			if (NULL == pszDst) return;
-
-			WideCharToMultiByte(CP_ACP, 0, name, -1, pszDst, nLen, NULL, NULL);
-			pszDst[nLen - 1] = 0;
-
-			out = pszDst;
-			delete[] pszDst;
-
-		}
-#endif // !PLUGINS
 
 
 #ifndef __APPLE__

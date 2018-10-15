@@ -2,6 +2,36 @@
 
 namespace Liar
 {
+	// =============================== Nodes ===============================
+
+	LiarNode::LiarNode()
+		:m_nodeName(""), m_children(nullptr), meshIndex(0)
+	{
+
+	}
+
+	LiarNode::~LiarNode()
+	{
+		if (m_children)
+		{
+			for (std::vector<Liar::LiarNode*>::iterator it = m_children->begin(); it != m_children->end();)
+			{
+				delete (*it);
+				it = m_children->erase(it);
+			}
+			std::vector<Liar::LiarNode*>().swap(*m_children);
+			delete m_children;
+		}
+	}
+
+	Liar::LiarNode* LiarNode::AddChild()
+	{
+		if (!m_children) m_children = new std::vector<Liar::LiarNode*>();
+		Liar::LiarNode* node = new Liar::LiarNode();
+		m_children->push_back(node);
+		return node;
+	}
+
 	// =================================== anim_skin_define ===================================
 	LiarAnimSkinDefine::LiarAnimSkinDefine(int posIndex) :
 		m_positionIndex(posIndex),
@@ -44,12 +74,17 @@ namespace Liar
 	}
 
 	// ================ vertex raw data ==============================
-	LiarVertexRawData::LiarVertexRawData() :m_pos(new std::vector<Vector3D*>())
-		, m_norm(nullptr), m_color(nullptr), m_texCoord(nullptr), m_skinDefines(nullptr)
+	LiarMeshRawData::LiarMeshRawData() :
+		m_pos(new std::vector<Vector3D*>()), 
+		m_faces(new std::vector<Liar::LiarFaceDefine*>()),
+		m_indices(new std::vector<int>()),
+		meshName(""),saveName(""),
+		m_norm(nullptr), m_color(nullptr), m_texCoord(nullptr), m_skinDefines(nullptr),
+		m_materials(nullptr)
 	{
 	}
 
-	void LiarVertexRawData::EraseAll(std::vector<Liar::Vector3D*>* vec)
+	void LiarMeshRawData::EraseAll(std::vector<Liar::Vector3D*>* vec)
 	{
 		if (vec)
 		{
@@ -62,7 +97,7 @@ namespace Liar
 		}
 	}
 
-	LiarVertexRawData::~LiarVertexRawData()
+	LiarMeshRawData::~LiarMeshRawData()
 	{
 		EraseAll(m_pos);
 		EraseAll(m_norm);
@@ -72,9 +107,24 @@ namespace Liar
 		m_norm = nullptr;
 		m_color = nullptr;
 		m_texCoord = nullptr;
+
+		for (std::vector<Liar::LiarFaceDefine*>::iterator it = m_faces->begin(); it != m_faces->end(); ++it)
+		{
+			delete (*it);
+		}
+		delete m_faces;
+
+		if (m_materials)
+		{
+			for (std::vector<Liar::LiarMaterialDefine*>::iterator it = m_materials->begin(); it != m_materials->end(); ++it)
+			{
+				delete (*it);
+			}
+			delete m_materials;
+		}
 	}
 
-	Liar::LiarAnimSkinDefine* LiarVertexRawData::GetAnimSkinDefine(int verIndex, bool add)
+	Liar::LiarAnimSkinDefine* LiarMeshRawData::GetAnimSkinDefine(int verIndex, bool add)
 	{
 		if (!m_skinDefines) m_skinDefines = new std::vector<Liar::LiarAnimSkinDefine*>();
 		for (std::vector<Liar::LiarAnimSkinDefine*>::iterator it = m_skinDefines->begin(); it != m_skinDefines->end(); ++it)
@@ -98,7 +148,7 @@ namespace Liar
 		}
 	}
 
-	Liar::Vector3D* LiarVertexRawData::AddData(Liar::LiarVertexType type, size_t index)
+	Liar::Vector3D* LiarMeshRawData::AddData(Liar::LiarVertexType type, size_t index)
 	{
 		std::vector<Liar::Vector3D*>* vec = GetData(type);
 		while (vec->size() <= index)
@@ -108,7 +158,7 @@ namespace Liar
 		return vec->at(index);
 	}
 
-	int LiarVertexRawData::GetIndex(Liar::LiarVertexType type, float x, float y, float z)
+	int LiarMeshRawData::GetIndex(Liar::LiarVertexType type, float x, float y, float z)
 	{
 		std::vector<Liar::Vector3D*>* vec = GetData(type);
 		size_t size = vec->size();
@@ -121,12 +171,12 @@ namespace Liar
 		return static_cast<int>(size);
 	}
 
-	int LiarVertexRawData::GetIndex(Liar::LiarVertexType type, const Liar::Vector3D& v)
+	int LiarMeshRawData::GetIndex(Liar::LiarVertexType type, const Liar::Vector3D& v)
 	{
 		return GetIndex(type, v.x, v.y, v.z);
 	}
 
-	std::vector<Liar::Vector3D*>* LiarVertexRawData::GetData(Liar::LiarVertexType type)
+	std::vector<Liar::Vector3D*>* LiarMeshRawData::GetData(Liar::LiarVertexType type)
 	{
 		std::vector<Liar::Vector3D*>* vec = nullptr;
 		if (type == Liar::LiarVertexType::LiarVertexType_COLOR)
@@ -151,7 +201,7 @@ namespace Liar
 		return vec;
 	}
 
-	Liar::Vector3D* LiarVertexRawData::AddPos(size_t index)
+	Liar::Vector3D* LiarMeshRawData::AddPos(size_t index)
 	{
 		while (m_pos->size() <= index)
 		{
@@ -160,7 +210,7 @@ namespace Liar
 		return m_pos->at(index);
 	}
 
-	Liar::Vector3D* LiarVertexRawData::AddNorm(size_t index)
+	Liar::Vector3D* LiarMeshRawData::AddNorm(size_t index)
 	{
 		if (!m_norm) m_norm = new std::vector<Liar::Vector3D*>();
 		while (m_norm->size() <= index)
@@ -170,7 +220,7 @@ namespace Liar
 		return m_norm->at(index);
 	}
 
-	Liar::Vector3D* LiarVertexRawData::AddColor(size_t index)
+	Liar::Vector3D* LiarMeshRawData::AddColor(size_t index)
 	{
 		if (!m_color) m_color = new std::vector<Liar::Vector3D*>();
 		while (m_color->size() <= index)
@@ -180,7 +230,7 @@ namespace Liar
 		return m_color->at(index);
 	}
 
-	Liar::Vector3D* LiarVertexRawData::AddTex(size_t index)
+	Liar::Vector3D* LiarMeshRawData::AddTex(size_t index)
 	{
 		if (!m_texCoord) m_texCoord = new std::vector<Liar::Vector3D*>();
 		while (m_texCoord->size() <= index)
@@ -188,6 +238,42 @@ namespace Liar
 			m_texCoord->push_back(new Liar::Vector3D());
 		}
 		return m_texCoord->at(index);
+	}
+
+	Liar::LiarFaceDefine* LiarMeshRawData::FindFaceDefine(const Liar::LiarFaceDefine& rhs)
+	{
+		return FindFaceDefine(rhs.positionIndex, rhs.normalIndex, rhs.texCoordIndex, rhs.colorIndex);
+	}
+
+	Liar::LiarFaceDefine* LiarMeshRawData::FindFaceDefine(unsigned int posIndex, unsigned int normIndex, unsigned int texIndex, unsigned int cor)
+	{
+		for (std::vector<Liar::LiarFaceDefine*>::iterator it = m_faces->begin(); it != m_faces->end(); ++it)
+		{
+			if ((*it)->Equal(posIndex, normIndex, texIndex, cor))
+			{
+				return *it;
+			}
+		}
+		return nullptr;
+	}
+
+	int LiarMeshRawData::FindFaceDefineIndex(const Liar::LiarFaceDefine& rhs) const
+	{
+		return FindFaceDefineIndex(rhs.positionIndex, rhs.normalIndex, rhs.texCoordIndex, rhs.colorIndex);
+	}
+
+	int LiarMeshRawData::FindFaceDefineIndex(unsigned int posIndex, unsigned int normIndex, unsigned int texIndex, unsigned int cor) const
+	{
+		size_t size = GetFaceSize();
+		for (size_t i = 0; i < size; ++i)
+		{
+			Liar::LiarFaceDefine* tmp = m_faces->at(i);
+			if (tmp->Equal(posIndex, normIndex, texIndex, cor))
+			{
+				return static_cast<int>(i);
+			}
+		}
+		return -1;
 	}
 
 	// ================ vertex raw data ==============================
@@ -199,25 +285,5 @@ namespace Liar
 	LiarVertexBuffer::~LiarVertexBuffer()
 	{
 	}
-
-#ifndef PLUGINS
-	void LiarVertexBuffer::Upload(size_t start)
-	{
-		size_t positionSize = Liar::LiarVertexBuffer::GetPositionSize();
-		size_t normalSize = LiarVertexBuffer::GetNormalSize();
-		size_t colorSize = Liar::LiarVertexBuffer::GetColorSize();
-		size_t uvSize = Liar::LiarVertexBuffer::GetUVSize();
-
-		size_t normalOffSize = positionSize;
-		size_t colorOffSize = positionSize + normalOffSize;
-		size_t uvOffSize = colorOffSize + colorSize;
-
-		glBufferSubData(GL_ARRAY_BUFFER, start, positionSize, position);
-		glBufferSubData(GL_ARRAY_BUFFER, start + normalOffSize, normalSize, normal);
-		glBufferSubData(GL_ARRAY_BUFFER, start + colorOffSize, colorSize, color);
-		glBufferSubData(GL_ARRAY_BUFFER, start + uvOffSize, uvSize, uv);
-	}
-#endif // !PLUGINS
-
 
 }

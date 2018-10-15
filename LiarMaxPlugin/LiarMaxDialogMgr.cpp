@@ -162,11 +162,11 @@ namespace Liar
 		WStr szName;
 		HWND hAnimNameEdit = ::GetDlgItem(hWnd, IDC_EDIT_ANIM);
 		GetWindowText(hAnimNameEdit, szName);
-		Liar::StringUtil::GetWSTR2Char(szName, m_pluginCfg->animName);
+		LiarStructUtil::GetWSTR2Char(szName, m_pluginCfg->animName);
 
 		HWND hSkeleNameEdit = ::GetDlgItem(hWnd, IDC_EDIT_SKELETON);
 		GetWindowText(hSkeleNameEdit, szName);
-		Liar::StringUtil::GetWSTR2Char(szName, m_pluginCfg->skeletonName);
+		LiarStructUtil::GetWSTR2Char(szName, m_pluginCfg->skeletonName);
 	}
 
 	void LiarMaxDialogMgr::SetGeoEnable(HWND hWnd)

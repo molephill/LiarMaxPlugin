@@ -1,7 +1,11 @@
 #pragma once
 
-#include <LiarMesh.h>
-#include <LiarPluginCfg.h>
+#include <PluginDefine.h>
+
+#include "LiarPluginCfg.h"
+
+#include <LiarStringUtil.h>
+#include <LiarVertexBuffer.h>
 #include <LiarSkeletonAnim.h>
 
 #include <IGame.h>
@@ -13,10 +17,18 @@
 #include <IGameError.h>
 
 #include <vector>
-#include <map>
 
 namespace Liar
 {
+	struct LiarMaxBone
+	{
+		LiarMaxBone() :boneId(0), node(nullptr) {};
+		~LiarMaxBone() { node = nullptr; };
+
+		int boneId;
+		IGameNode* node;
+	};
+
 	class LiarMaxNodeParse
 	{
 	public:
@@ -25,16 +37,18 @@ namespace Liar
 
 	private:
 		Liar::LiarNode* m_rootNode;
-		std::vector<Liar::LiarMesh*>* m_allMeshs;
+		std::vector<Liar::LiarMeshRawData*>* m_allMeshData;
 		Liar::LiarSkeletonAnim* m_anim;
 		Liar::LiarSkeleton* m_skeleton;
+		std::vector<LiarMaxBone*>* m_allBones;
 
 	public:
 		int ParseRootNode(Liar::LiarPluginCfg*, bool);
 
 		Liar::LiarNode* GetRootNode() { return m_rootNode; };
-		size_t GetMeshSize() const { return m_allMeshs->size(); };
-		Liar::LiarMesh* GetMesh(size_t index) { return m_allMeshs->at(index); };
+
+		size_t GetMeshRawDataSize() const { return m_allMeshData->size(); };
+		Liar::LiarMeshRawData* GetMeshRawData(size_t index) { return m_allMeshData->at(index); };
 
 		Liar::LiarSkeletonAnim* GetAnim() { return m_anim; };
 		Liar::LiarSkeleton* GetSkeleton() { return m_skeleton; };
@@ -47,8 +61,10 @@ namespace Liar
 		void ParseGeometory(Liar::LiarPluginCfg*, IGameMesh*, int&);
 
 		void ParseBones(Liar::LiarPluginCfg*, IGameNode*);
-		void ParseSkin(Liar::LiarPluginCfg*, IGameMesh*, Liar::LiarMesh*);
+		void ParseSkin(Liar::LiarPluginCfg*, IGameMesh*, Liar::LiarMeshRawData*);
 		void ParseAnim(Liar::LiarPluginCfg*);
+
+		IGameNode* GetMaxNode(int);
 	};
 
 }

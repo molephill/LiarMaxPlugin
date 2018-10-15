@@ -1,47 +1,146 @@
 #include "LiarPluginRead.h"
 #include <LiarStringUtil.h>
 
-#ifndef PLUGINS
-#include "Log.hpp"
-#endif // !PLUGINS
-
 namespace Liar
 {
-
-#ifndef PLUGINS
-	// ======================= read model ===========================
-    Liar::Model* LiarPluginRead::ReadModel(const std::string& path, const char* texBasePath)
-    {
-        return Liar::LiarPluginRead::ReadModel(path.c_str(), texBasePath);
-    }
-	Liar::Model* LiarPluginRead::ReadModel(const char* path, const char* texBasePath)
+	Liar::LiarMeshRawData* LiarPluginRead::ReadMeshRawData(const char* path)
 	{
-		Liar::LiarNode* node = new Liar::LiarNode();
-		Liar::LiarPluginRead::ReadNode(path, *node);
-		Liar::Model* model = new Liar::Model();
-		ReadChildModel(*model, *node, texBasePath);
-		delete node;
-		return model;
-	}
+		FILE* pFile;
+#ifndef __APPLE__
+		fopen_s(&pFile, path, "rb+");
+#else
+		pFile = fopen(path, "rb+");
+#endif
 
-	void LiarPluginRead::ReadChildModel(Liar::Model& model, const Liar::LiarNode& node, const char* basePath)
-	{
-		std::vector<Liar::LiarNode*>* children = node.GetChildren();
-		if (children)
+		Liar::LiarMeshRawData* rawData = new Liar::LiarMeshRawData();
+
+		// read version
+		int ver = 0;
+		fread(&ver, sizeof(int), 1, pFile);
+
+		// read mesh`s name
+		ReadString(rawData->meshName, pFile);
+
+		// read vertex info
+		rawData->SetPos(LiarPluginRead::ReadLiarVecs(pFile));
+		rawData->SetNorm(LiarPluginRead::ReadLiarVecs(pFile));
+		rawData->SetTexCoord(LiarPluginRead::ReadLiarVecs(pFile));
+		rawData->SetColor(LiarPluginRead::ReadLiarVecs(pFile));
+
+		// read face info
+		size_t byLen = sizeof(unsigned int);
+		size_t len = 0;
+		fread(&len, byLen, 1, pFile);
+		for (size_t i = 0; i < len; ++i)
 		{
-			size_t size = children->size();
-			for (size_t i = 0; i < size; ++i)
-			{
-				Liar::LiarNode* subNode = children->at(i);
-				std::string& nodeName = subNode->GetNodeName();
-				model.AddMesh(nodeName, basePath);
+			unsigned int pos = 0, norm = 0, tex = 0, color = 0;
+			fread(&pos, byLen, 1, pFile);
+			fread(&norm, byLen, 1, pFile);
+			fread(&tex, byLen, 1, pFile);
+			fread(&color, byLen, 1, pFile);
+			Liar::LiarFaceDefine* face = new Liar::LiarFaceDefine();
+			face->positionIndex = pos;
+			face->normalIndex = norm;
+			face->texCoordIndex = tex;
+			face->colorIndex = color;
+			rawData->GetFaces()->push_back(face);
+		}
 
-				// add child nodes
-				ReadChildModel(model, *subNode, basePath);
+		// read skin info
+		size_t skinDefineLen = 0;
+		size_t intSize = sizeof(int);
+		size_t floatSize = sizeof(float);
+		fread(&skinDefineLen, intSize, 1, pFile);
+		for (size_t i = 0; i < skinDefineLen; ++i)
+		{
+			// read write skinDefine
+			int vertIndex = 0;
+			fread(&vertIndex, intSize, 1, pFile);
+			Liar::LiarAnimSkinDefine* skinDefine = rawData->GetAnimSkinDefine(vertIndex);
+
+			// write bone size
+			size_t boneInfoSize = 0;
+			fread(&boneInfoSize, intSize, 1, pFile);
+
+			// write bone info
+			for (size_t j = 0; j < boneInfoSize; ++j)
+			{
+				int boneId = skinDefine->GetBoneId(j);
+				float boneWeight = skinDefine->GetBoneWeight(j);
+				fread(&boneId, intSize, 1, pFile);
+				fread(&boneWeight, floatSize, 1, pFile);
+				skinDefine->AddBoneInfo(boneId, boneWeight);
 			}
 		}
+
+		// read indices count;
+		size_t indiceSize = 0;
+		fread(&indiceSize, sizeof(int), 1, pFile);
+		// read indices
+		for (size_t i = 0; i < indiceSize; ++i)
+		{
+			int index = 0;
+			fread(&index, sizeof(unsigned int), 1, pFile);
+			rawData->GetIndices()->push_back(index);
+		}
+
+
+		// read materials info
+		size_t matSize = 0;
+		// write matSize
+		fread(&matSize, sizeof(int), 1, pFile);
+
+		for (size_t i = 0; i < matSize; ++i)
+		{
+			Liar::LiarMaterialDefine* mat = new Liar::LiarMaterialDefine();
+			rawData->AddMaterial(mat);
+			// write texSize;
+			size_t texSize = 0;
+			fread(&texSize, sizeof(int), 1, pFile);
+			// write texture
+			for (size_t j = 0; j < texSize; ++j)
+			{
+				// wirte name
+				std::string texName("");
+				ReadString(texName, pFile);
+
+				// write type
+				int type = 0;
+				fread(&type, sizeof(int), 1, pFile);
+
+				Liar::LiarTextureDefine* tex = new Liar::LiarTextureDefine(type);
+				tex->SetPath(texName);
+
+				mat->GetTextures()->push_back(tex);
+			}
+		}
+
+		fclose(pFile);
+
+		return rawData;
 	}
-#endif // !PLUGINS
+
+	std::vector<Liar::Vector3D*>* LiarPluginRead::ReadLiarVecs(FILE* pFile)
+	{
+		size_t size = 0;
+		// read size;
+		fread(&size, sizeof(int), 1, pFile);
+		// read data
+		if (size > 0)
+		{
+			size_t p3Size = sizeof(Liar::Vector3D);
+			std::vector<Liar::Vector3D*>* vec = new std::vector<Liar::Vector3D*>();
+			for (size_t i = 0; i < size; ++i)
+			{
+				Liar::Vector3D* tmp = new Liar::Vector3D();
+				fread(tmp, p3Size, 1, pFile);
+				vec->push_back(tmp);
+			}
+			return vec;
+		}
+
+		return nullptr;
+	}
 
 	// ======================= read skelenton =======================
 	Liar::LiarSkeleton* LiarPluginRead::ReadSkeleton(const std::string& path)
@@ -211,197 +310,6 @@ namespace Liar
 			// read children
 			ReadChildNode(*subNode, basePath, pFile);
 		}
-	}
-
-    Liar::LiarMesh* LiarPluginRead::ReadMesh(const std::string& path, const char* texBasePath)
-    {
-        return Liar::LiarPluginRead::ReadMesh(path.c_str(), texBasePath);
-    }
-	Liar::LiarMesh* LiarPluginRead::ReadMesh(const char* path, const char* texBasePath)
-	{
-		FILE* pFile;
-#ifndef __APPLE__
-		fopen_s(&pFile, path, "rb+");
-#else
-        pFile = fopen(path, "rb+");
-#endif
-		if (!pFile)
-		{
-			return nullptr;
-		}
-		else
-		{
-			if (!texBasePath)
-			{
-				basePath = path;
-				basePath = Liar::StringUtil::GetHead(basePath, "/");
-				basePath += "/";
-			}
-			else
-			{
-				basePath = texBasePath;
-			}
-
-			Liar::LiarMesh* mesh = new Liar::LiarMesh();
-			ReadLiarMesh(mesh, pFile);
-			fclose(pFile);
-			return mesh;
-		}
-	}
-
-	void LiarPluginRead::ReadLiarMesh(Liar::LiarMesh* mesh, FILE* pFile)
-	{
-		// read ver
-		unsigned int ver = 0;
-		fread(&ver, sizeof(unsigned int), 1, pFile);
-		// read vertex open status
-		int vertexOpen = 0;
-		fread(&vertexOpen, sizeof(int), 1, pFile);
-		// read mesh`s name
-		//fread(&(mesh->meshName), sizeof(std::string), 1, pFile);
-		ReadString(mesh->meshName, pFile);
-		// read mesh`s Geometery
-		ReadLiarGeometery(vertexOpen, mesh->GetGeo(), pFile);
-		// read mesh`s material
-		ReadLiarMaterial(mesh, pFile);
-	}
-
-	void LiarPluginRead::ReadLiarGeometery(int vertexOpen, Liar::LiarGeometry* geo, FILE* pFile)
-	{
-		// set vertex open
-		geo->SetVertexOpen(vertexOpen);
-
-		// read indices count;
-		int indiceSize = 0;
-		fread(&indiceSize, sizeof(int), 1, pFile);
-		// read indices
-		for (int i = 0; i < indiceSize; ++i)
-		{
-			unsigned int index = 0;
-			fread(&index, sizeof(unsigned int), 1, pFile);
-			geo->GetIndices()->push_back(index);
-		}
-
-		// read mesh`s rawData
-		ReadLiarRawData(geo, pFile);
-		// read mesh`s faces
-		ReadLiarFaces(geo, pFile);
-	}
-
-	void LiarPluginRead::ReadLiarRawData(Liar::LiarGeometry* geo, FILE* pFile)
-	{
-		geo->GetRawData()->SetPos(LiarPluginRead::ReadLiarVecs(pFile));
-		geo->GetRawData()->SetNorm(LiarPluginRead::ReadLiarVecs(pFile));
-		geo->GetRawData()->SetTexCoord(LiarPluginRead::ReadLiarVecs(pFile));
-		geo->GetRawData()->SetColor(LiarPluginRead::ReadLiarVecs(pFile));
-
-		// read skin
-		size_t skinDefineLen = 0;
-		size_t intSize = sizeof(int);
-		size_t floatSize = sizeof(float);
-		fread(&skinDefineLen, intSize, 1, pFile);
-		for (size_t i = 0; i < skinDefineLen; ++i)
-		{
-			// read skinDefine
-			int posIndex = 0;
-			fread(&posIndex, intSize, 1, pFile);
-
-			Liar::LiarAnimSkinDefine* skinDefine = geo->GetRawData()->GetAnimSkinDefine(posIndex, true);
-			// read weight
-			size_t skinLen = 0;
-			fread(&skinLen, intSize, 1, pFile);
-			for (size_t j = 0; j < skinLen; ++j)
-			{
-				// wirte skin
-				int boneId = 0;
-				float weight = 0;
-				fread(&boneId, intSize, 1, pFile);
-				fread(&weight, floatSize, 1, pFile);
-				skinDefine->AddBoneInfo(boneId, weight);
-			}
-		}
-	}
-
-	std::vector<Liar::Vector3D*>* LiarPluginRead::ReadLiarVecs(FILE* pFile)
-	{
-		size_t size = 0;
-		// read size;
-		fread(&size, sizeof(int), 1, pFile);
-		// read data
-		if (size > 0)
-		{
-			size_t p3Size = sizeof(Liar::Vector3D);
-			std::vector<Liar::Vector3D*>* vec = new std::vector<Liar::Vector3D*>();
-			for (size_t i = 0; i < size; ++i)
-			{
-				Liar::Vector3D* tmp = new Liar::Vector3D();
-				fread(tmp, p3Size, 1, pFile);
-				vec->push_back(tmp);
-			}
-			return vec;
-		}
-
-		return nullptr;
-	}
-
-	void LiarPluginRead::ReadLiarFaces(Liar::LiarGeometry* geo, FILE* pFile)
-	{
-		size_t size = 0;
-
-		// read size;
-		fread(&size, sizeof(int), 1, pFile);
-		// read data
-		size_t pSize = sizeof(Liar::LiarVertexDefine);
-		for (size_t i = 0; i < size; ++i)
-		{
-			Liar::LiarVertexDefine* define = new Liar::LiarVertexDefine();
-			fread(define, pSize, 1, pFile);
-			geo->GetVertexFaces()->push_back(define);
-		}
-	}
-
-	void LiarPluginRead::ReadLiarMaterial(Liar::LiarMesh* mesh, FILE* pFile)
-	{
-		size_t matSize = 0;
-		// read matSize
-		fread(&matSize, sizeof(int), 1, pFile);
-		for (size_t i = 0; i < matSize; ++i)
-		{
-			Liar::LiarMaterial* mat = new Liar::LiarMaterial();
-			mesh->GetMatrials()->push_back(mat);
-
-			// write matType
-			ReadString(mat->GetType(), pFile);
-
-			int texSize = 0;
-			// read texSize;
-			fread(&texSize, sizeof(int), 1, pFile);
-			// read texture
-			for (int i = 0; i < texSize; ++i)
-			{
-				Liar::LiarTexture* tex = ReadLiarTexture(pFile);
-				mat->GetTextures()->push_back(tex);
-			}
-		}
-	}
-
-	Liar::LiarTexture* LiarPluginRead::ReadLiarTexture(FILE* pFile)
-	{
-		// read name
-		//fread(&(tex->GetName()), sizeof(std::string), 1, pFile);
-		std::string baseName;
-		ReadString(baseName, pFile);
-		std::string path = basePath + baseName;
-
-		// read type
-		int type = 0;
-		fread(&type, sizeof(int), 1, pFile);
-
-		Liar::LiarTexture* tex = AssetsMgr::GetInstance().GetTexture(path);
-		tex->SetType(type);
-		tex->SetPath(baseName);
-
-		return tex;
 	}
 
 	void LiarPluginRead::ReadString(std::string& s, FILE* pFile)

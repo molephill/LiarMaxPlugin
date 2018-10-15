@@ -7,7 +7,7 @@ namespace Liar
 		Liar::LiarNode* rootNode = parse->GetRootNode();
 		// ignore root
 
-		size_t size = parse->GetMeshSize();
+		size_t size = parse->GetMeshRawDataSize();
 		if (size <= 0) return;
 
 		std::string folder, last;
@@ -85,14 +85,14 @@ namespace Liar
 
 	void LiarPluginWrite::SetMeshSaveName(Liar::LiarMaxNodeParse* parse, int index, const std::string& meshName, const std::string& saveName)
 	{
-		size_t meshSize = parse->GetMeshSize();
+		size_t meshSize = parse->GetMeshRawDataSize();
 		for (size_t i = 0; i < meshSize; ++i)
 		{
 			if (i == index)
 			{
-				Liar::LiarMesh* mesh = parse->GetMesh(i);
-				mesh->saveName = saveName;
-				mesh->meshName = meshName;
+				Liar::LiarMeshRawData* meshData = parse->GetMeshRawData(i);
+				meshData->saveName = saveName;
+				meshData->meshName = meshName;
 				return;
 			}
 		}
@@ -103,16 +103,13 @@ namespace Liar
 		// write ModelHierarchy
 		WriteModelHierarchy(parse, liarPlugin, path);
 
-		// get vertex_open_status
-		int vetOpen =0;
-
 		std::string folder = Liar::StringUtil::GetHead(path, "\\");
-		size_t meshSize = parse->GetMeshSize();
+		size_t meshSize = parse->GetMeshRawDataSize();
 		for (size_t i = 0; i < meshSize; ++i)
 		{
-			Liar::LiarMesh* mesh = parse->GetMesh(i);
+			Liar::LiarMeshRawData* meshData = parse->GetMeshRawData(i);
 
-			WriteLiarMesh(mesh, folder, liarPlugin, vetOpen);
+			WrtieLiarMeshRawData(meshData, folder, liarPlugin);
 		}
 
 		// write skeleton
@@ -120,6 +117,99 @@ namespace Liar
 
 		// write anim
 		WrtieLiarAnim(parse, liarPlugin, folder);
+	}
+
+	void LiarPluginWrite::WrtieLiarMeshRawData(Liar::LiarMeshRawData* rawData, const std::string& path, Liar::LiarPluginCfg* liarPlugin)
+	{
+		std::string& meshName = rawData->saveName;
+		char fullName[MAX_PATH];
+
+		sprintf_s(fullName, "%s\\%s", path.c_str(), meshName.c_str());
+
+		FILE* hFile = fopen(fullName, "wb");
+
+		// write ver
+		fwrite(&(liarPlugin->pluginVersion), sizeof(unsigned int), 1, hFile);
+		
+		// write mesh`s name
+		WriteString(rawData->meshName, hFile);
+
+		// write vertex info
+		LiarPluginWrite::WriteLiarVecs(rawData->GetPos(), hFile);
+		LiarPluginWrite::WriteLiarVecs(rawData->GetNorm(), hFile);
+		LiarPluginWrite::WriteLiarVecs(rawData->GetTexCoord(), hFile);
+		LiarPluginWrite::WriteLiarVecs(rawData->GetColor(), hFile);
+
+		// write face info
+		size_t len = rawData->GetFaces()->size();
+		fwrite(&len, sizeof(unsigned int), 1, hFile);
+		for (size_t i = 0; i < len; ++i)
+		{
+			Liar::LiarFaceDefine* face = rawData->GetFaces()->at(i);
+			fwrite(&(face->positionIndex), sizeof(unsigned int), 1, hFile);
+			fwrite(&(face->normalIndex), sizeof(unsigned int), 1, hFile);
+			fwrite(&(face->texCoordIndex), sizeof(unsigned int), 1, hFile);
+			fwrite(&(face->colorIndex), sizeof(unsigned int), 1, hFile);
+		}
+
+		// write skin info
+		size_t skinDefineLen = rawData->GetSkinDefineLen();
+		size_t intSize = sizeof(int);
+		size_t floatSize = sizeof(float);
+		fwrite(&skinDefineLen, intSize, 1, hFile);
+		for (int i = 0; i < skinDefineLen; ++i)
+		{
+			Liar::LiarAnimSkinDefine* skinDefine = rawData->GetAnimSkinDefine(i);
+			// write skinDefine
+			int vertIndex = skinDefine->GetPositionIndex();
+			fwrite(&vertIndex, intSize, 1, hFile);
+
+			// write bone size
+			size_t boneInfoSize = skinDefine->GetBoneInfoSize();
+			fwrite(&boneInfoSize, intSize, 1, hFile);
+
+			// write bone info
+			for (size_t j = 0; j < boneInfoSize; ++j)
+			{
+				int boneId = skinDefine->GetBoneId(j);
+				float boneWeight = skinDefine->GetBoneWeight(j);
+				fwrite(&boneId, intSize, 1, hFile);
+				fwrite(&boneWeight, floatSize, 1, hFile);
+			}
+		}
+
+		// write indices count;
+		size_t indiceSize = rawData->GetIndices()->size();
+		fwrite(&indiceSize, sizeof(int), 1, hFile);
+		// write indices
+		fwrite(&(rawData->GetIndices()->front()), sizeof(unsigned int), indiceSize, hFile);
+
+		// write materials info
+		size_t matSize = rawData->GetMatrialSize();
+		// write matSize
+		fwrite(&matSize, sizeof(int), 1, hFile);
+
+		for (size_t i = 0; i < matSize; ++i)
+		{
+			Liar::LiarMaterialDefine* mat = rawData->GetMatrials()->at(i);
+			// write texSize;
+			size_t texSize = mat->GetTexSize();
+			fwrite(&texSize, sizeof(int), 1, hFile);
+			// write texture
+			for (size_t j = 0; j < texSize; ++j)
+			{
+				Liar::LiarTextureDefine* tex = mat->GetTexture(j);
+				// wirte name
+				std::string texName = tex->GetPath();
+				WriteString(texName, hFile);
+
+				// write type
+				int type = tex->GetType();
+				fwrite(&type, sizeof(int), 1, hFile);
+			}
+		}
+
+		fclose(hFile);
 	}
 
 	void LiarPluginWrite::WriteLiarSkelenton(Liar::LiarMaxNodeParse* parse, Liar::LiarPluginCfg* liarPlugin, const std::string& path)
@@ -217,78 +307,6 @@ namespace Liar
 		}
 	}
 
-	void LiarPluginWrite::WriteLiarMesh(Liar::LiarMesh* mesh, const std::string& path, Liar::LiarPluginCfg* liarPlugin, int vetOpen)
-	{
-		std::string& meshName = mesh->saveName;
-		char fullName[MAX_PATH];
-
-		sprintf_s(fullName, "%s\\%s", path.c_str(), meshName.c_str());
-
-		FILE* hFile = fopen(fullName, "wb");
-
-		// write ver
-		fwrite(&(liarPlugin->pluginVersion), sizeof(unsigned int), 1, hFile);
-		// write vertex open status
-		fwrite(&vetOpen, sizeof(int), 1, hFile);
-		// write mesh`s name
-		//Liar::StringUtil::StringToLower(mesh->meshName);
-		WriteString(mesh->meshName, hFile);
-		// write mesh`s geometery
-		WriteLiarGeometery(liarPlugin, mesh->GetGeo(), hFile);
-		// write mesh`s material
-		WriteLiarMaterial(mesh, hFile);
-
-		fclose(hFile);
-	}
-
-	void LiarPluginWrite::WriteLiarGeometery(Liar::LiarPluginCfg* liarPlugin, Liar::LiarGeometry* geo, FILE* hFile)
-	{
-		// write indices count;
-		int indiceSize = static_cast<int>(geo->GetIndicesSize());
-		fwrite(&indiceSize, sizeof(int), 1, hFile);
-		// write indices
-		fwrite(&(geo->GetIndices()->front()), sizeof(unsigned int), indiceSize, hFile);
-
-		// write mesh`s rawData
-		WriteLiarRawData(geo->GetRawData(), hFile);
-		// write mesh`s faces
-		WriteLiarFaces(geo, hFile);
-	}
-
-	void LiarPluginWrite::WriteLiarRawData(Liar::LiarVertexRawData* raw, FILE* hFile)
-	{
-		LiarPluginWrite::WriteLiarVecs(raw->GetPos(), hFile);
-		LiarPluginWrite::WriteLiarVecs(raw->GetNorm(), hFile);
-		LiarPluginWrite::WriteLiarVecs(raw->GetTexCoord(), hFile);
-		LiarPluginWrite::WriteLiarVecs(raw->GetColor(), hFile);
-
-		// write skin
-		size_t skinDefineLen = raw->GetSkinDefineLen();
-		size_t intSize = sizeof(int);
-		size_t floatSize = sizeof(float);
-		fwrite(&skinDefineLen, intSize, 1, hFile);
-		for (int i = 0; i < skinDefineLen; ++i)
-		{
-			Liar::LiarAnimSkinDefine* skinDefine = raw->GetAnimSkinDefine(i);
-			// write skinDefine
-			int vertIndex = skinDefine->GetPositionIndex();
-			fwrite(&vertIndex, intSize, 1, hFile);
-
-			// write bone size
-			size_t boneInfoSize = skinDefine->GetBoneInfoSize();
-			fwrite(&boneInfoSize, intSize, 1, hFile);
-
-			// write bone info
-			for (size_t j = 0; j < boneInfoSize; ++j)
-			{
-				int boneId = skinDefine->GetBoneId(j);
-				float boneWeight = skinDefine->GetBoneWeight(j);
-				fwrite(&boneId, intSize, 1, hFile);
-				fwrite(&boneWeight, floatSize, 1, hFile);
-			}
-		}
-	}
-
 	void LiarPluginWrite::WriteLiarVecs(std::vector<Liar::Vector3D*>* vec, FILE* hFile)
 	{
 		size_t p3Size = sizeof(Liar::Vector3D);
@@ -301,55 +319,6 @@ namespace Liar
 		{
 			fwrite(vec->at(i), p3Size, 1, hFile);
 		}
-	}
-
-	void LiarPluginWrite::WriteLiarFaces(Liar::LiarGeometry* geo, FILE* hFile)
-	{
-		size_t size = geo->GetVertexFaceSize();
-		
-		// write size;
-		fwrite(&size, sizeof(int), 1, hFile);
-		// write data
-		size_t pSize = sizeof(Liar::LiarVertexDefine);
-		for (size_t i = 0; i < size; ++i)
-		{
-			fwrite(geo->GetFace(i), pSize, 1, hFile);
-		}
-	}
-
-	void LiarPluginWrite::WriteLiarMaterial(Liar::LiarMesh* mesh, FILE* hFile)
-	{
-		size_t matSize = mesh->GetMatrials()->size();
-		// write matSize
-		fwrite(&matSize, sizeof(int), 1, hFile);
-
-		for (size_t i = 0; i < matSize; ++i)
-		{
-			Liar::LiarMaterial* mat = mesh->GetMat(i);
-
-			// write matType
-			WriteString(mat->GetType(), hFile);
-
-			// write texSize;
-			size_t texSize = mat->GetTexSize();
-			fwrite(&texSize, sizeof(int), 1, hFile);
-			// write texture
-			for (int i = 0; i < texSize; ++i)
-			{
-				WriteLiarTexture(mat->GetTexture(i), hFile);
-			}
-		}
-	}
-
-	void LiarPluginWrite::WriteLiarTexture(Liar::LiarTexture* tex, FILE* hFile)
-	{
-		// wirte name
-		std::string& texName = tex->GetPath();
-		WriteString(texName, hFile);
-
-		// write type
-		int type = tex->GetType();
-		fwrite(&type, sizeof(int), 1, hFile);
 	}
 
 	void LiarPluginWrite::WriteString(std::string& s, FILE* hFile)

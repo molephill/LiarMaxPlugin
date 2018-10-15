@@ -1,11 +1,6 @@
 #pragma once
 
-#include <PluginDefine.h>
-
-#ifdef PLUGINS
 #include <IConversionManager.h>
-#endif // PLUGINS
-
 
 namespace Liar
 {
@@ -40,10 +35,9 @@ namespace Liar
 		int staticFrame;
 		int framePerSample;
 
-#ifdef PLUGINS
 		// coord System
 		IGameConversionManager::CoordSystem coordSystemType;
-#endif // PLUGINS
+
 
 		// version
 		int pluginVersion;
