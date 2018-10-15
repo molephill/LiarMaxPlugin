@@ -108,11 +108,15 @@ namespace Liar
 		m_color = nullptr;
 		m_texCoord = nullptr;
 
+		delete m_indices;
+		m_indices = nullptr;
+
 		for (std::vector<Liar::LiarFaceDefine*>::iterator it = m_faces->begin(); it != m_faces->end(); ++it)
 		{
 			delete (*it);
 		}
 		delete m_faces;
+		m_faces = nullptr;
 
 		if (m_materials)
 		{
@@ -121,6 +125,17 @@ namespace Liar
 				delete (*it);
 			}
 			delete m_materials;
+			m_materials = nullptr;
+		}
+		
+		if (m_skinDefines)
+		{
+			for (std::vector<Liar::LiarAnimSkinDefine*>::iterator it = m_skinDefines->begin(); it != m_skinDefines->end(); ++it)
+			{
+				delete (*it);
+			}
+			delete m_skinDefines;
+			m_skinDefines = nullptr;
 		}
 	}
 
