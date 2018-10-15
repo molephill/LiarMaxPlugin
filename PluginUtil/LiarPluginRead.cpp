@@ -56,7 +56,7 @@ namespace Liar
 			// read write skinDefine
 			int vertIndex = 0;
 			fread(&vertIndex, intSize, 1, pFile);
-			Liar::LiarAnimSkinDefine* skinDefine = rawData->GetAnimSkinDefine(vertIndex);
+			Liar::LiarAnimSkinDefine* skinDefine = rawData->GetAnimSkinDefine(vertIndex, true);
 
 			// write bone size
 			size_t boneInfoSize = 0;
@@ -65,8 +65,8 @@ namespace Liar
 			// write bone info
 			for (size_t j = 0; j < boneInfoSize; ++j)
 			{
-				int boneId = skinDefine->GetBoneId(j);
-				float boneWeight = skinDefine->GetBoneWeight(j);
+				int boneId = 0;
+				float boneWeight = 0.0f;
 				fread(&boneId, intSize, 1, pFile);
 				fread(&boneWeight, floatSize, 1, pFile);
 				skinDefine->AddBoneInfo(boneId, boneWeight);
@@ -323,6 +323,4 @@ namespace Liar
 			s.push_back(a);
 		}
 	}
-
-	std::string LiarPluginRead::basePath = "";
 }

@@ -33,8 +33,6 @@ namespace Liar
 		static void ReadLiarKeyFrames(Liar::LiarTrack*, Liar::LiarVertexAttr, FILE*);
 
 		static void ReadString(std::string&, FILE*);
-
-		static std::string basePath;
 	};
 }
 
