@@ -4,7 +4,7 @@ namespace Liar
 	class LiarReference
 	{
 	public:
-		LiarReference() :m_refCount(0) {};
+		LiarReference() :m_refCount(1) {};
 		virtual ~LiarReference() {};
 
 	protected:

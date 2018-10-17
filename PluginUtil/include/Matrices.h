@@ -660,14 +660,10 @@ namespace Liar
 		Identity();
 	}
 
-
-
 	inline Matrix4::Matrix4(const float src[16])
 	{
 		Set(src);
 	}
-
-
 
 	inline Matrix4::Matrix4(float m00, float m01, float m02, float m03,
 		float m04, float m05, float m06, float m07,
