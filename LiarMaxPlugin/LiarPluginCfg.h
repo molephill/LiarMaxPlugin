@@ -35,6 +35,9 @@ namespace Liar
 		int staticFrame;
 		int framePerSample;
 
+		// filename
+		std::string name;
+
 		// coord System
 		IGameConversionManager::CoordSystem coordSystemType;
 

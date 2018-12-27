@@ -13,12 +13,6 @@
       <UniqueIdentifier>{ad6e765e-4300-41dc-b185-05b019286785}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
-    <Filter Include="Header Files\Includes">
-      <UniqueIdentifier>{d5623f93-191a-409b-8617-312fb6e95b03}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Includes">
-      <UniqueIdentifier>{c324f265-1a4a-4d74-b098-c49b27a799cc}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LiarMaxPlugin.cpp">
@@ -27,32 +21,11 @@
     <ClCompile Include="DllEntry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\PluginUtil\Matrices.cpp">
-      <Filter>Source Files\Includes</Filter>
-    </ClCompile>
     <ClCompile Include="LiarMaxDialogMgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LiarMaxNodeParse.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LiarPluginWrite.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\PluginUtil\LiarPluginRead.cpp">
-      <Filter>Source Files\Includes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\PluginUtil\Quaternion.cpp">
-      <Filter>Source Files\Includes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\PluginUtil\LiarSkeleton.cpp">
-      <Filter>Source Files\Includes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\PluginUtil\LiarSkeletonAnim.cpp">
-      <Filter>Source Files\Includes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\PluginUtil\LiarVertexBuffer.cpp">
-      <Filter>Source Files\Includes</Filter>
     </ClCompile>
     <ClCompile Include="LiarPluginCfg.cpp">
       <Filter>Source Files</Filter>
@@ -70,24 +43,6 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\PluginUtil\plugin\LiarPluginUtil.h">
-      <Filter>Header Files\Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\PluginUtil\include\LiarStringUtil.h">
-      <Filter>Header Files\Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\PluginUtil\include\LiarVertexBuffer.h">
-      <Filter>Header Files\Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\PluginUtil\include\Matrices.h">
-      <Filter>Header Files\Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\PluginUtil\include\PluginDefine.h">
-      <Filter>Header Files\Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\PluginUtil\include\Vectors.h">
-      <Filter>Header Files\Includes</Filter>
-    </ClInclude>
     <ClInclude Include="LiarMaxPlugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -97,25 +52,10 @@
     <ClInclude Include="LiarMaxNodeParse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LiarPluginWrite.h">
+    <ClInclude Include="LiarPluginCfg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\PluginUtil\include\LiarPluginRead.h">
-      <Filter>Header Files\Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\PluginUtil\include\Quaternion.h">
-      <Filter>Header Files\Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\PluginUtil\include\LiarSkeleton.h">
-      <Filter>Header Files\Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\PluginUtil\include\LiarSkeletonAnim.h">
-      <Filter>Header Files\Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="..\PluginUtil\include\LiarRefrence.h">
-      <Filter>Header Files\Includes</Filter>
-    </ClInclude>
-    <ClInclude Include="LiarPluginCfg.h">
+    <ClInclude Include="..\..\liar\liar\include\core\graphics\VertexType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

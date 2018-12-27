@@ -21,7 +21,8 @@ namespace Liar
 
 	public:
 		void Init(HWND, LPARAM);
-		void ChangeHandle(HWND, WPARAM, bool, const std::string&);
+		void ChangeHandle(HWND, WPARAM, bool);
+		Liar::LiarPluginCfg& GetPluginCfg() { return *m_pluginCfg; };
 
 	private:
 		LiarPluginCfg* m_pluginCfg;

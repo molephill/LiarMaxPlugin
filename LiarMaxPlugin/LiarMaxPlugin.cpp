@@ -38,7 +38,6 @@ public:
 
 private:
 	Liar::LiarMaxDialogMgr* m_liarDialogMgr;
-	std::string m_name;
 	bool m_options;
 
 public:
@@ -108,7 +107,7 @@ LiarMaxPlugin::~LiarMaxPlugin()
 
 void LiarMaxPlugin::Handler(HWND hWnd, WPARAM wParam)
 {
-	m_liarDialogMgr->ChangeHandle(hWnd, wParam, m_options, m_name);
+	m_liarDialogMgr->ChangeHandle(hWnd, wParam, m_options);
 }
 
 int LiarMaxPlugin::ExtCount()
@@ -120,13 +119,13 @@ int LiarMaxPlugin::ExtCount()
 const TCHAR *LiarMaxPlugin::Ext(int /*i*/)
 {		
 	#pragma message(TODO("Return the 'i-th' file name extension (i.e. \"3DS\")."))
-	return _T("model");
+	return _T("mtl");
 }
 
 const TCHAR *LiarMaxPlugin::LongDesc()
 {
 	#pragma message(TODO("Return long ASCII description (i.e. \"Targa 2.0 Image File\")"))
-	return _T("liar Model & Mesh & Anim file");
+	return _T("liar Materials & Mesh & Anim file");
 }
 	
 const TCHAR *LiarMaxPlugin::ShortDesc() 
@@ -182,7 +181,7 @@ int	LiarMaxPlugin::DoExport(const TCHAR* name, ExpInterface* /*ei*/, Interface* 
 	#pragma message(TODO("Implement the actual file Export here and"))
 
 	m_options = (options & SCENE_EXPORT_SELECTED) ? true : false;
-	Liar::LiarStructUtil::GetTChar2Char(name, m_name);
+	Liar::LiarMaxNodeParse::GetTChar2Char(name, m_liarDialogMgr->GetPluginCfg().name);
 
 	if(!suppressPrompts)
 		DialogBoxParam(hInstance, 

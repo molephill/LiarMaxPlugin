@@ -5,7 +5,7 @@ namespace Liar
 
 	LiarPluginCfg::LiarPluginCfg()
 		:exportGeom(true), exportMaterial(true)
-		,revertUV(true)
+		, revertUV(true)
 		, exportAnim(true), exportModifier(true)
 
 		, vertexNormal(true), textureCoord(true), vertexColor(false)
@@ -20,6 +20,7 @@ namespace Liar
 		, skeletonName("")
 		, animName("")
 		, coordSystemType(IGameConversionManager::CoordSystem::IGAME_OGL)
+		, name("")
 	{
 
 	}

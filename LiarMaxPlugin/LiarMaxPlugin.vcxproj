@@ -38,7 +38,7 @@
     <ClCompile>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <PreprocessorDefinitions>_USRDLL;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>E:\c++\LiarMaxPlugin\PluginUtil\plugin;E:\c++\LiarMaxPlugin\PluginUtil\include;D:\InitTools\3DMax2019\3ds Max 2019 SDK\maxsdk\include\IGame;D:\InitTools\3DMax2019\3ds Max 2019 SDK\maxsdk\include;$(MaxSdkInc);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\InitTools\3DMax2019\3ds Max 2019 SDK\maxsdk\include\IGame;D:\InitTools\3DMax2019\3ds Max 2019 SDK\maxsdk\include;$(MaxSdkInc);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Link>
@@ -48,40 +48,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\PluginUtil\LiarPluginRead.cpp" />
-    <ClCompile Include="..\PluginUtil\LiarSkeleton.cpp" />
-    <ClCompile Include="..\PluginUtil\LiarSkeletonAnim.cpp" />
-    <ClCompile Include="..\PluginUtil\LiarVertexBuffer.cpp" />
-    <ClCompile Include="..\PluginUtil\Matrices.cpp" />
-    <ClCompile Include="..\PluginUtil\Quaternion.cpp" />
     <ClCompile Include="LiarMaxDialogMgr.cpp" />
     <ClCompile Include="LiarMaxNodeParse.cpp" />
     <ClCompile Include="LiarMaxPlugin.cpp" />
     <ClCompile Include="DllEntry.cpp" />
     <ClCompile Include="LiarPluginCfg.cpp" />
-    <ClCompile Include="LiarPluginWrite.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="LiarMaxPlugin.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\PluginUtil\include\LiarPluginRead.h" />
-    <ClInclude Include="..\PluginUtil\include\LiarRefrence.h" />
-    <ClInclude Include="..\PluginUtil\include\LiarSkeleton.h" />
-    <ClInclude Include="..\PluginUtil\include\LiarSkeletonAnim.h" />
-    <ClInclude Include="..\PluginUtil\include\LiarStringUtil.h" />
-    <ClInclude Include="..\PluginUtil\include\LiarVertexBuffer.h" />
-    <ClInclude Include="..\PluginUtil\include\Matrices.h" />
-    <ClInclude Include="..\PluginUtil\include\PluginDefine.h" />
-    <ClInclude Include="..\PluginUtil\include\Quaternion.h" />
-    <ClInclude Include="..\PluginUtil\include\Vectors.h" />
-    <ClInclude Include="..\PluginUtil\plugin\LiarPluginUtil.h" />
+    <ClInclude Include="..\..\liar\liar\include\core\graphics\VertexType.h" />
     <ClInclude Include="3dsmaxsdk_preinclude.h" />
     <ClInclude Include="LiarMaxDialogMgr.h" />
     <ClInclude Include="LiarMaxNodeParse.h" />
     <ClInclude Include="LiarMaxPlugin.h" />
     <ClInclude Include="LiarPluginCfg.h" />
-    <ClInclude Include="LiarPluginWrite.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

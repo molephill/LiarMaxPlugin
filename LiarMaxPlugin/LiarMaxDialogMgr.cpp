@@ -2,7 +2,6 @@
 #include "3dsmaxport.h"
 #include "LiarMaxDialogMgr.h"
 #include "LiarMaxNodeParse.h"
-#include "LiarPluginWrite.h"
 
 namespace Liar
 {
@@ -75,7 +74,7 @@ namespace Liar
 		SetWindowText(hWnd, Title);
 	}
 
-	void LiarMaxDialogMgr::ChangeHandle(HWND hWnd, WPARAM wParam, bool selectd, const std::string& path)
+	void LiarMaxDialogMgr::ChangeHandle(HWND hWnd, WPARAM wParam, bool selectd)
 	{
 		switch (LOWORD(wParam))
 		{
@@ -104,7 +103,6 @@ namespace Liar
 
 			if (result == TRUE)
 			{
-				Liar::LiarPluginWrite::WriteLiarNode(parse, m_pluginCfg, path);
 				MessageBox(hWnd, L"导出成功!", L"导出", MB_ICONINFORMATION);
 			}
 			else
@@ -162,11 +160,11 @@ namespace Liar
 		WStr szName;
 		HWND hAnimNameEdit = ::GetDlgItem(hWnd, IDC_EDIT_ANIM);
 		GetWindowText(hAnimNameEdit, szName);
-		LiarStructUtil::GetWSTR2Char(szName, m_pluginCfg->animName);
+		Liar::LiarMaxNodeParse::GetWSTR2Char(szName, m_pluginCfg->animName);
 
 		HWND hSkeleNameEdit = ::GetDlgItem(hWnd, IDC_EDIT_SKELETON);
 		GetWindowText(hSkeleNameEdit, szName);
-		LiarStructUtil::GetWSTR2Char(szName, m_pluginCfg->skeletonName);
+		Liar::LiarMaxNodeParse::GetWSTR2Char(szName, m_pluginCfg->skeletonName);
 	}
 
 	void LiarMaxDialogMgr::SetGeoEnable(HWND hWnd)
