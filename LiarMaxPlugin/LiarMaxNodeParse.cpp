@@ -250,37 +250,40 @@ namespace Liar
 			IGameMaterial* tmpGameMaterial = tmpGameMesh->GetMaterialFromFace(tmpFaceEx);
 			if (tmpGameMaterial)
 			{
-				size_t numMtl = materials.size();
-				int findIndex = -1;
-
-				for (int mi = 0; mi < numMtl; ++mi)
+				if (GetTextureSize(tmpGameMaterial) > 0)
 				{
-					if (materials[mi] == tmpGameMaterial)
+					size_t numMtl = materials.size();
+					int findIndex = -1;
+
+					for (int mi = 0; mi < numMtl; ++mi)
 					{
-						findIndex = mi;
-						break;
+						if (materials[mi] == tmpGameMaterial)
+						{
+							findIndex = mi;
+							break;
+						}
 					}
-				}
 
-				if (findIndex < 0)
-				{
-					materials.push_back(tmpGameMaterial);
-					findIndex = static_cast<int>(numMtl);
-				}
-
-
-				int miiIndex = -1;
-				for (int mii = 0; mii < materialIndics.size(); ++mii)
-				{
-					if (materialIndics[mii] == findIndex)
+					if (findIndex < 0)
 					{
-						miiIndex = mii;
+						materials.push_back(tmpGameMaterial);
+						findIndex = static_cast<int>(numMtl);
 					}
-				}
 
-				if (miiIndex < 0)
-				{
-					materialIndics.push_back(findIndex);
+
+					int miiIndex = -1;
+					for (int mii = 0; mii < materialIndics.size(); ++mii)
+					{
+						if (materialIndics[mii] == findIndex)
+						{
+							miiIndex = mii;
+						}
+					}
+
+					if (miiIndex < 0)
+					{
+						materialIndics.push_back(findIndex);
+					}
 				}
 			}
 		}
@@ -310,7 +313,11 @@ namespace Liar
 		// 顶点
 		Write(Liar::VertexElementAttr::ELEMENT_ATTR_RAW_INDICES, indices, hFile);
 		// 材质引用
-		Write(Liar::VertexElementAttr::ELEMENT_ATTR_RAW_MTL_INDICES, materialIndics, hFile);
+		//Write(Liar::VertexElementAttr::ELEMENT_ATTR_RAW_MTL_INDICES, materialIndics, hFile);
+		size_t mltLen = materialIndics.size();
+		size_t mltIndex = -1;
+		if (mltLen > 0) mltIndex = materialIndics[0];
+		fwrite(&mltIndex, sizeof(int), 1, hFile);
 		fclose(hFile);
 	}
 
