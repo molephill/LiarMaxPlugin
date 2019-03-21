@@ -12,49 +12,28 @@ namespace Liar
 
 	LiarMaxNodeParse::~LiarMaxNodeParse()
 	{
+	}
 
+	void LiarMaxNodeParse::AddBones(IGameNode* node)
+	{
+		if (node)
+		{
+			for (std::vector<IGameNode*>::const_iterator it = m_bones.begin(); it != m_bones.end(); ++it)
+			{
+				if (*it == node) return;
+			}
+
+			m_bones.push_back(node);
+		}
 	}
 
 	void LiarMaxNodeParse::ParseBones(Liar::LiarPluginCfg* ctr, IGameNode* varGameNode)
 	{
-		bool revertYZ = false;
 		IGameObject::ObjectTypes tmpObjectType = varGameNode->GetIGameObject()->GetIGameType();
 		std::string boneName;
 		if (tmpObjectType == IGameObject::IGAME_BONE)
 		{
-			/*LiarStructUtil::GetWSTR2Char(varGameNode->GetName(), boneName);
-			Liar::LiarBone* liarBone = m_skeleton->GetBone(boneName, true);
-			LiarStructUtil::GetWSTR2Char(varGameNode->GetName(), liarBone->GetName());
-
-
-			IGameNode* parent = varGameNode->GetNodeParent();
-
-			if (!parent)
-			{
-			liarBone->SetId(-1);
-			liarBone->SetParentId(-1);
-			}
-			else
-			{
-			LiarStructUtil::GetWSTR2Char(parent->GetName(), boneName);
-			Liar::LiarBone* liarParent = m_skeleton->GetBone(boneName);
-			liarBone->SetId(static_cast<int>(m_skeleton->GetBoneSize()));
-			int parentId = liarParent ? liarParent->GetId() : -1;
-			liarBone->SetParentId(parentId);
-			}
-
-			LiarMaxBone* liarMaxBone = new LiarMaxBone();
-			liarMaxBone->boneId = liarBone->GetId();
-			liarMaxBone->node = varGameNode;
-			m_allBones->push_back(liarMaxBone);
-
-			GMatrix gm = varGameNode->GetLocalTM(0);
-			Point3 pos = gm.Translation();
-			Quat rota = gm.Rotation();
-			Point3 scale = gm.Scaling();
-			Liar::LiarStructUtil::ParsePoint3(liarBone->GetPosition(), pos, revertYZ);
-			Liar::LiarStructUtil::ParsePoint4(liarBone->GetRotation(), rota);
-			Liar::LiarStructUtil::ParsePoint3(liarBone->GetScale(), scale, revertYZ);*/
+			AddBones(varGameNode);
 		}
 
 		int tmpChildCount = varGameNode->GetChildCount();
@@ -81,12 +60,12 @@ namespace Liar
 
 		if (ctr->exportModifier)
 		{
-			/*m_skeleton = new Liar::LiarSkeleton();
 			for (int i = 0; i < tmpTopLevelNodeCount; i++)
 			{
 				IGameNode* tmpGameNode = tmpGameScene->GetTopLevelNode(i);
 				ParseBones(ctr, tmpGameNode);
-			}*/
+			}
+			WriteSkeleon(ctr);
 		}
 
 		std::vector<IGameMaterial*> materials;
@@ -187,22 +166,117 @@ namespace Liar
 		ParseGeometory(ctr, tmpGameMesh, materials, meshSize);
 	}
 
+	IIHeapOperator* LiarMaxNodeParse::NewUintBase(size_t len)
+	{
+		switch (len)
+		{
+		case 1:
+			return new Uint1();
+		case 2:
+			return new Uint2();
+		case 3:
+			return new Uint3();
+		case 4:
+			return new Uint4();
+		case 5:
+			return new Uint5();
+		default:
+			return new Uint6();
+		}
+	}
+
+	IFHeapOperator* LiarMaxNodeParse::NewFloatBase(size_t len)
+	{
+		switch (len)
+		{
+		case 1:
+			return new Float1();
+		case 2:
+			return new Float2();
+		case 3:
+			return new Float3();
+		default:
+			return new Float4();
+		}
+	}
+
+	void LiarMaxNodeParse::ParseSkinInfo(size_t max, Point3 pos, const std::vector<Point3>& vec, std::map<int, std::vector<Point2>>& allSkins,
+		std::vector<IIHeapOperator*>& boneIds, std::vector<IFHeapOperator*>& boneWeights, int& boneIdIndex, int& boneWeithIndex)
+	{
+		IIHeapOperator* u = NewUintBase(max);
+		IFHeapOperator* f = NewFloatBase(max);
+
+		for (std::map<int, std::vector<Point2>>::const_iterator iter = allSkins.begin(); iter != allSkins.end(); ++iter)
+		{
+			int posIndex = iter->first;
+			const Point3& tmpPos = vec[posIndex];
+			if (tmpPos == pos)
+			{
+				const std::vector<Point2>& info = iter->second;
+				size_t len = info.size();
+				len = len > max ? max : len;
+
+				for (size_t i = 0; i < len; ++i)
+				{
+					(*u)[i] = static_cast<int>(info[i].x);
+					(*f)[i] = info[i].y;
+				}
+
+				for (size_t i = len; i < max; ++i)
+				{
+					(*u)[i] = 0;
+					(*f)[i] = 0.0f;
+				}
+
+				boneIdIndex = AddPoint(boneIds, u);
+				boneWeithIndex = AddPoint(boneWeights, f);
+
+				return;
+			}
+		}
+
+		for (size_t i = 0; i < max; ++i)
+		{
+			(*u)[i] = 0;
+			(*f)[i] = 0.0f;
+		}
+		boneIdIndex = AddPoint(boneIds, u);
+		boneWeithIndex = AddPoint(boneWeights, f);
+	}
+
 	void LiarMaxNodeParse::ParseGeometory(Liar::LiarPluginCfg* ctr, IGameMesh* tmpGameMesh, 
 		std::vector<IGameMaterial*>& materials, int& meshSize)
 	{
-
 		//bool revertYZ = ctr->coordSystemType == IGameConversionManager::CoordSystem::Max3DS ? false : true;
 		bool revertYZ = false;
+
+		// geometry类型
+		Liar::GeometryVertexType type = GetVertexType(ctr);
+
+		std::map<int, std::vector<Point2>> allSkins;
+		std::vector<Point3> tmpPositions;
+		// skin
+		size_t perSkin = ParseSkin(allSkins, tmpPositions, ctr, tmpGameMesh);
+		perSkin = perSkin > 4 ? 4 : perSkin;
+		size_t skinCount = allSkins.size();
 
 		std::vector<Point3> positions;
 		std::vector<Point3> normals;
 		std::vector<Point2> texCoords;
 		std::vector<Point3> colors;
-		std::vector<Point4> keys;
+		std::vector<IIHeapOperator*> boneIds;
+		std::vector<IFHeapOperator*> boneWeights;
 		std::vector<unsigned int> indices;
 		std::vector<unsigned int> materialIndics;
+		std::vector<IIHeapOperator*> rawkeys;
 		unsigned int curVetexIndex;
-		Point4 tmp4;
+
+		size_t umax = 1;
+
+		if (ctr->vertexNormal) umax++;
+		if (ctr->vertexColor) umax++;
+		if (ctr->textureCoord) umax++;
+		if (ctr->exportModifier && ctr->skin && skinCount > 0) umax += 2;
 
 		int tmpFaceCount = tmpGameMesh->GetNumberOfFaces();
 		for (int tmpFaceIndex = 0; tmpFaceIndex < tmpFaceCount; tmpFaceIndex++)
@@ -216,33 +290,56 @@ namespace Liar
 				int tmpNormalIndex = 0;
 				int tmpColorIndex = 0;
 				int tmpUVIndex = 0;
+				int tmpBoneIndex = 0;
+				int tmpBoneWeightIndex = 0;
 
-				tmpVertexIndex = AddP3(positions, tmpGameMesh->GetVertex(tmpVertexIndex), revertYZ);
+				Point3 tmpPositoin = tmpGameMesh->GetVertex(tmpVertexIndex);
+				tmpVertexIndex = AddPoint(positions, tmpPositoin, revertYZ);
+
+				IIHeapOperator* key = NewUintBase(umax);
+				size_t ulen = 0;
+				(*key)[ulen] = tmpVertexIndex;
+				ulen++;
 
 				//Normal
 				if (ctr->vertexNormal)
 				{
 					tmpNormalIndex = tmpFaceEx->norm[tmpFaceVertexIndex];
-					tmpNormalIndex = AddP3(normals, tmpGameMesh->GetNormal(tmpNormalIndex), revertYZ);
+					tmpNormalIndex = AddPoint(normals, tmpGameMesh->GetNormal(tmpNormalIndex), revertYZ);
+					(*key)[ulen] = tmpNormalIndex;
+					ulen++;
 				}
 
 				// color
 				if (ctr->vertexColor)
 				{
 					tmpColorIndex = tmpFaceEx->color[tmpFaceVertexIndex];
-					tmpColorIndex = AddP3(colors, tmpGameMesh->GetColorVertex(tmpColorIndex), revertYZ);
+					tmpColorIndex = AddPoint(colors, tmpGameMesh->GetColorVertex(tmpColorIndex), revertYZ);
+					(*key)[ulen] = tmpColorIndex;
+					ulen++;
 				}
 
 				// uv
 				if (ctr->textureCoord)
 				{
 					tmpUVIndex = tmpFaceEx->texCoord[tmpFaceVertexIndex];
-					tmpUVIndex = AddP2(texCoords, tmpGameMesh->GetTexVertex(tmpUVIndex), revertYZ);
+					tmpUVIndex = AddPoint(texCoords, tmpGameMesh->GetTexVertex(tmpUVIndex), revertYZ);
+					(*key)[ulen] = tmpUVIndex;
+					ulen++;
+				}
+
+				// skin
+				if (ctr->exportModifier && ctr->skin && skinCount > 0)
+				{
+					ParseSkinInfo(perSkin, tmpPositoin, tmpPositions, allSkins, boneIds, boneWeights, tmpBoneIndex, tmpBoneWeightIndex);
+					(*key)[ulen] = tmpBoneIndex;
+					ulen++;
+					(*key)[ulen] = tmpBoneWeightIndex;
+					ulen++;
 				}
 
 				// 顶点索引
-				tmp4.Set(tmpVertexIndex, tmpNormalIndex, tmpUVIndex, tmpColorIndex);
-				curVetexIndex = AddP4(keys, tmp4);
+				curVetexIndex = AddPoint(rawkeys, key);
 				indices.push_back(curVetexIndex);
 			}
 
@@ -288,105 +385,274 @@ namespace Liar
 			}
 		}
 
-		ParseSkin(ctr, tmpGameMesh);
-
 		// 开始写入
 		std::string path = ctr->name;
 		std::string folder, last;
 		Liar::LiarMaxNodeParse::GetHeadAndLast(path, folder, last, "\\");
 
 		std::string baseName = Liar::LiarMaxNodeParse::GetHead(last);
-		std::string meshName = baseName + std::to_string(meshSize++) + Liar::MESH_EXT;
+		baseName = baseName + std::to_string(meshSize++);
+		std::string meshName = baseName + Liar::MESH_EXT;
 		char fullName[MAX_PATH];
 		sprintf_s(fullName, "%s\\%s", folder.c_str(), meshName.c_str());
 		FILE* hFile = fopen(fullName, "wb");
-		// geometry类型
-		Liar::GeometryVertexType type = GetVertexType(ctr);
 		fwrite(&type, sizeof(int), 1, hFile);
 		// 顶点类型
 		Write(Liar::VertexElementAttr::ELEMENT_ATTR_POSITION, positions, hFile);
-		Write(Liar::VertexElementAttr::ELEMENT_ATTR_NORMAL, normals, hFile);
-		Write(Liar::VertexElementAttr::ELEMENT_ATTR_TEXTURECOORDINATE, texCoords, hFile);
-		Write(Liar::VertexElementAttr::ELEMENT_ATTR_COLOR, colors, hFile);
+		Write(type, normals, texCoords, colors, boneIds, boneWeights, perSkin, hFile);
 		// 索引
-		Write(Liar::VertexElementAttr::ELEMENT_ATTR_RAW_KEY, keys, hFile);
+		Write(Liar::VertexElementAttr::ELEMENT_ATTR_RAW_KEY, rawkeys, umax, hFile);
 		// 顶点
 		Write(Liar::VertexElementAttr::ELEMENT_ATTR_RAW_INDICES, indices, hFile);
 		// 材质引用
 		//Write(Liar::VertexElementAttr::ELEMENT_ATTR_RAW_MTL_INDICES, materialIndics, hFile);
 		size_t mltLen = materialIndics.size();
-		size_t mltIndex = -1;
+		int mltIndex = -1;
 		if (mltLen > 0) mltIndex = materialIndics[0];
 		fwrite(&mltIndex, sizeof(int), 1, hFile);
+
+		fclose(hFile);
+
+		size_t tmpindex = 0;
+		for (tmpindex = 0; tmpindex < boneIds.size(); ++tmpindex) delete boneIds[tmpindex];
+		for (tmpindex = 0; tmpindex < boneWeights.size(); ++tmpindex) delete boneWeights[tmpindex];
+		for (tmpindex = 0; tmpindex < rawkeys.size(); ++tmpindex) delete rawkeys[tmpindex];
+	}
+
+	void LiarMaxNodeParse::Write(Liar::GeometryVertexType type,
+		std::vector<Point3>& normals, std::vector<Point2>& texCoords, std::vector<Point3>& colors,
+		std::vector<IIHeapOperator*>& boneIds, std::vector<IFHeapOperator*>& boneWeights, size_t perSkin, FILE* hFile)
+	{
+		switch (type)
+		{
+		case GEOMETRY_VERTEX_TYPE_POSITION_NORMAL:
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_NORMAL, normals, hFile);
+			break;
+		case GEOMETRY_VERTEX_TYPE_POSITION_COLOR:
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_COLOR, colors, hFile);
+			break;
+		case GEOMETRY_VERTEX_TYPE_POSITION_TEXTURE:
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_TEXTURECOORDINATE, texCoords, hFile);
+			break;
+		case GEOMETRY_VERTEX_TYPE_POSITION_NORMAL_COLOR:
+		{
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_NORMAL, normals, hFile);
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_COLOR, colors, hFile);
+			break;
+		}
+		case GEOMETRY_VERTEX_TYPE_POSITION_NORMAL_TEXTURE:
+		{
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_NORMAL, normals, hFile);
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_TEXTURECOORDINATE, texCoords, hFile);
+			break;
+		}
+		case GEOMETRY_VERTEX_TYPE_POSITION_NORMAL_COLOR_TEXTURE:
+		{
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_NORMAL, normals, hFile);
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_COLOR, colors, hFile);
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_TEXTURECOORDINATE, texCoords, hFile);
+			break;
+		}
+		case GEOMETRY_VERTEX_TYPE_POSITION_TEXTURE_SKIN:
+		{
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_TEXTURECOORDINATE, texCoords, hFile);
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_BONE_INDICES, boneIds, perSkin, hFile);
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_BONE_WEIGHTS, boneWeights, perSkin, hFile);
+			break;
+		}
+		case GEOMETRY_VERTEX_TYPE_POSITION_NORMAL_COLOR_SKIN:
+		{
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_NORMAL, normals, hFile);
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_COLOR, colors, hFile);
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_BONE_INDICES, boneIds, perSkin, hFile);
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_BONE_WEIGHTS, boneWeights, perSkin, hFile);
+			break;
+		}
+		case GEOMETRY_VERTEX_TYPE_POSITION_NORMAL_TEXTURE_SKIN:
+		{
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_NORMAL, normals, hFile);
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_TEXTURECOORDINATE, texCoords, hFile);
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_BONE_INDICES, boneIds, perSkin, hFile);
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_BONE_WEIGHTS, boneWeights, perSkin, hFile);
+			break;
+		}
+		case GEOMETRY_VERTEX_TYPE_POSITION_NORMAL_COLOR_TEXTURE_SKIN:
+		{
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_NORMAL, normals, hFile);
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_COLOR, colors, hFile);
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_TEXTURECOORDINATE, texCoords, hFile);
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_BONE_INDICES, boneIds, perSkin, hFile);
+			Write(Liar::VertexElementAttr::ELEMENT_ATTR_BONE_WEIGHTS, boneWeights, perSkin, hFile);
+			break;
+		}
+		}
+	}
+
+	void LiarMaxNodeParse::WriteSkeleon(Liar::LiarPluginCfg* ctr)
+	{
+		if (!ctr->skeleton) return;
+		std::string path = ctr->name;
+		std::string folder, last;
+		Liar::LiarMaxNodeParse::GetHeadAndLast(path, folder, last, "\\");
+		char fullName[MAX_PATH];
+		sprintf_s(fullName, "%s\\%s%s", folder.c_str(), ctr->skeletonName.c_str(), SKELEON_EXT);
+		FILE* hFile = fopen(fullName, "wb");
+		// 长度
+		size_t len = m_bones.size();
+		fwrite(&len, sizeof(int), 1, hFile);
+
+		// 集合数据
+		std::vector<Point3> positions;
+		std::vector<Quat> rotations;
+		std::vector<Point3> scales;
+
+		std::string boneName;
+		std::string parentName;
+		int parentIndex = -1;
+		size_t intSize = sizeof(int);
+		for (size_t i = 0; i < len; ++i)
+		{
+			IGameNode* varGameNode = m_bones[i];
+
+			LiarMaxNodeParse::GetWSTR2Char(varGameNode->GetName(), boneName);
+			IGameNode* parent = varGameNode->GetNodeParent();
+
+			parentIndex = -1;
+			if (parent)
+			{
+				LiarMaxNodeParse::GetWSTR2Char(parent->GetName(), parentName);
+				parentIndex = GetBoneIndex(boneName);
+			}
+
+			GMatrix gm = varGameNode->GetLocalTM(0);
+			Point3 pos = gm.Translation();
+			Quat rota = gm.Rotation();
+			Point3 scale = gm.Scaling();
+
+			// 先写名字
+			Write(boneName, hFile);
+			// 写父骨骼索引
+			fwrite(&parentIndex, intSize, 1, hFile);
+			// 写矩阵信息
+			int posIndex = AddPoint(positions, pos);
+			int rotationIndex = AddPoint(rotations, rota);
+			int scaleIndex = AddPoint(scales, scale);
+
+			fwrite(&posIndex, intSize, 1, hFile);
+			fwrite(&rotationIndex, intSize, 1, hFile);
+			fwrite(&scaleIndex, intSize, 1, hFile);
+		}
+
+		Write(Liar::VertexElementAttr::ELEMENT_ATTR_POSITION, positions, hFile);
+		Write(Liar::VertexElementAttr::ELEMENT_ATTR_ROTATION, rotations, hFile);
+		Write(Liar::VertexElementAttr::ELEMENT_ATTR_SCALE, scales, hFile);
+
 		fclose(hFile);
 	}
 
-	void LiarMaxNodeParse::ParseSkin(Liar::LiarPluginCfg* ctr, IGameMesh* tmpGameMesh)
+	int LiarMaxNodeParse::GetVertsIndex(const std::vector<Point3>& verts, Point3 p)
 	{
-		if (!ctr->exportModifier) return;
+		for (int i = 0; i < verts.size(); ++i)
+		{
+			if (verts[i] == p) return i;
+		}
+		return -1;
+	}
 
-		//判断有没有修改器，有修改器的就是骨骼动画
-		//std::string boneName;
-		//std::string modfierName;
-		//int tmpModifiersNum = tmpGameMesh->GetNumModifiers();
-		//for (int tmpModifierIndex = 0; tmpModifierIndex < tmpModifiersNum; tmpModifierIndex++)
-		//{
-		//	IGameModifier* tmpGameModifier = tmpGameMesh->GetIGameModifier(tmpModifierIndex);
-		//	LiarStructUtil::GetWSTR2Char(tmpGameModifier->GetUIName(), modfierName);
+	int LiarMaxNodeParse::GetBoneIndex(const std::string& boneName)
+	{
+		std::string nodeName;
+		for (int i = 0; i < m_bones.size(); ++i)
+		{
+			LiarMaxNodeParse::GetWSTR2Char(m_bones[i]->GetName(), nodeName);
+			if (nodeName == boneName) return i;
+		}
+		return -1;
+	}
 
-		//	//只处理骨骼动画修改器
-		//	if (tmpGameModifier->IsSkin())
-		//	{
-		//		IGameSkin* tmpGameSkin = (IGameSkin*)tmpGameModifier;
-		//		//int tmpNumOfSkinnedVerts = tmpGameSkin->GetNumOfSkinnedVerts();
+	size_t LiarMaxNodeParse::ParseSkin(std::map<int, std::vector<Point2>>& allSkins, std::vector<Point3>& vec, Liar::LiarPluginCfg* ctr, IGameMesh* tmpGameMesh)
+	{
+		size_t max = 0;
 
-		//		//获取顶点受骨骼影响数
-		//		int vertSum = tmpGameMesh->GetNumberOfVerts();
-		//		for (int i = 0; i < vertSum; ++i)
-		//		{
-		//			//获取当前顶点的骨骼
-		//			size_t type = tmpGameSkin->GetVertexType(i);
-		//			if (type == IGameSkin::IGAME_RIGID)
-		//			{
-		//				INode* bNode = tmpGameSkin->GetBone(i, 0);
-		//				LiarStructUtil::GetWSTR2Char(bNode->GetName(), boneName);
-		//				Liar::LiarBone* liarBone = m_skeleton->GetBone(boneName);
-		//				if (liarBone)
-		//				{
-		//					Liar::LiarAnimSkinDefine* skinDefine = meshData->GetAnimSkinDefine(i, true);
-		//					skinDefine->AddBoneInfo(liarBone->GetId(), 1.0f);
-		//				}
-		//			}
-		//			else //blended
-		//			{
-		//				int boneNum = tmpGameSkin->GetNumberOfBones(i);
-		//				if (boneNum > 0)
-		//				{
-		//					Liar::LiarAnimSkinDefine* skinDefine = meshData->GetAnimSkinDefine(i, true);
-		//					for (int j = 0; j < boneNum; ++j)
-		//					{
-		//						INode* bNode = tmpGameSkin->GetBone(i, j);
-		//						LiarStructUtil::GetWSTR2Char(bNode->GetName(), boneName);
-		//						Liar::LiarBone* liarBone = m_skeleton->GetBone(boneName);
-		//						if (liarBone)
-		//						{
-		//							float weight = tmpGameSkin->GetWeight(i, j);
-		//							skinDefine->AddBoneInfo(liarBone->GetId(), weight);
-		//						}
-		//					}
-		//				}
-		//			}
-		//		}
+		if (ctr->exportModifier && ctr->skin)
+		{
+			//判断有没有修改器，有修改器的就是骨骼动画
+			std::string boneName;
+			std::string modfierName;
+			int tmpModifiersNum = tmpGameMesh->GetNumModifiers();
+			for (int tmpModifierIndex = 0; tmpModifierIndex < tmpModifiersNum; tmpModifierIndex++)
+			{
+				IGameModifier* tmpGameModifier = tmpGameMesh->GetIGameModifier(tmpModifierIndex);
 
-		//	}
-		//}
+				//只处理骨骼动画修改器
+				if (tmpGameModifier->IsSkin())
+				{
+					IGameSkin* tmpGameSkin = (IGameSkin*)tmpGameModifier;
+					//int tmpNumOfSkinnedVerts = tmpGameSkin->GetNumOfSkinnedVerts();
 
+					//获取顶点受骨骼影响数
+					int vertSum = tmpGameMesh->GetNumberOfVerts();
+					for (int i = 0; i < vertSum; ++i)
+					{
+						Point3 pos = tmpGameMesh->GetVertex(i);
+						int posIndex = AddPoint(vec, pos);
+						//获取当前顶点的骨骼
+						std::vector<Point2> info;
+						size_t type = tmpGameSkin->GetVertexType(i);
+						unsigned int curnum = 0;
+						if (type == IGameSkin::IGAME_RIGID)
+						{
+							INode* bNode = tmpGameSkin->GetBone(i, 0);
+							LiarMaxNodeParse::GetWSTR2Char(bNode->GetName(), boneName);
+							int boneIndex = GetBoneIndex(boneName);
+							if (boneIndex >= 0)
+							{
+								Point2 sf;
+								sf.x = boneIndex;
+								sf.y = 1.0f;
+								info.push_back(sf);
+								++curnum;
+							}
+						}
+						else //blended
+						{
+							int boneNum = tmpGameSkin->GetNumberOfBones(i);
+							if (boneNum > 0)
+							{
+								for (int j = 0; j < boneNum; ++j)
+								{
+									INode* bNode = tmpGameSkin->GetBone(i, j);
+									LiarMaxNodeParse::GetWSTR2Char(bNode->GetName(), boneName);
+									int boneIndex = GetBoneIndex(boneName);
+									if (boneIndex >= 0)
+									{
+										float weight = tmpGameSkin->GetWeight(i, j);
+										Point2 sf;
+										sf.x = boneIndex;
+										sf.y = weight;
+										info.push_back(sf);
+										++curnum;
+									}
+								}
+
+								max = curnum > max ? curnum : max;
+							}
+						}
+
+						allSkins[posIndex] = info;
+					}
+
+				}
+			}
+		}
+
+		return max;
 	}
 
 
 	void LiarMaxNodeParse::ParseAnim(Liar::LiarPluginCfg* ctr)
 	{
-		/*if (!ctr->exportAnim) return;
+		if (!ctr->exportAnim) return;
 
 		IGameScene* tmpGameScene = GetIGameInterface();
 		TimeValue tmpTimeValueBegin = tmpGameScene->GetSceneStartTime();
@@ -394,61 +660,89 @@ namespace Liar
 		TimeValue tmpTimeValueTicks = tmpGameScene->GetSceneTicks();
 		int tmpFrameCount = (tmpTimeValueEnd - tmpTimeValueBegin) / tmpTimeValueTicks;
 
-		m_anim = new Liar::LiarSkeletonAnim;
-		m_anim->SetTickPerFrame(tmpTimeValueTicks);
-
+		// 记录
+		std::map<std::string, std::vector<GMatrix>> anis;
+		int trackLen = 0;
 		std::string boneName;
-
-		for (int j = 0; j < m_skeleton->GetBoneSize(); ++j)
+		for (size_t i = 0; i < m_bones.size(); ++i)
 		{
-			Liar::LiarBone* liarBone = m_skeleton->GetBone(j);
-			IGameNode* node = GetMaxNode(liarBone->GetId());
-
-			if (node)
+			IGameNode* node = m_bones[i];
+			LiarMaxNodeParse::GetWSTR2Char(node->GetName(), boneName);
+			std::map<std::string, std::vector<GMatrix>>::iterator it;
+			it = anis.find(boneName);
+			if (it == anis.end())
 			{
-				Liar::LiarTrack* track = m_anim->GetTrack(liarBone->GetId(), true);
-
-				for (int i = 0; i <= tmpFrameCount; ++i)
-				{
-					int nowMS = i*tmpTimeValueTicks;
-					GMatrix gm = node->GetLocalTM(nowMS + tmpTimeValueBegin);
-					Point3 pos = gm.Translation();
-					Quat rota = gm.Rotation();
-					Point3 scale = gm.Scaling();
-
-					if (!Liar::LiarStructUtil::Equal(pos, 0.0f, 0.0f, 0.0f, Liar::EPSILON))
-					{
-						Liar::LiarKeyFrame* keyFrame = track->GetKeyFrame(Liar::LiarVertexAttr::LiarVertexAttr_TRANSFORM, nowMS, true);
-						keyFrame->Set(pos.x, pos.y, pos.z);
-					}
-
-					if (!Liar::LiarStructUtil::Equal(rota, 0.0f, 0.0f, 0.0f, 0.0f, Liar::EPSILON))
-					{
-						Liar::LiarKeyFrame* keyFrame = track->GetKeyFrame(Liar::LiarVertexAttr::LiarVertexAttr_ROTATION, nowMS, true);
-						keyFrame->Set(rota.x, rota.y, rota.z, rota.w);
-					}
-
-					if (!Liar::LiarStructUtil::Equal(scale, 1.0f, 1.0f, 1.0f, Liar::EPSILON))
-					{
-						Liar::LiarKeyFrame* keyFrame = track->GetKeyFrame(Liar::LiarVertexAttr::LiarVertexAttr_SCALE, nowMS, true);
-						keyFrame->Set(scale.x, scale.y, scale.z);
-					}
-
-				}
+				anis[boneName];
+				it = anis.find(boneName);
 			}
-		}*/
-	}
+			std::vector<GMatrix>& vec = it->second;
+			GMatrix tmp;
+			for (int j = 0; j <= tmpFrameCount; ++j)
+			{
+				int nowMS = j*tmpTimeValueTicks;
+				GMatrix gm = node->GetLocalTM(nowMS + tmpTimeValueBegin);
+				if (tmp == gm) continue;
+				tmp = gm;
+				if( j > 0) vec.push_back(gm);
+			}
 
-	IGameNode* LiarMaxNodeParse::GetMaxNode(int bondId)
-	{
-		/*for (std::vector<LiarMaxBone*>::iterator it = m_allBones->begin(); it != m_allBones->end(); ++it)
+			if (vec.size() > 0) ++trackLen;
+			else anis.erase(boneName);
+		}
+
+		std::string path = ctr->name;
+		std::string folder, last;
+		Liar::LiarMaxNodeParse::GetHeadAndLast(path, folder, last, "\\");
+		char fullName[MAX_PATH];
+		sprintf_s(fullName, "%s\\%s%s", folder.c_str(), ctr->animName.c_str(), ANI_EXT);
+		FILE* hFile = fopen(fullName, "wb");
+
+		// 写频率
+		fwrite(&tmpTimeValueTicks, sizeof(int), 1, hFile);
+		// 写长度
+		fwrite(&tmpFrameCount, sizeof(int), 1, hFile);
+		// track 长度
+		fwrite(&trackLen, sizeof(int), 1, hFile);
+
+
+		// 总信息
+		std::vector<Point3> positions;
+		std::vector<Quat> rotations;
+		std::vector<Point3> scales;
+
+		size_t intSize = sizeof(int);
+		std::map<std::string, std::vector<GMatrix>>::iterator iter;
+		for (iter = anis.begin(); iter != anis.end(); ++iter)
 		{
-			if ((*it)->boneId == bondId)
+			const std::string& boneName = iter->first;
+			std::vector<GMatrix>& tracks = iter->second;
+			size_t keyFrameLen = tracks.size();
+			// 骨骼名字
+			Write(boneName, hFile);
+			// keyFrame长度
+			fwrite(&keyFrameLen, intSize, 1, hFile);
+			for (size_t i = 0; i < keyFrameLen; ++i)
 			{
-				return (*it)->node;
+				GMatrix gm = tracks[i];
+				Point3 pos = gm.Translation();
+				Quat rota = gm.Rotation();
+				Point3 scale = gm.Scaling();
+
+				int posIndex = AddPoint(positions, pos);
+				int rotationIndex = AddPoint(rotations, rota);
+				int scaleIndex = AddPoint(scales, scale);
+
+				fwrite(&posIndex, intSize, 1, hFile);
+				fwrite(&rotationIndex, intSize, 1, hFile);
+				fwrite(&scaleIndex, intSize, 1, hFile);
 			}
-		}*/
-		return nullptr;
+		}
+
+		Write(Liar::VertexElementAttr::ELEMENT_ATTR_POSITION, positions, hFile);
+		Write(Liar::VertexElementAttr::ELEMENT_ATTR_ROTATION, rotations, hFile);
+		Write(Liar::VertexElementAttr::ELEMENT_ATTR_SCALE, scales, hFile);
+
+		fclose(hFile);
 	}
 
 	Liar::GeometryVertexType LiarMaxNodeParse::GetVertexType(Liar::LiarPluginCfg* cfg)
@@ -477,13 +771,25 @@ namespace Liar
 		{
 			return Liar::GeometryVertexType::GEOMETRY_VERTEX_TYPE_POSITION_NORMAL_TEXTURE;
 		}
+		else if (cfg->exportModifier && cfg->skin && cfg->textureCoord && !cfg->vertexColor && !cfg->vertexNormal)
+		{
+			return Liar::GeometryVertexType::GEOMETRY_VERTEX_TYPE_POSITION_TEXTURE_SKIN;
+		}
+		else if (cfg->exportModifier && cfg->skin && cfg->vertexNormal && cfg->vertexColor && !cfg->textureCoord)
+		{
+			return Liar::GeometryVertexType::GEOMETRY_VERTEX_TYPE_POSITION_NORMAL_COLOR_SKIN;
+		}
+		else if (cfg->exportModifier && cfg->skin && cfg->vertexNormal && !cfg->vertexColor && cfg->textureCoord)
+		{
+			return Liar::GeometryVertexType::GEOMETRY_VERTEX_TYPE_POSITION_NORMAL_TEXTURE_SKIN;
+		}
 		else
 		{
 			return Liar::GeometryVertexType::GEOMETRY_VERTEX_TYPE_POSITION_NORMAL_COLOR_TEXTURE;
 		}
 	}
 
-	int LiarMaxNodeParse::AddP2(std::vector<Point2>& vec, Point2 p, bool revertYZ)
+	int LiarMaxNodeParse::AddPoint(std::vector<Point2>& vec, Point2 p, bool revertYZ)
 	{
 		if (revertYZ) RevertYZ(p);
 		size_t size = vec.size();
@@ -495,7 +801,7 @@ namespace Liar
 		return static_cast<int>(size);
 	}
 
-	int LiarMaxNodeParse::AddP3(std::vector<Point3>& vec, Point3 p, bool revertYZ)
+	int LiarMaxNodeParse::AddPoint(std::vector<Point3>& vec, Point3 p, bool revertYZ)
 	{
 		if (revertYZ) RevertYZ(p);
 		size_t size = vec.size();
@@ -507,12 +813,45 @@ namespace Liar
 		return static_cast<int>(size);
 	}
 
-	int LiarMaxNodeParse::AddP4(std::vector<Point4>& vec, Point4 p)
+	int LiarMaxNodeParse::AddPoint(std::vector<Point4>& vec, Point4 p)
 	{
 		size_t size = vec.size();
 		for (int i = 0; i < size; ++i)
 		{
 			if (vec[i] == p) return i;
+		}
+		vec.push_back(p);
+		return static_cast<int>(size);
+	}
+
+	int LiarMaxNodeParse::AddPoint(std::vector<Quat>& vec, Quat p)
+	{
+		size_t size = vec.size();
+		for (int i = 0; i < size; ++i)
+		{
+			if (vec[i] == p) return i;
+		}
+		vec.push_back(p);
+		return static_cast<int>(size);
+	}
+
+	int LiarMaxNodeParse::AddPoint(std::vector<IIHeapOperator*>& vec, IIHeapOperator* p)
+	{
+		size_t size = vec.size();
+		for (int i = 0; i < size; ++i)
+		{
+			if ((*(vec[i])) == (*p)) return i;
+		}
+		vec.push_back(p);
+		return static_cast<int>(size);
+	}
+
+	int LiarMaxNodeParse::AddPoint(std::vector<IFHeapOperator*>& vec, IFHeapOperator* p)
+	{
+		size_t size = vec.size();
+		for (int i = 0; i < size; ++i)
+		{
+			if ((*(vec[i])) == (*p)) return i;
 		}
 		vec.push_back(p);
 		return static_cast<int>(size);
@@ -538,7 +877,35 @@ namespace Liar
 		Write(vec, hFile, transInt);
 	}
 
+	void LiarMaxNodeParse::Write(Liar::VertexElementAttr atype, std::vector<Quat>& vec, FILE* hFile)
+	{
+		fwrite(&atype, sizeof(int), 1, hFile);
+		Write(vec, hFile);
+	}
+
+	void LiarMaxNodeParse::Write(Liar::VertexElementAttr atype, std::vector<IIHeapOperator*>& vec, size_t max, FILE* hFile)
+	{
+		size_t blockSize = sizeof(int);
+		fwrite(&atype, blockSize, 1, hFile);
+
+		Write(vec, max, hFile);
+	}
+
+	void LiarMaxNodeParse::Write(Liar::VertexElementAttr atype, std::vector<IFHeapOperator*>& vec, size_t max, FILE* hFile)
+	{
+		size_t blockSize = sizeof(int);
+		fwrite(&atype, blockSize, 1, hFile);
+
+		Write(vec, max, hFile);
+	}
+
 	void LiarMaxNodeParse::Write(Liar::VertexElementAttr atype, std::vector<unsigned int>& vec, FILE* hFile)
+	{
+		fwrite(&atype, sizeof(int), 1, hFile);
+		Write(vec, hFile);
+	}
+
+	void LiarMaxNodeParse::Write(Liar::VertexElementAttr atype, std::vector<float>& vec, FILE* hFile)
 	{
 		fwrite(&atype, sizeof(int), 1, hFile);
 		Write(vec, hFile);
@@ -608,6 +975,64 @@ namespace Liar
 		}
 	}
 
+	void LiarMaxNodeParse::Write(std::vector<Quat>& vec, FILE* hFile)
+	{
+		size_t len = vec.size();
+		fwrite(&len, sizeof(int), 1, hFile);
+		size_t strip = sizeof(float);
+		for (size_t i = 0; i < len; ++i)
+		{
+			float x = vec[i].x;
+			float y = vec[i].y;
+			float z = vec[i].z;
+			float w = vec[i].w;
+			fwrite(&x, strip, 1, hFile);
+			fwrite(&y, strip, 1, hFile);
+			fwrite(&z, strip, 1, hFile);
+			fwrite(&w, strip, 1, hFile);
+		}
+	}
+
+	void LiarMaxNodeParse::Write(std::vector<IIHeapOperator*>& vec, size_t max,  FILE* hFile)
+	{
+		size_t blockSize = sizeof(int);
+		// 单个长度
+		fwrite(&max, blockSize, 1, hFile);
+		// 数组长度
+		size_t len = vec.size();
+		fwrite(&len, blockSize, 1, hFile);
+		blockSize = sizeof(unsigned int);
+		for (size_t i = 0; i < len; ++i)
+		{
+			IIHeapOperator* tmp = vec[i];
+			for (size_t j = 0; j < max; ++j)
+			{
+				int tmpVal = (*tmp)[j];
+				fwrite(&tmpVal, blockSize, 1, hFile);
+			}
+		}
+	}
+
+	void LiarMaxNodeParse::Write(std::vector<IFHeapOperator*>& vec, size_t max, FILE* hFile)
+	{
+		size_t blockSize = sizeof(int);
+		// 单个长度
+		fwrite(&max, blockSize, 1, hFile);
+		// 数组长度
+		size_t len = vec.size();
+		fwrite(&len, blockSize, 1, hFile);
+		blockSize = sizeof(unsigned int);
+		for (size_t i = 0; i < len; ++i)
+		{
+			IFHeapOperator* tmp = vec[i];
+			for (size_t j = 0; j < max; ++j)
+			{
+				float tmpVal = (*tmp)[j];
+				fwrite(&tmpVal, blockSize, 1, hFile);
+			}
+		}
+	}
+
 	void LiarMaxNodeParse::Write(std::vector<int>& vec, FILE* hFile)
 	{
 		size_t len = vec.size();
@@ -622,11 +1047,22 @@ namespace Liar
 	void LiarMaxNodeParse::Write(std::vector<unsigned int>& vec, FILE* hFile)
 	{
 		size_t len = vec.size();
-		fwrite(&len, sizeof(unsigned int), 1, hFile);
+		fwrite(&len, sizeof(int), 1, hFile);
 		for (size_t i = 0; i < len; ++i)
 		{
 			unsigned int x = vec[i];
 			fwrite(&x, sizeof(unsigned int), 1, hFile);
+		}
+	}
+
+	void LiarMaxNodeParse::Write(std::vector<float>& vec, FILE* hFile)
+	{
+		size_t len = vec.size();
+		fwrite(&len, sizeof(int), 1, hFile);
+		for (size_t i = 0; i < len; ++i)
+		{
+			float x = vec[i];
+			fwrite(&x, sizeof(float), 1, hFile);
 		}
 	}
 
