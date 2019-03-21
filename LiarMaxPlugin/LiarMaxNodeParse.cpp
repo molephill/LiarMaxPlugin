@@ -166,45 +166,11 @@ namespace Liar
 		ParseGeometory(ctr, tmpGameMesh, materials, meshSize);
 	}
 
-	IIHeapOperator* LiarMaxNodeParse::NewUintBase(size_t len)
-	{
-		switch (len)
-		{
-		case 1:
-			return new Uint1();
-		case 2:
-			return new Uint2();
-		case 3:
-			return new Uint3();
-		case 4:
-			return new Uint4();
-		case 5:
-			return new Uint5();
-		default:
-			return new Uint6();
-		}
-	}
-
-	IFHeapOperator* LiarMaxNodeParse::NewFloatBase(size_t len)
-	{
-		switch (len)
-		{
-		case 1:
-			return new Float1();
-		case 2:
-			return new Float2();
-		case 3:
-			return new Float3();
-		default:
-			return new Float4();
-		}
-	}
-
 	void LiarMaxNodeParse::ParseSkinInfo(size_t max, Point3 pos, const std::vector<Point3>& vec, std::map<int, std::vector<Point2>>& allSkins,
-		std::vector<IIHeapOperator*>& boneIds, std::vector<IFHeapOperator*>& boneWeights, int& boneIdIndex, int& boneWeithIndex)
+		std::vector<IntHeapOperator*>& boneIds, std::vector<FloatHeapOperator*>& boneWeights, int& boneIdIndex, int& boneWeithIndex)
 	{
-		IIHeapOperator* u = NewUintBase(max);
-		IFHeapOperator* f = NewFloatBase(max);
+		IntHeapOperator* u = new IntHeapOperator(max);
+		FloatHeapOperator* f = new FloatHeapOperator(max);
 
 		for (std::map<int, std::vector<Point2>>::const_iterator iter = allSkins.begin(); iter != allSkins.end(); ++iter)
 		{
@@ -250,9 +216,6 @@ namespace Liar
 		//bool revertYZ = ctr->coordSystemType == IGameConversionManager::CoordSystem::Max3DS ? false : true;
 		bool revertYZ = false;
 
-		// geometry类型
-		Liar::GeometryVertexType type = GetVertexType(ctr);
-
 		std::map<int, std::vector<Point2>> allSkins;
 		std::vector<Point3> tmpPositions;
 		// skin
@@ -264,11 +227,11 @@ namespace Liar
 		std::vector<Point3> normals;
 		std::vector<Point2> texCoords;
 		std::vector<Point3> colors;
-		std::vector<IIHeapOperator*> boneIds;
-		std::vector<IFHeapOperator*> boneWeights;
+		std::vector<IntHeapOperator*> boneIds;
+		std::vector<FloatHeapOperator*> boneWeights;
 		std::vector<unsigned int> indices;
 		std::vector<unsigned int> materialIndics;
-		std::vector<IIHeapOperator*> rawkeys;
+		std::vector<IntHeapOperator*> rawkeys;
 		unsigned int curVetexIndex;
 
 		size_t umax = 1;
@@ -296,7 +259,7 @@ namespace Liar
 				Point3 tmpPositoin = tmpGameMesh->GetVertex(tmpVertexIndex);
 				tmpVertexIndex = AddPoint(positions, tmpPositoin, revertYZ);
 
-				IIHeapOperator* key = NewUintBase(umax);
+				IntHeapOperator* key = new IntHeapOperator(umax);
 				size_t ulen = 0;
 				(*key)[ulen] = tmpVertexIndex;
 				ulen++;
@@ -396,10 +359,12 @@ namespace Liar
 		char fullName[MAX_PATH];
 		sprintf_s(fullName, "%s\\%s", folder.c_str(), meshName.c_str());
 		FILE* hFile = fopen(fullName, "wb");
-		fwrite(&type, sizeof(int), 1, hFile);
+		// geometry类型
+		Liar::GeometryVertexType GeoType = GetVertexType(ctr);
+		fwrite(&GeoType, sizeof(int), 1, hFile);
 		// 顶点类型
 		Write(Liar::VertexElementAttr::ELEMENT_ATTR_POSITION, positions, hFile);
-		Write(type, normals, texCoords, colors, boneIds, boneWeights, perSkin, hFile);
+		Write(GeoType, normals, texCoords, colors, boneIds, boneWeights, perSkin, hFile);
 		// 索引
 		Write(Liar::VertexElementAttr::ELEMENT_ATTR_RAW_KEY, rawkeys, umax, hFile);
 		// 顶点
@@ -421,7 +386,7 @@ namespace Liar
 
 	void LiarMaxNodeParse::Write(Liar::GeometryVertexType type,
 		std::vector<Point3>& normals, std::vector<Point2>& texCoords, std::vector<Point3>& colors,
-		std::vector<IIHeapOperator*>& boneIds, std::vector<IFHeapOperator*>& boneWeights, size_t perSkin, FILE* hFile)
+		std::vector<IntHeapOperator*>& boneIds, std::vector<FloatHeapOperator*>& boneWeights, size_t perSkin, FILE* hFile)
 	{
 		switch (type)
 		{
@@ -751,6 +716,18 @@ namespace Liar
 		{
 			return Liar::GeometryVertexType::GEOMETRY_VERTEX_TYPE_POSITION;
 		}
+		else if (cfg->exportModifier && cfg->skin && cfg->textureCoord && !cfg->vertexColor && !cfg->vertexNormal)
+		{
+			return Liar::GeometryVertexType::GEOMETRY_VERTEX_TYPE_POSITION_TEXTURE_SKIN;
+		}
+		else if (cfg->exportModifier && cfg->skin && cfg->vertexNormal && cfg->vertexColor && !cfg->textureCoord)
+		{
+			return Liar::GeometryVertexType::GEOMETRY_VERTEX_TYPE_POSITION_NORMAL_COLOR_SKIN;
+		}
+		else if (cfg->exportModifier && cfg->skin && cfg->vertexNormal && !cfg->vertexColor && cfg->textureCoord)
+		{
+			return Liar::GeometryVertexType::GEOMETRY_VERTEX_TYPE_POSITION_NORMAL_TEXTURE_SKIN;
+		}
 		else if (cfg->vertexNormal && !cfg->vertexColor && !cfg->textureCoord)
 		{
 			return Liar::GeometryVertexType::GEOMETRY_VERTEX_TYPE_POSITION_NORMAL;
@@ -770,18 +747,6 @@ namespace Liar
 		else if (cfg->vertexNormal && !cfg->vertexColor && cfg->textureCoord)
 		{
 			return Liar::GeometryVertexType::GEOMETRY_VERTEX_TYPE_POSITION_NORMAL_TEXTURE;
-		}
-		else if (cfg->exportModifier && cfg->skin && cfg->textureCoord && !cfg->vertexColor && !cfg->vertexNormal)
-		{
-			return Liar::GeometryVertexType::GEOMETRY_VERTEX_TYPE_POSITION_TEXTURE_SKIN;
-		}
-		else if (cfg->exportModifier && cfg->skin && cfg->vertexNormal && cfg->vertexColor && !cfg->textureCoord)
-		{
-			return Liar::GeometryVertexType::GEOMETRY_VERTEX_TYPE_POSITION_NORMAL_COLOR_SKIN;
-		}
-		else if (cfg->exportModifier && cfg->skin && cfg->vertexNormal && !cfg->vertexColor && cfg->textureCoord)
-		{
-			return Liar::GeometryVertexType::GEOMETRY_VERTEX_TYPE_POSITION_NORMAL_TEXTURE_SKIN;
 		}
 		else
 		{
@@ -835,7 +800,7 @@ namespace Liar
 		return static_cast<int>(size);
 	}
 
-	int LiarMaxNodeParse::AddPoint(std::vector<IIHeapOperator*>& vec, IIHeapOperator* p)
+	int LiarMaxNodeParse::AddPoint(std::vector<IntHeapOperator*>& vec, IntHeapOperator* p)
 	{
 		size_t size = vec.size();
 		for (int i = 0; i < size; ++i)
@@ -846,7 +811,7 @@ namespace Liar
 		return static_cast<int>(size);
 	}
 
-	int LiarMaxNodeParse::AddPoint(std::vector<IFHeapOperator*>& vec, IFHeapOperator* p)
+	int LiarMaxNodeParse::AddPoint(std::vector<FloatHeapOperator*>& vec, FloatHeapOperator* p)
 	{
 		size_t size = vec.size();
 		for (int i = 0; i < size; ++i)
@@ -883,7 +848,7 @@ namespace Liar
 		Write(vec, hFile);
 	}
 
-	void LiarMaxNodeParse::Write(Liar::VertexElementAttr atype, std::vector<IIHeapOperator*>& vec, size_t max, FILE* hFile)
+	void LiarMaxNodeParse::Write(Liar::VertexElementAttr atype, std::vector<IntHeapOperator*>& vec, size_t max, FILE* hFile)
 	{
 		size_t blockSize = sizeof(int);
 		fwrite(&atype, blockSize, 1, hFile);
@@ -891,7 +856,7 @@ namespace Liar
 		Write(vec, max, hFile);
 	}
 
-	void LiarMaxNodeParse::Write(Liar::VertexElementAttr atype, std::vector<IFHeapOperator*>& vec, size_t max, FILE* hFile)
+	void LiarMaxNodeParse::Write(Liar::VertexElementAttr atype, std::vector<FloatHeapOperator*>& vec, size_t max, FILE* hFile)
 	{
 		size_t blockSize = sizeof(int);
 		fwrite(&atype, blockSize, 1, hFile);
@@ -993,7 +958,7 @@ namespace Liar
 		}
 	}
 
-	void LiarMaxNodeParse::Write(std::vector<IIHeapOperator*>& vec, size_t max,  FILE* hFile)
+	void LiarMaxNodeParse::Write(std::vector<IntHeapOperator*>& vec, size_t max,  FILE* hFile)
 	{
 		size_t blockSize = sizeof(int);
 		// 单个长度
@@ -1001,10 +966,10 @@ namespace Liar
 		// 数组长度
 		size_t len = vec.size();
 		fwrite(&len, blockSize, 1, hFile);
-		blockSize = sizeof(unsigned int);
+		blockSize = sizeof(int);
 		for (size_t i = 0; i < len; ++i)
 		{
-			IIHeapOperator* tmp = vec[i];
+			IntHeapOperator* tmp = vec[i];
 			for (size_t j = 0; j < max; ++j)
 			{
 				int tmpVal = (*tmp)[j];
@@ -1013,7 +978,7 @@ namespace Liar
 		}
 	}
 
-	void LiarMaxNodeParse::Write(std::vector<IFHeapOperator*>& vec, size_t max, FILE* hFile)
+	void LiarMaxNodeParse::Write(std::vector<FloatHeapOperator*>& vec, size_t max, FILE* hFile)
 	{
 		size_t blockSize = sizeof(int);
 		// 单个长度
@@ -1021,10 +986,10 @@ namespace Liar
 		// 数组长度
 		size_t len = vec.size();
 		fwrite(&len, blockSize, 1, hFile);
-		blockSize = sizeof(unsigned int);
+		blockSize = sizeof(float);
 		for (size_t i = 0; i < len; ++i)
 		{
-			IFHeapOperator* tmp = vec[i];
+			FloatHeapOperator* tmp = vec[i];
 			for (size_t j = 0; j < max; ++j)
 			{
 				float tmpVal = (*tmp)[j];

@@ -19,321 +19,76 @@
 
 namespace Liar
 {
-	struct IIHeapOperator
+	struct IntHeapOperator
 	{
-		virtual bool operator==(const IIHeapOperator&) const = 0;
-		virtual int operator[](size_t) const = 0;
-		virtual int& operator[](size_t) = 0;
+		IntHeapOperator(int len) :
+			buffer(new int[len]), numbBuffer(len)
+		{
+		};
+
+		~IntHeapOperator()
+		{
+			delete[] buffer;
+		}
+
+		bool operator==(const IntHeapOperator& rhs) const
+		{
+			if (rhs.numbBuffer != numbBuffer) return false;
+			for (int i = 0; i < numbBuffer; ++i)
+			{
+				if (rhs[i] != buffer[i]) return false;
+			}
+			return true;
+		}
+
+		int operator[](size_t index) const
+		{
+			return buffer[index];
+		}
+
+		int& operator[](size_t index)
+		{
+			return buffer[index];
+		}
+
+		int* buffer;
+		int numbBuffer;
 	};
 
-	struct IFHeapOperator
+	struct FloatHeapOperator
 	{
-		virtual bool operator==(const IFHeapOperator&) const = 0;
-		virtual float operator[](size_t) const = 0;
-		virtual float& operator[](size_t) = 0;
-	};
-
-	class Uint1:public IIHeapOperator
-	{
-	public:
-		Uint1(int val1 = 0) :
-			IIHeapOperator(),
-			index1(val1) {};
-
-		virtual bool operator==(const IIHeapOperator& rhs) const
+		FloatHeapOperator(int len) :
+			buffer(new float[len]), numbBuffer(len)
 		{
-			return rhs[0] == index1;
 		};
 
-		virtual int operator[](size_t index) const
+		~FloatHeapOperator()
 		{
-			return (&index1)[index];
-		};
-
-		virtual int& operator[](size_t index)
-		{
-			return (&index1)[index];
-		};
-
-	protected:
-		int index1;
-	};
-
-	class Uint2:public IIHeapOperator
-	{
-	public:
-		Uint2(int val1 = 0, int val2 = 0) :
-			IIHeapOperator(),
-			index1(val1),
-			index2(val2) {};
-
-		virtual bool operator==(const IIHeapOperator& rhs) const
-		{
-			return rhs[0] == index1 && rhs[1] == index2;
-		};
-
-		virtual int operator[](size_t index) const
-		{
-			return (&index1)[index];
-		};
-
-		virtual int& operator[](size_t index)
-		{
-			return (&index1)[index];
-		};
-
-	protected:
-		int index1;
-		int index2;
-	};
-
-	class Uint3 :public IIHeapOperator
-	{
-	public:
-		Uint3(int val1 = 0, int val2 = 0, int val3 = 0) :
-			IIHeapOperator(),
-			index1(val1),
-			index2(val2),
-			index3(val3) {};
-
-		virtual bool operator==(const IIHeapOperator& rhs) const
-		{
-			return rhs[0] == index1 && rhs[1] == index2 && rhs[2] == index3;
+			delete[] buffer;
 		}
 
-		virtual int operator[](size_t index) const
+		bool operator==(const FloatHeapOperator& rhs) const
 		{
-			return (&index1)[index];
-		};
-
-		virtual int& operator[](size_t index)
-		{
-			return (&index1)[index];
-		};
-
-	protected:
-		int index1;
-		int index2;
-		int index3;
-	};
-
-	class Uint4 :public IIHeapOperator
-	{
-	public:
-		Uint4(int val1 = 0, int val2 = 0, int val3 = 0, int val4 = 0) :
-			IIHeapOperator(),
-			index1(val1),
-			index2(val2),
-			index3(val3),
-			index4(val4) {};
-
-		virtual bool operator==(const IIHeapOperator& rhs) const
-		{
-			return rhs[0] == index1 && rhs[1] == index2 && rhs[2] == index3 && rhs[3] == index4;
+			if (rhs.numbBuffer != numbBuffer) return false;
+			for (int i = 0; i < numbBuffer; ++i)
+			{
+				if (rhs[i] != buffer[i]) return false;
+			}
+			return true;
 		}
 
-		virtual int operator[](size_t index) const
+		float operator[](size_t index) const
 		{
-			return (&index1)[index];
-		};
-
-		virtual int& operator[](size_t index)
-		{
-			return (&index1)[index];
-		};
-
-	protected:
-		int index1;
-		int index2;
-		int index3;
-		int index4;
-	};
-
-	class Uint5 :public IIHeapOperator
-	{
-	public:
-		Uint5(int val1 = 0, int val2 = 0, int val3 = 0, int val4 = 0, int val5 = 0) :
-			IIHeapOperator(),
-			index1(val1),
-			index2(val2),
-			index3(val3),
-			index4(val4),
-			index5(val5) {};
-
-		virtual bool operator==(const IIHeapOperator& rhs) const
-		{
-			return rhs[0] == index1 && rhs[1] == index2 && rhs[2] == index3 && rhs[3] == index4 && rhs[4] == index5;
+			return buffer[index];
 		}
 
-		virtual int operator[](size_t index) const
+		float& operator[](size_t index)
 		{
-			return (&index1)[index];
-		};
-
-		virtual int& operator[](size_t index)
-		{
-			return (&index1)[index];
-		};
-
-	protected:
-		int index1;
-		int index2;
-		int index3;
-		int index4;
-		int index5;
-	};
-
-	class Uint6 :public IIHeapOperator
-	{
-	public:
-		Uint6(int val1 = 0, int val2 = 0, int val3 = 0, int val4 = 0, int val5 = 0, int val6 = 0) :
-			IIHeapOperator(),
-			index1(val1),
-			index2(val2),
-			index3(val3),
-			index4(val4),
-			index5(val5),
-			index6(val6) {};
-
-		virtual bool operator==(const IIHeapOperator& rhs) const
-		{
-			return rhs[0] == index1 && rhs[1] == index2 && rhs[2] == index3 && rhs[3] == index4 && rhs[4] && rhs[5] == index6;
-		};
-
-		virtual int operator[](size_t index) const
-		{
-			return (&index1)[index];
-		};
-
-		virtual int& operator[](size_t index)
-		{
-			return (&index1)[index];
-		};
-
-	protected:
-		int index1;
-		int index2;
-		int index3;
-		int index4;
-		int index5;
-		int index6;
-	};
-
-
-	class Float1:public IFHeapOperator
-	{
-	public:
-		Float1(float val1 = 0) :
-			IFHeapOperator(),
-			x(val1) {};
-
-		virtual bool operator==(const IFHeapOperator& rhs) const
-		{
-			return rhs[0] == x;
-		};
-
-		virtual float operator[](size_t index) const
-		{
-			return (&x)[index];
+			return buffer[index];
 		}
 
-		virtual float& operator[](size_t index)
-		{
-			return (&x)[index];
-		}
-
-	protected:
-		float x;
-	};
-
-	class Float2 :public IFHeapOperator
-	{
-	public:
-		Float2(float val1 = 0, float val2 = 0) :
-			IFHeapOperator(),
-			x(val1),
-			y(val2) {};
-
-		virtual bool operator==(const IFHeapOperator& rhs) const
-		{
-			return rhs[0] == x && rhs[1] == y;
-		}
-
-		virtual float operator[](size_t index) const
-		{
-			return (&x)[index];
-		}
-
-		virtual float& operator[](size_t index)
-		{
-			return (&x)[index];
-		}
-
-	protected:
-		float x;
-		float y;
-	};
-
-	class Float3 :public IFHeapOperator
-	{
-	public:
-		Float3(float val1 = 0, float val2 = 0, float val3 = 0) :
-			IFHeapOperator(),
-			x(val1),
-			y(val2),
-			z(val3) {};
-
-		virtual bool operator==(const IFHeapOperator& rhs) const
-		{
-			return rhs[0] == x && rhs[1] == y && rhs[2] == z;
-		}
-
-		virtual float operator[](size_t index) const
-		{
-			return (&x)[index];
-		}
-
-		virtual float& operator[](size_t index)
-		{
-			return (&x)[index];
-		}
-
-	protected:
-		float x;
-		float y;
-		float z;
-	};
-
-	class Float4 :public IFHeapOperator
-	{
-	public:
-		Float4(float val1 = 0, float val2 = 0, float val3 = 0, float val4 = 0) :
-			IFHeapOperator(),
-			x(val1),
-			y(val2),
-			z(val3),
-			w(val4) {};
-
-		virtual bool operator==(const IFHeapOperator& rhs) const
-		{
-			return rhs[0] == x && rhs[1] == y && rhs[2] == z && rhs[3] == w;
-		}
-
-		virtual float operator[](size_t index) const
-		{
-			return (&x)[index];
-		}
-
-		virtual float& operator[](size_t index)
-		{
-			return (&x)[index];
-		}
-
-	protected:
-		float x;
-		float y;
-		float z;
-		float w;
+		float* buffer;
+		int numbBuffer;
 	};
 
 	// 不想引用了，直接复制一份过来，尽量分开
@@ -395,9 +150,7 @@ namespace Liar
 		void ParseAnim(Liar::LiarPluginCfg*);
 
 		// 解析skin信息
-		IIHeapOperator* NewUintBase(size_t);
-		IFHeapOperator* NewFloatBase(size_t);
-		void ParseSkinInfo(size_t, Point3, const std::vector<Point3>&, std::map<int, std::vector<Point2>>&, std::vector<IIHeapOperator*>&, std::vector<IFHeapOperator*>&, int&, int&);
+		void ParseSkinInfo(size_t, Point3, const std::vector<Point3>&, std::map<int, std::vector<Point2>>&, std::vector<IntHeapOperator*>&, std::vector<FloatHeapOperator*>&, int&, int&);
 
 		Liar::GeometryVertexType GetVertexType(Liar::LiarPluginCfg*);
 
@@ -412,8 +165,8 @@ namespace Liar
 		int AddPoint(std::vector<Point3>& vec, Point3, bool revert = false);
 		int AddPoint(std::vector<Point4>& vec, Point4);
 		int AddPoint(std::vector<Quat>&, Quat);
-		int AddPoint(std::vector<IIHeapOperator*>&, IIHeapOperator*);
-		int AddPoint(std::vector<IFHeapOperator*>&, IFHeapOperator*);
+		int AddPoint(std::vector<IntHeapOperator*>&, IntHeapOperator*);
+		int AddPoint(std::vector<FloatHeapOperator*>&, FloatHeapOperator*);
 		void AddBones(IGameNode*);
 
 		// 写数据
@@ -421,8 +174,8 @@ namespace Liar
 		void Write(std::vector<Point3>&, FILE*);
 		void Write(std::vector<Point4>&, FILE*, bool = false);
 		void Write(std::vector<Quat>&, FILE*);
-		void Write(std::vector<IIHeapOperator*>&, size_t, FILE*);
-		void Write(std::vector<IFHeapOperator*>&, size_t, FILE*);
+		void Write(std::vector<IntHeapOperator*>&, size_t, FILE*);
+		void Write(std::vector<FloatHeapOperator*>&, size_t, FILE*);
 		void Write(std::vector<int>&, FILE*);
 		void Write(std::vector<unsigned int>&, FILE*);
 		void Write(std::vector<float>&, FILE*);
@@ -436,13 +189,14 @@ namespace Liar
 		void Write(Liar::VertexElementAttr, std::vector<Point3>&, FILE*);
 		void Write(Liar::VertexElementAttr, std::vector<Point4>&, FILE*);
 		void Write(Liar::VertexElementAttr, std::vector<Quat>&, FILE*);
-		void Write(Liar::VertexElementAttr, std::vector<IIHeapOperator*>&, size_t, FILE*);
-		void Write(Liar::VertexElementAttr, std::vector<IFHeapOperator*>&, size_t, FILE*);
+		void Write(Liar::VertexElementAttr, std::vector<IntHeapOperator*>&, size_t, FILE*);
+		void Write(Liar::VertexElementAttr, std::vector<FloatHeapOperator*>&, size_t, FILE*);
 		void Write(Liar::VertexElementAttr, std::vector<unsigned int>&, FILE*);
 		void Write(Liar::VertexElementAttr, std::vector<float>&, FILE*);
 
 		// 写入可变动的数据
-		void Write(Liar::GeometryVertexType, std::vector<Point3>&, std::vector<Point2>&, std::vector<Point3>&, std::vector<IIHeapOperator*>&, std::vector<IFHeapOperator*>&, size_t, FILE*);
+		void Write(Liar::GeometryVertexType, std::vector<Point3>&, std::vector<Point2>&, std::vector<Point3>&, 
+			std::vector<IntHeapOperator*>&, std::vector<FloatHeapOperator*>&, size_t, FILE*);
 
 		// 写材质
 		void Write(Liar::LiarPluginCfg*, std::vector<IGameMaterial*>&, int meshSize);
