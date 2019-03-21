@@ -961,12 +961,13 @@ namespace Liar
 	void LiarMaxNodeParse::Write(std::vector<IntHeapOperator*>& vec, size_t max,  FILE* hFile)
 	{
 		size_t blockSize = sizeof(int);
-		// 单个长度
-		fwrite(&max, blockSize, 1, hFile);
+
 		// 数组长度
 		size_t len = vec.size();
 		fwrite(&len, blockSize, 1, hFile);
-		blockSize = sizeof(int);
+
+		// 单个长度
+		fwrite(&max, blockSize, 1, hFile);
 		for (size_t i = 0; i < len; ++i)
 		{
 			IntHeapOperator* tmp = vec[i];
@@ -981,11 +982,13 @@ namespace Liar
 	void LiarMaxNodeParse::Write(std::vector<FloatHeapOperator*>& vec, size_t max, FILE* hFile)
 	{
 		size_t blockSize = sizeof(int);
-		// 单个长度
-		fwrite(&max, blockSize, 1, hFile);
+
 		// 数组长度
 		size_t len = vec.size();
 		fwrite(&len, blockSize, 1, hFile);
+
+		// 单个长度
+		fwrite(&max, blockSize, 1, hFile);
 		blockSize = sizeof(float);
 		for (size_t i = 0; i < len; ++i)
 		{
