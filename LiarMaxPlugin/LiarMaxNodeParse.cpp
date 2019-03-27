@@ -166,7 +166,7 @@ namespace Liar
 		ParseGeometory(ctr, tmpGameMesh, materials, meshSize);
 	}
 
-	void LiarMaxNodeParse::ParseSkinInfo(size_t max, Point3 pos, const std::vector<Point3>& vec, std::map<int, std::vector<Point2>>& allSkins,
+	void LiarMaxNodeParse::ParseSkinInfo(int max, Point3 pos, const std::vector<Point3>& vec, std::map<int, std::vector<Point2>>& allSkins,
 		std::vector<IntHeapOperator*>& boneIds, std::vector<FloatHeapOperator*>& boneWeights, int& boneIdIndex, int& boneWeithIndex)
 	{
 		IntHeapOperator* u = new IntHeapOperator(max);
@@ -219,7 +219,7 @@ namespace Liar
 		std::map<int, std::vector<Point2>> allSkins;
 		std::vector<Point3> tmpPositions;
 		// skin
-		size_t perSkin = ParseSkin(allSkins, tmpPositions, ctr, tmpGameMesh);
+		int perSkin = ParseSkin(allSkins, tmpPositions, ctr, tmpGameMesh);
 		perSkin = perSkin > 4 ? 4 : perSkin;
 		size_t skinCount = allSkins.size();
 
@@ -234,7 +234,7 @@ namespace Liar
 		std::vector<IntHeapOperator*> rawkeys;
 		unsigned int curVetexIndex;
 
-		size_t umax = 1;
+		int umax = 1;
 
 		if (ctr->vertexNormal) umax++;
 		if (ctr->vertexColor) umax++;
@@ -261,16 +261,14 @@ namespace Liar
 
 				IntHeapOperator* key = new IntHeapOperator(umax);
 				size_t ulen = 0;
-				(*key)[ulen] = tmpVertexIndex;
-				ulen++;
+				(*key)[ulen++] = tmpVertexIndex;
 
 				//Normal
 				if (ctr->vertexNormal)
 				{
 					tmpNormalIndex = tmpFaceEx->norm[tmpFaceVertexIndex];
 					tmpNormalIndex = AddPoint(normals, tmpGameMesh->GetNormal(tmpNormalIndex), revertYZ);
-					(*key)[ulen] = tmpNormalIndex;
-					ulen++;
+					(*key)[ulen++] = tmpNormalIndex;
 				}
 
 				// color
@@ -278,27 +276,23 @@ namespace Liar
 				{
 					tmpColorIndex = tmpFaceEx->color[tmpFaceVertexIndex];
 					tmpColorIndex = AddPoint(colors, tmpGameMesh->GetColorVertex(tmpColorIndex), revertYZ);
-					(*key)[ulen] = tmpColorIndex;
-					ulen++;
+					(*key)[ulen++] = tmpColorIndex;
 				}
 
 				// uv
 				if (ctr->textureCoord)
 				{
 					tmpUVIndex = tmpFaceEx->texCoord[tmpFaceVertexIndex];
-					tmpUVIndex = AddPoint(texCoords, tmpGameMesh->GetTexVertex(tmpUVIndex), revertYZ);
-					(*key)[ulen] = tmpUVIndex;
-					ulen++;
+					tmpUVIndex = AddPoint(texCoords, tmpGameMesh->GetTexVertex(tmpUVIndex), ctr->revertUV);
+					(*key)[ulen++] = tmpUVIndex;
 				}
 
 				// skin
 				if (ctr->exportModifier && ctr->skin && skinCount > 0)
 				{
 					ParseSkinInfo(perSkin, tmpPositoin, tmpPositions, allSkins, boneIds, boneWeights, tmpBoneIndex, tmpBoneWeightIndex);
-					(*key)[ulen] = tmpBoneIndex;
-					ulen++;
-					(*key)[ulen] = tmpBoneWeightIndex;
-					ulen++;
+					(*key)[ulen++] = tmpBoneIndex;
+					(*key)[ulen++] = tmpBoneWeightIndex;
 				}
 
 				// 顶点索引
@@ -535,9 +529,9 @@ namespace Liar
 		return -1;
 	}
 
-	size_t LiarMaxNodeParse::ParseSkin(std::map<int, std::vector<Point2>>& allSkins, std::vector<Point3>& vec, Liar::LiarPluginCfg* ctr, IGameMesh* tmpGameMesh)
+	int LiarMaxNodeParse::ParseSkin(std::map<int, std::vector<Point2>>& allSkins, std::vector<Point3>& vec, Liar::LiarPluginCfg* ctr, IGameMesh* tmpGameMesh)
 	{
-		size_t max = 0;
+		int max = 0;
 
 		if (ctr->exportModifier && ctr->skin)
 		{
@@ -564,7 +558,7 @@ namespace Liar
 						//获取当前顶点的骨骼
 						std::vector<Point2> info;
 						size_t type = tmpGameSkin->GetVertexType(i);
-						unsigned int curnum = 0;
+						int curnum = 0;
 						if (type == IGameSkin::IGAME_RIGID)
 						{
 							INode* bNode = tmpGameSkin->GetBone(i, 0);

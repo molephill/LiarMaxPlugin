@@ -146,11 +146,11 @@ namespace Liar
 		void ParseGeometory(Liar::LiarPluginCfg*, IGameMesh*, std::vector<IGameMaterial*>&, int&);
 
 		void ParseBones(Liar::LiarPluginCfg*, IGameNode*);
-		size_t ParseSkin(std::map<int, std::vector<Point2>>&, std::vector<Point3>&, Liar::LiarPluginCfg*, IGameMesh*);
+		int ParseSkin(std::map<int, std::vector<Point2>>&, std::vector<Point3>&, Liar::LiarPluginCfg*, IGameMesh*);
 		void ParseAnim(Liar::LiarPluginCfg*);
 
 		// Ω‚Œˆskin–≈œ¢
-		void ParseSkinInfo(size_t, Point3, const std::vector<Point3>&, std::map<int, std::vector<Point2>>&, std::vector<IntHeapOperator*>&, std::vector<FloatHeapOperator*>&, int&, int&);
+		void ParseSkinInfo(int, Point3, const std::vector<Point3>&, std::map<int, std::vector<Point2>>&, std::vector<IntHeapOperator*>&, std::vector<FloatHeapOperator*>&, int&, int&);
 
 		Liar::GeometryVertexType GetVertexType(Liar::LiarPluginCfg*);
 
