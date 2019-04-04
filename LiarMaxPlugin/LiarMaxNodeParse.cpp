@@ -962,6 +962,7 @@ namespace Liar
 
 		// 单个长度
 		fwrite(&max, blockSize, 1, hFile);
+		blockSize = sizeof(float);	//当作float存储,便于读取
 		for (size_t i = 0; i < len; ++i)
 		{
 			IntHeapOperator* tmp = vec[i];
