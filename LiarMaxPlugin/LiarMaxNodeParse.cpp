@@ -167,9 +167,9 @@ namespace Liar
 	}
 
 	void LiarMaxNodeParse::ParseSkinInfo(int max, Point3 pos, const std::vector<Point3>& vec, std::map<int, std::vector<Point2>>& allSkins,
-		std::vector<IntHeapOperator*>& boneIds, std::vector<FloatHeapOperator*>& boneWeights, int& boneIdIndex, int& boneWeithIndex)
+		std::vector<FloatHeapOperator*>& boneIds, std::vector<FloatHeapOperator*>& boneWeights, int& boneIdIndex, int& boneWeithIndex)
 	{
-		IntHeapOperator* u = new IntHeapOperator(max);
+		FloatHeapOperator* u = new FloatHeapOperator(max);
 		FloatHeapOperator* f = new FloatHeapOperator(max);
 
 		for (std::map<int, std::vector<Point2>>::const_iterator iter = allSkins.begin(); iter != allSkins.end(); ++iter)
@@ -184,13 +184,13 @@ namespace Liar
 
 				for (size_t i = 0; i < len; ++i)
 				{
-					(*u)[i] = static_cast<int>(info[i].x);
+					(*u)[i] = info[i].x;
 					(*f)[i] = info[i].y;
 				}
 
 				for (size_t i = len; i < max; ++i)
 				{
-					(*u)[i] = 0;
+					(*u)[i] = 0.0f;
 					(*f)[i] = 0.0f;
 				}
 
@@ -227,7 +227,7 @@ namespace Liar
 		std::vector<Point3> normals;
 		std::vector<Point2> texCoords;
 		std::vector<Point3> colors;
-		std::vector<IntHeapOperator*> boneIds;
+		std::vector<FloatHeapOperator*> boneIds;
 		std::vector<FloatHeapOperator*> boneWeights;
 		std::vector<unsigned int> indices;
 		std::vector<unsigned int> materialIndics;
@@ -380,7 +380,7 @@ namespace Liar
 
 	void LiarMaxNodeParse::Write(Liar::GeometryVertexType type,
 		std::vector<Point3>& normals, std::vector<Point2>& texCoords, std::vector<Point3>& colors,
-		std::vector<IntHeapOperator*>& boneIds, std::vector<FloatHeapOperator*>& boneWeights, size_t perSkin, FILE* hFile)
+		std::vector<FloatHeapOperator*>& boneIds, std::vector<FloatHeapOperator*>& boneWeights, size_t perSkin, FILE* hFile)
 	{
 		switch (type)
 		{
@@ -962,7 +962,6 @@ namespace Liar
 
 		// 单个长度
 		fwrite(&max, blockSize, 1, hFile);
-		blockSize = sizeof(float);	//当作float存储,便于读取
 		for (size_t i = 0; i < len; ++i)
 		{
 			IntHeapOperator* tmp = vec[i];

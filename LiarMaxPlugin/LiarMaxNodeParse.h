@@ -150,7 +150,7 @@ namespace Liar
 		void ParseAnim(Liar::LiarPluginCfg*);
 
 		// 解析skin信息
-		void ParseSkinInfo(int, Point3, const std::vector<Point3>&, std::map<int, std::vector<Point2>>&, std::vector<IntHeapOperator*>&, std::vector<FloatHeapOperator*>&, int&, int&);
+		void ParseSkinInfo(int, Point3, const std::vector<Point3>&, std::map<int, std::vector<Point2>>&, std::vector<FloatHeapOperator*>&, std::vector<FloatHeapOperator*>&, int&, int&);
 
 		Liar::GeometryVertexType GetVertexType(Liar::LiarPluginCfg*);
 
@@ -196,7 +196,7 @@ namespace Liar
 
 		// 写入可变动的数据
 		void Write(Liar::GeometryVertexType, std::vector<Point3>&, std::vector<Point2>&, std::vector<Point3>&, 
-			std::vector<IntHeapOperator*>&, std::vector<FloatHeapOperator*>&, size_t, FILE*);
+			std::vector<FloatHeapOperator*>&, std::vector<FloatHeapOperator*>&, size_t, FILE*);
 
 		// 写材质
 		void Write(Liar::LiarPluginCfg*, std::vector<IGameMaterial*>&, int meshSize);
