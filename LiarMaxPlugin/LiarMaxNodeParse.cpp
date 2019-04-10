@@ -356,19 +356,19 @@ namespace Liar
 		// geometry类型
 		Liar::GeometryVertexType GeoType = GetVertexType(ctr);
 		fwrite(&GeoType, sizeof(int), 1, hFile);
-		// 顶点类型
-		Write(Liar::VertexElementAttr::ELEMENT_ATTR_POSITION, positions, hFile);
-		Write(GeoType, normals, texCoords, colors, boneIds, boneWeights, perSkin, hFile);
-		// 索引
-		Write(Liar::VertexElementAttr::ELEMENT_ATTR_RAW_KEY, rawkeys, umax, hFile);
-		// 顶点
-		Write(Liar::VertexElementAttr::ELEMENT_ATTR_RAW_INDICES, indices, hFile);
 		// 材质引用
 		//Write(Liar::VertexElementAttr::ELEMENT_ATTR_RAW_MTL_INDICES, materialIndics, hFile);
 		size_t mltLen = materialIndics.size();
 		int mltIndex = -1;
 		if (mltLen > 0) mltIndex = materialIndics[0];
 		fwrite(&mltIndex, sizeof(int), 1, hFile);
+		// 顶点类型
+		Write(Liar::VertexElementAttr::ELEMENT_ATTR_POSITION, positions, hFile);
+		Write(GeoType, normals, texCoords, colors, boneIds, boneWeights, perSkin, hFile);
+		// 顶点
+		Write(Liar::VertexElementAttr::ELEMENT_ATTR_RAW_INDICES, indices, hFile);
+		// 索引
+		Write(Liar::VertexElementAttr::ELEMENT_ATTR_RAW_KEY, rawkeys, umax, hFile);
 
 		fclose(hFile);
 
