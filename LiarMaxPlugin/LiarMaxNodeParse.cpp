@@ -447,68 +447,6 @@ namespace Liar
 		}
 	}
 
-	void LiarMaxNodeParse::WriteSkeleon(Liar::LiarPluginCfg* ctr)
-	{
-		if (!ctr->skeleton) return;
-		std::string path = ctr->name;
-		std::string folder, last;
-		Liar::LiarMaxNodeParse::GetHeadAndLast(path, folder, last, "\\");
-		char fullName[MAX_PATH];
-		sprintf_s(fullName, "%s\\%s%s", folder.c_str(), ctr->skeletonName.c_str(), SKELEON_EXT);
-		FILE* hFile = fopen(fullName, "wb");
-		// 长度
-		size_t len = m_bones.size();
-		fwrite(&len, sizeof(int), 1, hFile);
-
-		// 集合数据
-		std::vector<Point3> positions;
-		std::vector<Quat> rotations;
-		std::vector<Point3> scales;
-
-		std::string boneName;
-		std::string parentName;
-		int parentIndex = -1;
-		size_t intSize = sizeof(int);
-		for (size_t i = 0; i < len; ++i)
-		{
-			IGameNode* varGameNode = m_bones[i];
-
-			LiarMaxNodeParse::GetWSTR2Char(varGameNode->GetName(), boneName);
-			IGameNode* parent = varGameNode->GetNodeParent();
-
-			parentIndex = -1;
-			if (parent)
-			{
-				LiarMaxNodeParse::GetWSTR2Char(parent->GetName(), parentName);
-				parentIndex = GetBoneIndex(boneName);
-			}
-
-			GMatrix gm = varGameNode->GetLocalTM(0);
-			Point3 pos = gm.Translation();
-			Quat rota = gm.Rotation();
-			Point3 scale = gm.Scaling();
-
-			// 先写名字
-			Write(boneName, hFile);
-			// 写父骨骼索引
-			fwrite(&parentIndex, intSize, 1, hFile);
-			// 写矩阵信息
-			int posIndex = AddPoint(positions, pos);
-			int rotationIndex = AddPoint(rotations, rota);
-			int scaleIndex = AddPoint(scales, scale);
-
-			fwrite(&posIndex, intSize, 1, hFile);
-			fwrite(&rotationIndex, intSize, 1, hFile);
-			fwrite(&scaleIndex, intSize, 1, hFile);
-		}
-
-		Write(Liar::VertexElementAttr::ELEMENT_ATTR_POSITION, positions, hFile);
-		Write(Liar::VertexElementAttr::ELEMENT_ATTR_ROTATION, rotations, hFile);
-		Write(Liar::VertexElementAttr::ELEMENT_ATTR_SCALE, scales, hFile);
-
-		fclose(hFile);
-	}
-
 	int LiarMaxNodeParse::GetVertsIndex(const std::vector<Point3>& verts, Point3 p)
 	{
 		for (int i = 0; i < verts.size(); ++i)
@@ -608,6 +546,98 @@ namespace Liar
 		return max;
 	}
 
+	void LiarMaxNodeParse::WriteSkeleon(Liar::LiarPluginCfg* ctr)
+	{
+		if (!ctr->skeleton) return;
+		std::string path = ctr->name;
+		std::string folder, last;
+		Liar::LiarMaxNodeParse::GetHeadAndLast(path, folder, last, "\\");
+		char fullName[MAX_PATH];
+		sprintf_s(fullName, "%s\\%s%s", folder.c_str(), ctr->skeletonName.c_str(), SKELEON_EXT);
+		FILE* hFile = fopen(fullName, "wb");
+
+		// 集合数据
+		std::vector<Point3> positions;
+		std::vector<Quat> rotations;
+		std::vector<Point3> scales;
+
+		std::string boneName;
+		std::string parentName;
+		int parentIndex = -1;
+		size_t intSize = sizeof(int);
+		/*IGameScene* tmpGameScene = GetIGameInterface();
+		TimeValue tmpTimeValueBegin = tmpGameScene->GetSceneStartTime();*/
+		TimeValue tmpTimeValueBegin = 0;
+
+		std::map<std::string, Point4> skeleton;
+
+		size_t len = m_bones.size();
+		for (size_t i = 0; i < len; ++i)
+		{
+			IGameNode* varGameNode = m_bones[i];
+
+			LiarMaxNodeParse::GetWSTR2Char(varGameNode->GetName(), boneName);
+			IGameNode* parent = varGameNode->GetNodeParent();
+
+			parentIndex = -1;
+			if (parent)
+			{
+				LiarMaxNodeParse::GetWSTR2Char(parent->GetName(), parentName);
+				parentIndex = GetBoneIndex(boneName);
+			}
+
+			GMatrix gm = varGameNode->GetLocalTM(tmpTimeValueBegin);
+			Point3 pos = gm.Translation();
+			Quat rota = gm.Rotation();
+			Point3 scale = gm.Scaling();
+
+			int posIndex = AddPoint(positions, pos);
+			int rotationIndex = AddPoint(rotations, rota);
+			int scaleIndex = AddPoint(scales, scale);
+
+			Point4 tmpBone;
+			tmpBone.x = parentIndex;
+			tmpBone.y = posIndex;
+			tmpBone.z = rotationIndex;
+			tmpBone.w = scaleIndex;
+
+			std::map<std::string, Point4>::iterator it = skeleton.find(boneName);
+			if (it == skeleton.end())
+			{
+				skeleton.insert(std::pair<std::string, Point4>(boneName, tmpBone));
+			}
+
+		}
+
+		// 先写所有顶点
+		Write(Liar::VertexElementAttr::ELEMENT_ATTR_POSITION, positions, hFile);
+		Write(Liar::VertexElementAttr::ELEMENT_ATTR_ROTATION, rotations, hFile);
+		Write(Liar::VertexElementAttr::ELEMENT_ATTR_SCALE, scales, hFile);
+		// 再写骨骼信息
+		// 长度
+		fwrite(&len, sizeof(int), 1, hFile);
+		std::map<std::string, Point4>::iterator it = skeleton.begin();
+		while (it != skeleton.end())
+		{
+			std::string name = it->first;
+			Point4& key = it->second;
+
+			int pi = static_cast<int>(key.x);
+			int posIndex = static_cast<int>(key.y);
+			int rotationIndex = static_cast<int>(key.z);
+			int scaleIndex = static_cast<int>(key.w);
+
+			Write(name, hFile);
+			fwrite(&pi, intSize, 1, hFile);
+			fwrite(&posIndex, intSize, 1, hFile);
+			fwrite(&rotationIndex, intSize, 1, hFile);
+			fwrite(&scaleIndex, intSize, 1, hFile);
+
+			++it;
+		}
+
+		fclose(hFile);
+	}
 
 	void LiarMaxNodeParse::ParseAnim(Liar::LiarPluginCfg* ctr)
 	{
@@ -619,35 +649,6 @@ namespace Liar
 		TimeValue tmpTimeValueTicks = tmpGameScene->GetSceneTicks();
 		int tmpFrameCount = (tmpTimeValueEnd - tmpTimeValueBegin) / tmpTimeValueTicks;
 
-		// 记录
-		std::map<std::string, std::vector<GMatrix>> anis;
-		int trackLen = 0;
-		std::string boneName;
-		for (size_t i = 0; i < m_bones.size(); ++i)
-		{
-			IGameNode* node = m_bones[i];
-			LiarMaxNodeParse::GetWSTR2Char(node->GetName(), boneName);
-			std::map<std::string, std::vector<GMatrix>>::iterator it;
-			it = anis.find(boneName);
-			if (it == anis.end())
-			{
-				anis[boneName];
-				it = anis.find(boneName);
-			}
-			std::vector<GMatrix>& vec = it->second;
-			GMatrix tmp;
-			for (int j = 0; j <= tmpFrameCount; ++j)
-			{
-				int nowMS = j*tmpTimeValueTicks;
-				GMatrix gm = node->GetLocalTM(nowMS + tmpTimeValueBegin);
-				if (tmp == gm) continue;
-				tmp = gm;
-				if( j > 0) vec.push_back(gm);
-			}
-
-			if (vec.size() > 0) ++trackLen;
-			else anis.erase(boneName);
-		}
 
 		std::string path = ctr->name;
 		std::string folder, last;
@@ -656,33 +657,27 @@ namespace Liar
 		sprintf_s(fullName, "%s\\%s%s", folder.c_str(), ctr->animName.c_str(), ANI_EXT);
 		FILE* hFile = fopen(fullName, "wb");
 
-		// 写频率
-		fwrite(&tmpTimeValueTicks, sizeof(int), 1, hFile);
-		// 写长度
-		fwrite(&tmpFrameCount, sizeof(int), 1, hFile);
-		// track 长度
-		fwrite(&trackLen, sizeof(int), 1, hFile);
-
-
 		// 总信息
 		std::vector<Point3> positions;
 		std::vector<Quat> rotations;
 		std::vector<Point3> scales;
 
-		size_t intSize = sizeof(int);
-		std::map<std::string, std::vector<GMatrix>>::iterator iter;
-		for (iter = anis.begin(); iter != anis.end(); ++iter)
+		// 初始信息
+		std::map<std::string, std::vector<Point4>> frameKeys;
+		std::vector<std::string> keyNames;
+		std::string boneName;
+		// track
+		for (size_t i = 0; i < tmpFrameCount; ++i)
 		{
-			const std::string& boneName = iter->first;
-			std::vector<GMatrix>& tracks = iter->second;
-			size_t keyFrameLen = tracks.size();
-			// 骨骼名字
-			Write(boneName, hFile);
-			// keyFrame长度
-			fwrite(&keyFrameLen, intSize, 1, hFile);
-			for (size_t i = 0; i < keyFrameLen; ++i)
+			int nowMS = tmpTimeValueBegin + i*tmpTimeValueTicks;
+			// keyFrame
+			for (size_t j = 0; j < m_bones.size(); ++j)
 			{
-				GMatrix gm = tracks[i];
+				IGameNode* node = m_bones[j];
+				LiarMaxNodeParse::GetWSTR2Char(node->GetName(), boneName);
+
+				GMatrix gm = node->GetLocalTM(nowMS);
+
 				Point3 pos = gm.Translation();
 				Quat rota = gm.Rotation();
 				Point3 scale = gm.Scaling();
@@ -691,15 +686,72 @@ namespace Liar
 				int rotationIndex = AddPoint(rotations, rota);
 				int scaleIndex = AddPoint(scales, scale);
 
+				Point4 tmpKey;
+				tmpKey.x = posIndex;
+				tmpKey.y = rotationIndex;
+				tmpKey.z = scaleIndex;
+				tmpKey.w = i;
+
+				std::map<std::string, std::vector<Point4>>::iterator it = frameKeys.find(boneName);
+				bool insertName = false;
+
+				if (it == frameKeys.end())
+				{
+					std::vector<Point4> frames;
+					frames.push_back(tmpKey);
+					frameKeys.insert(std::pair<std::string, std::vector<Point4>>(boneName, frames));
+					insertName = true;
+				}
+				else
+				{
+					std::vector<Point4>& frames = it->second;
+					Point4& last = frames[frames.size() - 1];
+					if (last.x != posIndex && last.y != rotationIndex && last.z != scaleIndex)
+					{
+						frames.push_back(tmpKey);
+						insertName = true;
+					}
+				}
+				
+				if (insertName)
+				{
+					std::vector<std::string>::iterator iter = std::find(keyNames.begin(), keyNames.end(), boneName);
+					if (iter == keyNames.end()) keyNames.push_back(boneName);
+				}
+			}
+
+		}
+
+		// 写所有顶点信息
+		Write(Liar::VertexElementAttr::ELEMENT_ATTR_POSITION, positions, hFile);
+		Write(Liar::VertexElementAttr::ELEMENT_ATTR_ROTATION, rotations, hFile);
+		Write(Liar::VertexElementAttr::ELEMENT_ATTR_SCALE, scales, hFile);
+		// 写骨骼变化信息
+		size_t intSize = sizeof(int);
+		fwrite(&tmpFrameCount, intSize, 1, hFile);
+		size_t len = keyNames.size();
+		fwrite(&len, intSize, 1, hFile);
+		for (size_t i = 0; i < len; ++i)
+		{
+			boneName = keyNames[i];
+			Write(boneName, hFile);
+			std::map<std::string, std::vector<Point4>>::iterator it = frameKeys.find(boneName);
+			std::vector<Point4>& frames = it->second;
+			size_t frameLen = frames.size();
+			fwrite(&frameLen, intSize, 1, hFile);
+			for (size_t j = 0; j < frameLen; ++j)
+			{
+				Point4& key = frames[j];
+				int frameIndex = static_cast<int>(key.w);
+				int posIndex = static_cast<int>(key.x);
+				int rotationIndex = static_cast<int>(key.y);
+				int scaleIndex = static_cast<int>(key.z);
+				fwrite(&frameIndex, intSize, 1, hFile);
 				fwrite(&posIndex, intSize, 1, hFile);
 				fwrite(&rotationIndex, intSize, 1, hFile);
 				fwrite(&scaleIndex, intSize, 1, hFile);
 			}
 		}
-
-		Write(Liar::VertexElementAttr::ELEMENT_ATTR_POSITION, positions, hFile);
-		Write(Liar::VertexElementAttr::ELEMENT_ATTR_ROTATION, rotations, hFile);
-		Write(Liar::VertexElementAttr::ELEMENT_ATTR_SCALE, scales, hFile);
 
 		fclose(hFile);
 	}
